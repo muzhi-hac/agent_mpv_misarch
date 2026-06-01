@@ -46,7 +46,7 @@ func (c *Client) Do(
 		Variables: variables,
 	})
 	if err != nil {
-		fmt.Errorf("marshal graphql request: %w", err)
+		return fmt.Errorf("marshal graphql request: %w", err)
 	}
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, c.endpoint, bytes.NewReader(body))
@@ -67,7 +67,7 @@ func (c *Client) Do(
 			response.StatusCode,
 		)
 	}
-	return decodeResponse(request.Body, out)
+	return decodeResponse(response.Body, out)
 }
 func decodeResponse(body io.Reader, out any) error {
 	var response GraphQLResponse

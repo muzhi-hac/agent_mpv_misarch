@@ -40,7 +40,7 @@ func TestClientDoSuccess(t *testing.T) {
 		} `json:"product"`
 	}
 
-	err := client.Do(context.Background(), "query Product {product{name}}", nil, &got)
+	err := client.Do(context.Background(), "query Product { product { name } }", nil, &got)
 	if err != nil {
 		t.Fatalf("Do() returned error: %v", err)
 	}
