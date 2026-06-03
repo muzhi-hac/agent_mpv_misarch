@@ -15,6 +15,7 @@ import (
 	"misarch-agent-gateway-go/internal/httpserver"
 	"misarch-agent-gateway-go/internal/mcpserver"
 	"misarch-agent-gateway-go/internal/misarch"
+	"misarch-agent-gateway-go/internal/order"
 )
 
 func main() {
@@ -29,10 +30,24 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	graphQLClient := misarch.NewClient(cfg.GraphQLEndpoint, cfg.GraphQLTimeout)
+	clientOptions := []misarch.ClientOption{}
+	if cfg.Auth.Enabled {
+		tokenSource := misarch.NewPasswordTokenSource(
+			cfg.Auth.TokenURL,
+			cfg.Auth.ClientID,
+			cfg.Auth.Username,
+			cfg.Auth.Password,
+			cfg.GraphQLTimeout,
+		)
+		clientOptions = append(clientOptions, misarch.WithTokenSource(tokenSource))
+	}
+
+	graphQLClient := misarch.NewClient(cfg.GraphQLEndpoint, cfg.GraphQLTimeout, clientOptions...)
 	catalogService := catalog.NewService(graphQLClient)
+	orderService := order.NewService(graphQLClient)
 
 	mcpServer := mcpserver.New(catalogService)
+	mcpserver.RegisterOrderTools(mcpServer, orderService)
 	mcpHandler := mcpserver.NewHTTPHandler(mcpServer)
 	handler := httpserver.NewHandler(mcpHandler, graphQLClient)
 

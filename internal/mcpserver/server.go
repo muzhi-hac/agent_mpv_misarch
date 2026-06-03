@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"misarch-agent-gateway-go/internal/catalog"
+	"misarch-agent-gateway-go/internal/order"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -15,6 +16,13 @@ type CatalogService interface {
 	ListProducts(ctx context.Context, topK int) (catalog.ListProductsOutput, error)
 
 	GetProduct(ctx context.Context, productID string) (catalog.GetProductOutput, error)
+}
+
+type OrderService interface {
+	CreatePendingOrder(
+		ctx context.Context,
+		input order.CreatePendingOrderInput,
+	) (order.CreatePendingOrderOutput, error)
 }
 
 type ListProductsInput struct {
@@ -57,6 +65,7 @@ func registerTools(server *mcp.Server, service CatalogService) {
 		},
 		handleGetProduct(service),
 	)
+
 }
 
 func handleListProducts(service CatalogService) func(
@@ -86,6 +95,33 @@ func handleGetProduct(service CatalogService) func(
 		input GetProductInput,
 	) (*mcp.CallToolResult, catalog.GetProductOutput, error) {
 		output, err := service.GetProduct(ctx, input.ProductID)
+
+		return nil, output, err
+	}
+}
+
+func RegisterOrderTools(server *mcp.Server, service OrderService) {
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "create_pending_order",
+			Description: "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+		},
+		handleCreatePendingOrder(service),
+	)
+}
+
+func handleCreatePendingOrder(service OrderService) func(
+	context.Context,
+	*mcp.CallToolRequest,
+	order.CreatePendingOrderInput,
+) (*mcp.CallToolResult, order.CreatePendingOrderOutput, error) {
+	return func(
+		ctx context.Context,
+		_ *mcp.CallToolRequest,
+		input order.CreatePendingOrderInput,
+	) (*mcp.CallToolResult, order.CreatePendingOrderOutput, error) {
+		output, err := service.CreatePendingOrder(ctx, input)
 
 		return nil, output, err
 	}

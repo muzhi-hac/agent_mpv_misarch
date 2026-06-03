@@ -1,0 +1,347 @@
+{
+  "created_at": "2026-06-02T21:20:02+00:00",
+  "duration_ms": 625.4,
+  "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+  "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+  "product_name": "MCP Demo Album 20260602211822",
+  "checks": {
+    "graphql_product_found": true,
+    "graphql_product_name_matches": true,
+    "graphql_inventory_count_is_100": true,
+    "graphql_list_contains_product": true,
+    "mcp_tools_available": true,
+    "mcp_list_contains_product": true,
+    "mcp_get_product_found": true,
+    "mcp_get_product_name_matches": true,
+    "mcp_side_effects_read_only": true,
+    "all_passed": true
+  },
+  "graphql_product": {
+    "data": {
+      "product": {
+        "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+        "isPubliclyVisible": true,
+        "defaultVariant": {
+          "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+          "isPubliclyVisible": true,
+          "inventoryCount": 100,
+          "currentVersion": {
+            "id": "fd4f15b3-6923-4265-949f-7a91503e83e9",
+            "name": "MCP Demo Album 20260602211822",
+            "description": "Added from GCP product-data test at 20260602211822 UTC",
+            "retailPrice": 42,
+            "weight": 0.7,
+            "taxRate": {
+              "id": "fd656318-91ab-4e91-8546-2fbb34a2899f",
+              "name": "VAT",
+              "currentVersion": {
+                "rate": 19
+              }
+            }
+          }
+        },
+        "categories": {
+          "nodes": [
+            {
+              "id": "d5b1ff06-d194-4f8e-ad4a-7da4362dcaf6",
+              "name": "CDs"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "graphql_list": {
+    "data": {
+      "products": {
+        "totalCount": 2,
+        "nodes": [
+          {
+            "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+            "defaultVariant": {
+              "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+              "currentVersion": {
+                "name": "MCP Demo Album 20260602211822",
+                "retailPrice": 42,
+                "description": "Added from GCP product-data test at 20260602211822 UTC"
+              }
+            },
+            "categories": {
+              "nodes": [
+                {
+                  "id": "d5b1ff06-d194-4f8e-ad4a-7da4362dcaf6",
+                  "name": "CDs"
+                }
+              ]
+            }
+          },
+          {
+            "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "defaultVariant": {
+              "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+              "currentVersion": {
+                "name": "POP 2025",
+                "retailPrice": 20,
+                "description": "POP 2025"
+              }
+            },
+            "categories": {
+              "nodes": [
+                {
+                  "id": "d5b1ff06-d194-4f8e-ad4a-7da4362dcaf6",
+                  "name": "CDs"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "mcp_tools": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "product_id": {
+                "type": "string",
+                "description": "MiSArch product UUID returned by list_products"
+              }
+            },
+            "required": [
+              "product_id"
+            ],
+            "additionalProperties": false
+          },
+          "name": "get_product",
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "found": {
+                "type": "boolean"
+              },
+              "product": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "product_id": {
+                    "type": "string"
+                  },
+                  "variant_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "retail_price_cents": {
+                    "type": "integer"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": [
+                      "null",
+                      "array"
+                    ],
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "product_id",
+                  "variant_id",
+                  "name",
+                  "description",
+                  "retail_price_cents",
+                  "currency",
+                  "categories"
+                ],
+                "additionalProperties": false
+              },
+              "source_service": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "string"
+              },
+              "side_effects": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "found",
+              "source_service",
+              "runtime",
+              "side_effects"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "top_k": {
+                "type": "integer",
+                "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+              }
+            },
+            "additionalProperties": false
+          },
+          "name": "list_products",
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "products": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "returned_count": {
+                "type": "integer"
+              },
+              "source_service": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "string"
+              },
+              "side_effects": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "products",
+              "returned_count",
+              "source_service",
+              "runtime",
+              "side_effects"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ]
+    }
+  },
+  "mcp_list_products": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"products\":[{\"categories\":[\"CDs\"],\"currency\":\"EUR\",\"name\":\"MCP Demo Album 20260602211822\",\"product_id\":\"cddaa9d1-3364-47e6-868d-ba6c8aa134e0\",\"retail_price_cents\":42,\"variant_id\":\"2fa6849a-1ade-42d1-8867-8a6742d5b501\"},{\"categories\":[\"CDs\"],\"currency\":\"EUR\",\"name\":\"POP 2025\",\"product_id\":\"cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b\",\"retail_price_cents\":20,\"variant_id\":\"e8fd8dab-a592-430c-a659-880ad4d6d2ef\"}],\"returned_count\":2,\"runtime\":\"misarch-graphql-gateway\",\"side_effects\":\"none (read-only)\",\"source_service\":\"catalog\"}"
+        }
+      ],
+      "structuredContent": {
+        "products": [
+          {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "name": "MCP Demo Album 20260602211822",
+            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+            "retail_price_cents": 42,
+            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          },
+          {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          }
+        ],
+        "returned_count": 2,
+        "runtime": "misarch-graphql-gateway",
+        "side_effects": "none (read-only)",
+        "source_service": "catalog"
+      }
+    }
+  },
+  "mcp_get_product": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"found\":true,\"product\":{\"categories\":[\"CDs\"],\"currency\":\"EUR\",\"description\":\"Added from GCP product-data test at 20260602211822 UTC\",\"name\":\"MCP Demo Album 20260602211822\",\"product_id\":\"cddaa9d1-3364-47e6-868d-ba6c8aa134e0\",\"retail_price_cents\":42,\"variant_id\":\"2fa6849a-1ade-42d1-8867-8a6742d5b501\"},\"runtime\":\"misarch-graphql-gateway\",\"side_effects\":\"none (read-only)\",\"source_service\":\"catalog\"}"
+        }
+      ],
+      "structuredContent": {
+        "found": true,
+        "product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "Added from GCP product-data test at 20260602211822 UTC",
+          "name": "MCP Demo Album 20260602211822",
+          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+          "retail_price_cents": 42,
+          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+        },
+        "runtime": "misarch-graphql-gateway",
+        "side_effects": "none (read-only)",
+        "source_service": "catalog"
+      }
+    }
+  }
+}

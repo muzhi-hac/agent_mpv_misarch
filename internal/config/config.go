@@ -17,6 +17,15 @@ type Config struct {
 	HTTPAddr        string
 	GraphQLEndpoint string
 	GraphQLTimeout  time.Duration
+	Auth            AuthConfig
+}
+
+type AuthConfig struct {
+	Enabled  bool
+	TokenURL string
+	ClientID string
+	Username string
+	Password string
 }
 
 func Load() (Config, error) {
@@ -32,10 +41,16 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 
+	auth, err := loadAuthConfig()
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		HTTPAddr:        envOrDefault("HTTP_ADDR", defaultHTTPAddr),
 		GraphQLEndpoint: endpoint,
 		GraphQLTimeout:  timeout,
+		Auth:            auth,
 	}, nil
 
 }
@@ -72,4 +87,31 @@ func validateEndpoint(raw string) error {
 		return fmt.Errorf("graphql endpoint must include a host: %q", raw)
 	}
 	return nil
+}
+
+func loadAuthConfig() (AuthConfig, error) {
+	tokenURL := os.Getenv("MISARCH_KEYCLOAK_TOKEN_URL")
+	clientID := os.Getenv("MISARCH_KEYCLOAK_CLIENT_ID")
+	username := os.Getenv("MISARCH_KEYCLOAK_USERNAME")
+	password := os.Getenv("MISARCH_KEYCLOAK_PASSWORD")
+
+	if tokenURL == "" && clientID == "" && username == "" && password == "" {
+		return AuthConfig{}, nil
+	}
+
+	if tokenURL == "" || clientID == "" || username == "" || password == "" {
+		return AuthConfig{}, fmt.Errorf("MISARCH_KEYCLOAK_TOKEN_URL, MISARCH_KEYCLOAK_CLIENT_ID, MISARCH_KEYCLOAK_USERNAME, and MISARCH_KEYCLOAK_PASSWORD must be set together")
+	}
+
+	if err := validateEndpoint(tokenURL); err != nil {
+		return AuthConfig{}, fmt.Errorf("validate keycloak token URL: %w", err)
+	}
+
+	return AuthConfig{
+		Enabled:  true,
+		TokenURL: tokenURL,
+		ClientID: clientID,
+		Username: username,
+		Password: password,
+	}, nil
 }

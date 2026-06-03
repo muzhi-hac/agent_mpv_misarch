@@ -1,0 +1,475 @@
+{
+  "created_at": "2026-06-02T21:37:56+00:00",
+  "seed_id": "20260602213446",
+  "duration_ms": 1328.96,
+  "checks": {
+    "seed_created_100_products": true,
+    "seed_created_10_categories": true,
+    "graphql_total_products_at_least_102": true,
+    "graphql_total_categories_at_least_11": true,
+    "all_seed_categories_visible": true,
+    "all_seed_products_visible_in_graphql_first_150": true,
+    "graphql_first_product_inventory_matches": true,
+    "graphql_last_product_inventory_matches": true,
+    "mcp_tools_available": true,
+    "mcp_list_returns_10_products": true,
+    "mcp_first_product_found": true,
+    "mcp_last_product_found": true,
+    "mcp_first_product_name_matches": true,
+    "mcp_last_product_name_matches": true,
+    "mcp_side_effects_read_only": true,
+    "all_passed": true
+  },
+  "counts": {
+    "graphql_total_products": 102,
+    "graphql_total_categories": 11,
+    "seed_products_visible_in_graphql_first_150": 100
+  },
+  "category_distribution_in_first_150_products": {
+    "Beauty & Personal Care": 10,
+    "Books & Stationery": 10,
+    "CDs": 2,
+    "Electronics & Gadgets": 10,
+    "Fashion & Apparel": 10,
+    "Grocery & Gourmet": 10,
+    "Home & Kitchen": 10,
+    "Office & Productivity": 10,
+    "Pet Supplies": 10,
+    "Sports & Outdoors": 10,
+    "Toys & Games": 10
+  },
+  "seed_file": "/Users/wang/Desktop/TUB2025sose/misarch-agent-gateway-go/eval/gcp_seed_realistic_catalog_20260602213446.json",
+  "first_seed_product": {
+    "product_id": "d171dc15-6379-4479-bccc-859835ebd61d",
+    "variant_id": "fce86a6b-3d7b-4eb2-a981-8d2eccfbc573",
+    "version_id": "bcb5fe09-5412-438c-8daa-843130d1ebde",
+    "name": "Aurora Wireless Noise-Cancelling Headphones",
+    "description": "Over-ear Bluetooth headphones with active noise cancellation and 40 hour battery life.",
+    "category": "Electronics & Gadgets",
+    "product_type": "Audio",
+    "retail_price_cents": 12999,
+    "weight": 0.35,
+    "stock_created": 80,
+    "inventory_count_after_restock": 80,
+    "internal_name": "SEED-20260602213446-001-AURORA-WIRELESS-NOISE-CANCELLING-HEADPHONES"
+  },
+  "last_seed_product": {
+    "product_id": "553ee082-033b-4219-9e5d-16e7d22d6e58",
+    "variant_id": "d04b6413-88e4-43b8-8921-11456a10d5ee",
+    "version_id": "d83d4f43-72c0-45af-a3ee-8e9fa910e152",
+    "name": "Aquarium Care Starter Kit",
+    "description": "Basic water care tools for small aquariums.",
+    "category": "Pet Supplies",
+    "product_type": "Aquatic Supplies",
+    "retail_price_cents": 2499,
+    "weight": 0.7,
+    "stock_created": 80,
+    "inventory_count_after_restock": 80,
+    "internal_name": "SEED-20260602213446-100-AQUARIUM-CARE-STARTER-KIT"
+  },
+  "graphql_first_product": {
+    "data": {
+      "product": {
+        "id": "d171dc15-6379-4479-bccc-859835ebd61d",
+        "defaultVariant": {
+          "id": "fce86a6b-3d7b-4eb2-a981-8d2eccfbc573",
+          "inventoryCount": 80,
+          "currentVersion": {
+            "name": "Aurora Wireless Noise-Cancelling Headphones",
+            "description": "Over-ear Bluetooth headphones with active noise cancellation and 40 hour battery life.",
+            "retailPrice": 12999,
+            "weight": 0.35
+          }
+        },
+        "categories": {
+          "nodes": [
+            {
+              "id": "356318b0-257a-4463-beb5-0423aa493f0f",
+              "name": "Electronics & Gadgets"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "graphql_last_product": {
+    "data": {
+      "product": {
+        "id": "553ee082-033b-4219-9e5d-16e7d22d6e58",
+        "defaultVariant": {
+          "id": "d04b6413-88e4-43b8-8921-11456a10d5ee",
+          "inventoryCount": 80,
+          "currentVersion": {
+            "name": "Aquarium Care Starter Kit",
+            "description": "Basic water care tools for small aquariums.",
+            "retailPrice": 2499,
+            "weight": 0.7
+          }
+        },
+        "categories": {
+          "nodes": [
+            {
+              "id": "d929953a-344f-4413-a844-ea89b4aa3541",
+              "name": "Pet Supplies"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "mcp_tools": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "tools": [
+        {
+          "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "product_id": {
+                "type": "string",
+                "description": "MiSArch product UUID returned by list_products"
+              }
+            },
+            "required": [
+              "product_id"
+            ],
+            "additionalProperties": false
+          },
+          "name": "get_product",
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "found": {
+                "type": "boolean"
+              },
+              "product": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "product_id": {
+                    "type": "string"
+                  },
+                  "variant_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "retail_price_cents": {
+                    "type": "integer"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": [
+                      "null",
+                      "array"
+                    ],
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "product_id",
+                  "variant_id",
+                  "name",
+                  "description",
+                  "retail_price_cents",
+                  "currency",
+                  "categories"
+                ],
+                "additionalProperties": false
+              },
+              "source_service": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "string"
+              },
+              "side_effects": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "found",
+              "source_service",
+              "runtime",
+              "side_effects"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "top_k": {
+                "type": "integer",
+                "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+              }
+            },
+            "additionalProperties": false
+          },
+          "name": "list_products",
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "products": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "returned_count": {
+                "type": "integer"
+              },
+              "source_service": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "string"
+              },
+              "side_effects": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "products",
+              "returned_count",
+              "source_service",
+              "runtime",
+              "side_effects"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ]
+    }
+  },
+  "mcp_list_products": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"products\":[{\"categories\":[\"Electronics \\u0026 Gadgets\"],\"currency\":\"EUR\",\"name\":\"HomeLink Smart Plug Twin Pack\",\"product_id\":\"0418eaa4-4621-427a-824b-0051097bd602\",\"retail_price_cents\":2799,\"variant_id\":\"934b29e0-4280-4c04-af2d-59d4625f8f3f\"},{\"categories\":[\"Pet Supplies\"],\"currency\":\"EUR\",\"name\":\"Crunchy Chicken Dog Treats 500g\",\"product_id\":\"057fcca5-149d-4de8-ac46-ab836e57400d\",\"retail_price_cents\":799,\"variant_id\":\"a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9\"},{\"categories\":[\"Office \\u0026 Productivity\"],\"currency\":\"EUR\",\"name\":\"FocusFlow Desk Pad\",\"product_id\":\"0c5a57d4-caff-43aa-a27e-8911f80c01c2\",\"retail_price_cents\":1999,\"variant_id\":\"c1c958e6-2fda-4337-a987-d2d582235090\"},{\"categories\":[\"Office \\u0026 Productivity\"],\"currency\":\"EUR\",\"name\":\"Dual Monitor Arm\",\"product_id\":\"0f8933bc-e639-4222-adfc-0eba2521f452\",\"retail_price_cents\":11999,\"variant_id\":\"cd19ac32-9d83-4eab-abec-3932090340ee\"},{\"categories\":[\"Electronics \\u0026 Gadgets\"],\"currency\":\"EUR\",\"name\":\"MetroFit Smart Fitness Band\",\"product_id\":\"0f929d65-c322-4bc1-b9f3-ad0a2ca413a9\",\"retail_price_cents\":5999,\"variant_id\":\"f68f23d8-5213-47d7-9091-e5d5b69a385d\"},{\"categories\":[\"Pet Supplies\"],\"currency\":\"EUR\",\"name\":\"TangleFree Pet Grooming Brush\",\"product_id\":\"0fc0337a-4332-47fd-ac8a-1a932f2d45bc\",\"retail_price_cents\":1299,\"variant_id\":\"e719641f-7885-47a1-827b-6bb11709d151\"},{\"categories\":[\"Home \\u0026 Kitchen\"],\"currency\":\"EUR\",\"name\":\"AromaBrew French Press 1L\",\"product_id\":\"10308c5a-7067-4d57-ad7c-3102bf481aa8\",\"retail_price_cents\":2499,\"variant_id\":\"d5e55391-f785-4ac6-a63d-cf9f00054f41\"},{\"categories\":[\"Fashion \\u0026 Apparel\"],\"currency\":\"EUR\",\"name\":\"Everyday Crew Socks 6 Pack\",\"product_id\":\"125f55ac-09da-439d-8b38-1b1a3d442748\",\"retail_price_cents\":1499,\"variant_id\":\"eb39948a-41c5-4bc1-b5d0-5f3c88e152de\"},{\"categories\":[\"Books \\u0026 Stationery\"],\"currency\":\"EUR\",\"name\":\"Everyday Meal Planner Notebook\",\"product_id\":\"15c6353b-2133-4b49-a4e7-9d46810dbbf7\",\"retail_price_cents\":1299,\"variant_id\":\"ab846136-bfef-4c87-ad7e-beb36c88e41a\"},{\"categories\":[\"Beauty \\u0026 Personal Care\"],\"currency\":\"EUR\",\"name\":\"OceanBreeze Body Wash\",\"product_id\":\"161cc05d-e5f8-4522-9998-81863c11244b\",\"retail_price_cents\":999,\"variant_id\":\"aee9aa9c-4acf-4e47-85c5-c6fd525536d9\"}],\"returned_count\":10,\"runtime\":\"misarch-graphql-gateway\",\"side_effects\":\"none (read-only)\",\"source_service\":\"catalog\"}"
+        }
+      ],
+      "structuredContent": {
+        "products": [
+          {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          {
+            "categories": [
+              "Pet Supplies"
+            ],
+            "currency": "EUR",
+            "name": "Crunchy Chicken Dog Treats 500g",
+            "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+            "retail_price_cents": 799,
+            "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+          },
+          {
+            "categories": [
+              "Office & Productivity"
+            ],
+            "currency": "EUR",
+            "name": "FocusFlow Desk Pad",
+            "product_id": "0c5a57d4-caff-43aa-a27e-8911f80c01c2",
+            "retail_price_cents": 1999,
+            "variant_id": "c1c958e6-2fda-4337-a987-d2d582235090"
+          },
+          {
+            "categories": [
+              "Office & Productivity"
+            ],
+            "currency": "EUR",
+            "name": "Dual Monitor Arm",
+            "product_id": "0f8933bc-e639-4222-adfc-0eba2521f452",
+            "retail_price_cents": 11999,
+            "variant_id": "cd19ac32-9d83-4eab-abec-3932090340ee"
+          },
+          {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "name": "MetroFit Smart Fitness Band",
+            "product_id": "0f929d65-c322-4bc1-b9f3-ad0a2ca413a9",
+            "retail_price_cents": 5999,
+            "variant_id": "f68f23d8-5213-47d7-9091-e5d5b69a385d"
+          },
+          {
+            "categories": [
+              "Pet Supplies"
+            ],
+            "currency": "EUR",
+            "name": "TangleFree Pet Grooming Brush",
+            "product_id": "0fc0337a-4332-47fd-ac8a-1a932f2d45bc",
+            "retail_price_cents": 1299,
+            "variant_id": "e719641f-7885-47a1-827b-6bb11709d151"
+          },
+          {
+            "categories": [
+              "Home & Kitchen"
+            ],
+            "currency": "EUR",
+            "name": "AromaBrew French Press 1L",
+            "product_id": "10308c5a-7067-4d57-ad7c-3102bf481aa8",
+            "retail_price_cents": 2499,
+            "variant_id": "d5e55391-f785-4ac6-a63d-cf9f00054f41"
+          },
+          {
+            "categories": [
+              "Fashion & Apparel"
+            ],
+            "currency": "EUR",
+            "name": "Everyday Crew Socks 6 Pack",
+            "product_id": "125f55ac-09da-439d-8b38-1b1a3d442748",
+            "retail_price_cents": 1499,
+            "variant_id": "eb39948a-41c5-4bc1-b5d0-5f3c88e152de"
+          },
+          {
+            "categories": [
+              "Books & Stationery"
+            ],
+            "currency": "EUR",
+            "name": "Everyday Meal Planner Notebook",
+            "product_id": "15c6353b-2133-4b49-a4e7-9d46810dbbf7",
+            "retail_price_cents": 1299,
+            "variant_id": "ab846136-bfef-4c87-ad7e-beb36c88e41a"
+          },
+          {
+            "categories": [
+              "Beauty & Personal Care"
+            ],
+            "currency": "EUR",
+            "name": "OceanBreeze Body Wash",
+            "product_id": "161cc05d-e5f8-4522-9998-81863c11244b",
+            "retail_price_cents": 999,
+            "variant_id": "aee9aa9c-4acf-4e47-85c5-c6fd525536d9"
+          }
+        ],
+        "returned_count": 10,
+        "runtime": "misarch-graphql-gateway",
+        "side_effects": "none (read-only)",
+        "source_service": "catalog"
+      }
+    }
+  },
+  "mcp_first_product": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"found\":true,\"product\":{\"categories\":[\"Electronics \\u0026 Gadgets\"],\"currency\":\"EUR\",\"description\":\"Over-ear Bluetooth headphones with active noise cancellation and 40 hour battery life.\",\"name\":\"Aurora Wireless Noise-Cancelling Headphones\",\"product_id\":\"d171dc15-6379-4479-bccc-859835ebd61d\",\"retail_price_cents\":12999,\"variant_id\":\"fce86a6b-3d7b-4eb2-a981-8d2eccfbc573\"},\"runtime\":\"misarch-graphql-gateway\",\"side_effects\":\"none (read-only)\",\"source_service\":\"catalog\"}"
+        }
+      ],
+      "structuredContent": {
+        "found": true,
+        "product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Over-ear Bluetooth headphones with active noise cancellation and 40 hour battery life.",
+          "name": "Aurora Wireless Noise-Cancelling Headphones",
+          "product_id": "d171dc15-6379-4479-bccc-859835ebd61d",
+          "retail_price_cents": 12999,
+          "variant_id": "fce86a6b-3d7b-4eb2-a981-8d2eccfbc573"
+        },
+        "runtime": "misarch-graphql-gateway",
+        "side_effects": "none (read-only)",
+        "source_service": "catalog"
+      }
+    }
+  },
+  "mcp_last_product": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"found\":true,\"product\":{\"categories\":[\"Pet Supplies\"],\"currency\":\"EUR\",\"description\":\"Basic water care tools for small aquariums.\",\"name\":\"Aquarium Care Starter Kit\",\"product_id\":\"553ee082-033b-4219-9e5d-16e7d22d6e58\",\"retail_price_cents\":2499,\"variant_id\":\"d04b6413-88e4-43b8-8921-11456a10d5ee\"},\"runtime\":\"misarch-graphql-gateway\",\"side_effects\":\"none (read-only)\",\"source_service\":\"catalog\"}"
+        }
+      ],
+      "structuredContent": {
+        "found": true,
+        "product": {
+          "categories": [
+            "Pet Supplies"
+          ],
+          "currency": "EUR",
+          "description": "Basic water care tools for small aquariums.",
+          "name": "Aquarium Care Starter Kit",
+          "product_id": "553ee082-033b-4219-9e5d-16e7d22d6e58",
+          "retail_price_cents": 2499,
+          "variant_id": "d04b6413-88e4-43b8-8921-11456a10d5ee"
+        },
+        "runtime": "misarch-graphql-gateway",
+        "side_effects": "none (read-only)",
+        "source_service": "catalog"
+      }
+    }
+  }
+}

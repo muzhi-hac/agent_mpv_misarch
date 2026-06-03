@@ -6,4 +6,4 @@ README.md
 **/tmp
 **/*.test
 
-server
+/server

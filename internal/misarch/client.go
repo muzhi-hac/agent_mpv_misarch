@@ -11,8 +11,21 @@ import (
 )
 
 type Client struct {
-	endpoint   string
-	httpClient *http.Client
+	endpoint    string
+	httpClient  *http.Client
+	tokenSource TokenSource
+}
+
+type TokenSource interface {
+	Token(ctx context.Context) (string, error)
+}
+
+type ClientOption func(*Client)
+
+func WithTokenSource(tokenSource TokenSource) ClientOption {
+	return func(client *Client) {
+		client.tokenSource = tokenSource
+	}
 }
 
 type GraphQLRequest struct {
@@ -27,14 +40,21 @@ type GraphQLResponse struct {
 	Errors []GraphQLError  `json:"errors"`
 }
 
-func NewClient(endpoint string, timeout time.Duration) *Client {
-	return &Client{
+func NewClient(endpoint string, timeout time.Duration, options ...ClientOption) *Client {
+	client := &Client{
 		endpoint: endpoint,
 		httpClient: &http.Client{
 			Timeout: timeout,
 		},
 	}
+
+	for _, option := range options {
+		option(client)
+	}
+
+	return client
 }
+
 func (c *Client) Do(
 	ctx context.Context,
 	query string,
@@ -55,6 +75,13 @@ func (c *Client) Do(
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
+	if c.tokenSource != nil {
+		token, err := c.tokenSource.Token(ctx)
+		if err != nil {
+			return fmt.Errorf("get auth token: %w", err)
+		}
+		request.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {

@@ -1,0 +1,1869 @@
+{
+  "created_at": "2026-06-02T21:14:33+00:00",
+  "config": {
+    "graphql_url": "http://34.40.117.201:8080/graphql",
+    "mcp_url": "http://34.40.117.201:8001/mcp",
+    "model_base_url": "https://yybb.codes",
+    "model": "gpt-5.4",
+    "trials": 5,
+    "top_k": 2,
+    "skip_llm": false
+  },
+  "summary": {
+    "trial_count": 5,
+    "native_success_count": 5,
+    "mcp_success_count": 5,
+    "comparable_count": 5,
+    "same_core_product_data_count": 5,
+    "native_avg_duration_ms": 164.03,
+    "mcp_avg_duration_ms": 307.98,
+    "interpretation": "GraphQL and MCP should return the same core MiSArch product data. MCP adds agent-facing metadata and protocol-level tool discovery."
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "started_at": "2026-06-02T21:12:09+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-02T21:11:34+00:00",
+        "duration_ms": 161.85,
+        "list_duration_ms": 94.88,
+        "detail_duration_ms": 66.41,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "defaultVariant": {
+                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "currentVersion": {
+                      "name": "POP 2025",
+                      "description": "POP 2025",
+                      "retailPrice": 20
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "CDs"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "defaultVariant": {
+                "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                "currentVersion": {
+                  "name": "POP 2025",
+                  "description": "POP 2025",
+                  "retailPrice": 20
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "CDs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 18705.39,
+          "text": "1. **是否成功读取真实商品**\n   - **是，至少成功读取到 1 条商品数据。**\n   - 证据里 list 和 detail 都返回了同一个商品：\n     - `product id`: `cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b`\n     - `variant id`: `e8fd8dab-a592-430c-a659-880ad4d6d2ef`\n     - `name`: `POP 2025`\n     - `category`: `CDs`\n\n2. **原生 GraphQL 返回的数据结构特点**\n   - 顶层是标准 GraphQL 结构：`data -> products` / `data -> product`\n   - 列表接口使用 **connection 风格**：`products.nodes`\n   - 字段嵌套较深：\n     - `defaultVariant.currentVersion.name`\n     - `defaultVariant.currentVersion.description`\n     - `defaultVariant.currentVersion.retailPrice`\n     - `categories.nodes[].name`\n   - 说明它更像**原始领域模型**，不是扁平化 agent-friendly 输出，通常需要再做一层 normalization。\n\n3. **是否提供 tool discovery、side effects、runtime/source_service**\n   - **tool discovery：不提供**\n   - **side effects：不提供**\n   - **runtime/source_service：不提供**\n   - 证据里的 observations 已明确写明：\n     - `not provided by raw GraphQL`\n     - `explicit_runtime_source: not provided`\n\n4. **作为 agent baseline 的优缺点**\n   - **优点**\n     - 能直接读到商品真实业务字段\n     - list/detail 返回一致，适合做基础读取验证\n     - 结构规范，便于程序化解析\n   - **缺点**\n     - 返回结构偏原始、嵌套深，agent 侧要自己理解 schema 和字段路径\n     - 缺少 tool discovery，不利于通用 agent 自动探索能力\n     - 缺少显式 side effects / runtime / source_service 元信息，不利于 agent 做安全判断、能力编排和来源追踪\n\n**结论：** 作为 **read baseline** 是可用的，但作为 **agent-native baseline** 还不够友好，主要缺在可发现性和运行/副作用元数据。"
+        }
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-02T21:11:53+00:00",
+        "duration_ms": 302.1,
+        "initialize_duration_ms": 48.88,
+        "tools_duration_ms": 52.26,
+        "list_duration_ms": 69.58,
+        "detail_duration_ms": 78.57,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "CDs"
+              ],
+              "currency": "EUR",
+              "name": "POP 2025",
+              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "retail_price_cents": 20,
+              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+            }
+          ],
+          "returned_count": 1,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "description": "POP 2025",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 16675.14,
+          "text": "1. **发现的 MCP 工具**\n   - `get_product`\n   - `list_products`\n   - 工具发现方式：`tools/list`\n\n2. **是否成功读取真实商品**\n   - **是**。证据显示：\n     - `list_products` 返回了 1 个商品；\n     - `get_product` 的 `found` 为 `true`。\n   - 读取到的商品记录为 **POP 2025**，来源是 `catalog`。\n\n3. **runtime / source_service / side effects 是否明确**\n   - **明确**。\n   - 两个结果都标明：\n     - `runtime`: `misarch-graphql-gateway`\n     - `source_service`: `catalog`\n     - `side_effects`: `none (read-only)`\n   - `observations` 里也明确写了：\n     - `explicit_side_effects: true`\n     - `explicit_runtime_source: true`\n\n4. **作为 agent-facing interface 的优缺点**\n   - **优点**\n     - 工具可发现性清晰（可通过 `tools/list` 发现）。\n     - 接口简单直接，适合 agent 快速调用。\n     - 返回结构化数据，并显式给出 runtime / source / side effects，便于追踪与安全判断。\n   - **缺点**\n     - 目前只看到 **2 个工具**，能力面较窄。\n     - 都是**只读**接口，不能覆盖更多商品操作场景。"
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "POP 2025",
+          "name": "POP 2025",
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "retail_price_cents": 20,
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+        },
+        "native_duration_ms": 161.85,
+        "mcp_duration_ms": 302.1,
+        "mcp_minus_native_duration_ms": 140.25,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      }
+    },
+    {
+      "trial": 2,
+      "started_at": "2026-06-02T21:12:40+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-02T21:12:10+00:00",
+        "duration_ms": 178.81,
+        "list_duration_ms": 103.08,
+        "detail_duration_ms": 75.66,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "defaultVariant": {
+                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "currentVersion": {
+                      "name": "POP 2025",
+                      "description": "POP 2025",
+                      "retailPrice": 20
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "CDs"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "defaultVariant": {
+                "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                "currentVersion": {
+                  "name": "POP 2025",
+                  "description": "POP 2025",
+                  "retailPrice": 20
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "CDs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 12948.4,
+          "text": "1. **是否成功读取真实商品**  \n   **是。** 证据里既有商品列表接口返回，也有单商品详情返回，且两者都读到了同一个真实商品：`POP 2025`，包含 `product id`、`variant id`、`description`、`retailPrice`、`categories` 等字段。\n\n2. **原生 GraphQL 返回的数据结构特点**  \n   - 采用典型 **GraphQL 嵌套结构**，最外层是 `data`\n   - 列表查询是 `data.products.nodes[]`\n   - 详情查询是 `data.product`\n   - 商品信息有明显层级：`defaultVariant -> currentVersion -> name/description/retailPrice`\n   - 分类也是连接式结构：`categories.nodes[]`\n   - 原始响应较嵌套，通常需要再做一次 **normalize** 才方便 agent 比较或消费\n\n3. **是否提供 tool discovery、side effects、runtime/source_service**  \n   **都没有。**  \n   根据证据里的 `observations`：\n   - `tool_discovery`: **not provided by raw GraphQL**\n   - `explicit_side_effects`: **not provided by raw GraphQL response**\n   - `explicit_runtime_source`: **not provided by raw GraphQL response**  \n   因此也可认为 **不提供 runtime/source_service 这类显式元信息**。\n\n4. **作为 agent baseline 的优缺点**  \n   **优点：**\n   - 能直接读到真实商品数据\n   - 列表与详情结果一致，适合做基线验证\n   - 字段结构清晰、可精确取数\n\n   **缺点：**\n   - 返回是原始 GraphQL 结构，嵌套较深，agent 侧要自己做解析/归一化\n   - 不带 tool discovery、side effects、runtime/source_service 等 agent 友好元信息\n   - 更像“数据接口基线”，不是“agent 能力完备基线”"
+        }
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-02T21:12:23+00:00",
+        "duration_ms": 304.45,
+        "initialize_duration_ms": 50.07,
+        "tools_duration_ms": 50.73,
+        "list_duration_ms": 77.43,
+        "detail_duration_ms": 77.13,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "CDs"
+              ],
+              "currency": "EUR",
+              "name": "POP 2025",
+              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "retail_price_cents": 20,
+              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+            }
+          ],
+          "returned_count": 1,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "description": "POP 2025",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 17444.71,
+          "text": "基于给定 JSON 证据，结论如下：\n\n1. **发现的 MCP 工具**\n   - `get_product`\n   - `list_products`\n   - 工具发现方式：`tools/list`\n\n2. **是否成功读取真实商品**\n   - **是**。\n   - `list_products` 返回了 **1 个商品**（`returned_count: 1`），商品名是 **POP 2025**。\n   - `get_product` 返回 `found: true`，说明该商品详情也成功读到了。\n\n3. **runtime / source_service / side effects 是否明确**\n   - **明确**。\n   - 两个调用结果里都明确给出：\n     - `runtime: misarch-graphql-gateway`\n     - `source_service: catalog`\n     - `side_effects: none (read-only)`\n   - `observations` 里也确认了：\n     - `explicit_side_effects: true`\n     - `explicit_runtime_source: true`\n\n4. **作为 agent-facing interface 的优缺点**\n   - **优点**\n     - 工具可发现性明确（可通过 `tools/list` 发现）。\n     - 返回结构清晰，商品字段完整。\n     - `runtime`、`source_service`、`side_effects` 都显式标注，对 agent 很友好。\n   - **缺点**\n     - 从证据看，当前只暴露了 **2 个只读工具**（`get_product` / `list_products`），接口能力范围较窄。\n     - 证据中只体现了 **catalog 商品读取**，未体现更丰富的 agent 操作面。"
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "POP 2025",
+          "name": "POP 2025",
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "retail_price_cents": 20,
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+        },
+        "native_duration_ms": 178.81,
+        "mcp_duration_ms": 304.45,
+        "mcp_minus_native_duration_ms": 125.64,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      }
+    },
+    {
+      "trial": 3,
+      "started_at": "2026-06-02T21:13:17+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-02T21:12:40+00:00",
+        "duration_ms": 147.98,
+        "list_duration_ms": 75.46,
+        "detail_duration_ms": 72.43,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "defaultVariant": {
+                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "currentVersion": {
+                      "name": "POP 2025",
+                      "description": "POP 2025",
+                      "retailPrice": 20
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "CDs"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "defaultVariant": {
+                "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                "currentVersion": {
+                  "name": "POP 2025",
+                  "description": "POP 2025",
+                  "retailPrice": 20
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "CDs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 19375.9,
+          "text": "1. **是否成功读取真实商品**  \n   **是。** 证据里列表和详情都返回了同一商品：  \n   - product id: `cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b`\n   - variant id: `e8fd8dab-a592-430c-a659-880ad4d6d2ef`\n   - name: `POP 2025`\n   - category: `CDs`\n\n2. **原生 GraphQL 返回的数据结构特点**  \n   - 是**典型 GraphQL 的嵌套结构**，顶层是 `data`\n   - 列表走 `data.products.nodes[]`\n   - 详情走 `data.product`\n   - 商品核心字段嵌在 `defaultVariant.currentVersion`\n   - 分类嵌在 `categories.nodes[]`\n   - 整体上**层级较深**，适合查询灵活，但做 agent 消费前通常要再做一层**扁平化/归一化**\n\n3. **是否提供 tool discovery、side effects、runtime/source_service**  \n   **都没有在原生 GraphQL 响应里提供。**  \n   - tool discovery：**not provided**\n   - explicit side effects：**not provided**\n   - explicit runtime/source：**not provided**\n\n4. **作为 agent baseline 的优缺点**  \n   **优点：**\n   - 能直接拿到**真实且结构化**的商品数据\n   - 列表和详情结果**一致**\n   - 字段关系清晰，适合做标准化对比\n\n   **缺点：**\n   - 响应**嵌套较深**，agent 需要理解 schema 并自己做归一化\n   - 没有 **tool discovery**\n   - 没有 **显式 side effects 描述**\n   - 没有 **runtime/source_service 元信息**\n   - 因此作为 agent baseline，**数据可读，但编排与自描述能力偏弱**"
+        }
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-02T21:13:00+00:00",
+        "duration_ms": 309.96,
+        "initialize_duration_ms": 51.47,
+        "tools_duration_ms": 54.27,
+        "list_duration_ms": 71.69,
+        "detail_duration_ms": 82.25,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "CDs"
+              ],
+              "currency": "EUR",
+              "name": "POP 2025",
+              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "retail_price_cents": 20,
+              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+            }
+          ],
+          "returned_count": 1,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "description": "POP 2025",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 17097.01,
+          "text": "1. **发现的 MCP 工具**\n   - `get_product`\n   - `list_products`\n   - 工具发现方式：`tools/list`\n\n2. **是否成功读取真实商品**\n   - **是，成功读取到了商品记录。**\n   - `list_products` 返回了 1 个商品：`POP 2025`\n   - `get_product` 返回 `found: true`，且商品详情与列表结果一致（`product_id` 相同，来源为 `catalog`）\n\n3. **runtime / source_service / side effects 是否明确**\n   - **明确。**\n   - `runtime`: `misarch-graphql-gateway`\n   - `source_service`: `catalog`\n   - `side_effects`: `none (read-only)`\n   - `observations` 里也明确写了：\n     - `explicit_side_effects: true`\n     - `explicit_runtime_source: true`\n\n4. **作为 agent-facing interface 的优缺点**\n   - **优点**\n     - 工具可发现性明确（通过 `tools/list`）\n     - 返回结构清晰、机器可读\n     - `runtime` / `source_service` / `side_effects` 都显式给出，利于 agent 做安全判断和路由理解\n     - `list` 和 `get` 的结果一致，接口语义直观\n   - **缺点**\n     - 从证据看，当前只暴露了两个**只读**商品工具，能力面较窄\n     - 证据里未体现更丰富的接口能力，如更多操作类型或更复杂查询能力"
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "POP 2025",
+          "name": "POP 2025",
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "retail_price_cents": 20,
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+        },
+        "native_duration_ms": 147.98,
+        "mcp_duration_ms": 309.96,
+        "mcp_minus_native_duration_ms": 161.98,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      }
+    },
+    {
+      "trial": 4,
+      "started_at": "2026-06-02T21:14:02+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-02T21:13:17+00:00",
+        "duration_ms": 179.19,
+        "list_duration_ms": 100.59,
+        "detail_duration_ms": 78.53,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "defaultVariant": {
+                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "currentVersion": {
+                      "name": "POP 2025",
+                      "description": "POP 2025",
+                      "retailPrice": 20
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "CDs"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "defaultVariant": {
+                "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                "currentVersion": {
+                  "name": "POP 2025",
+                  "description": "POP 2025",
+                  "retailPrice": 20
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "CDs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 18823.61,
+          "text": "1. **是否成功读取真实商品**\n   - **是**。证据里同时返回了**商品列表**和**商品详情**，且字段一致：\n     - product id: `cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b`\n     - variant id: `e8fd8dab-a592-430c-a659-880ad4d6d2ef`\n     - name/description: `POP 2025`\n     - retailPrice: `20`\n     - category: `CDs`\n\n2. **原生 GraphQL 返回的数据结构特点**\n   - 典型 **GraphQL 嵌套结构**：\n     - 列表：`data.products.nodes[]`\n     - 详情：`data.product`\n   - 商品信息不是扁平的，核心字段在多层嵌套里：\n     - `defaultVariant.currentVersion.name / description / retailPrice`\n     - `categories.nodes[]`\n   - 适合精确取字段，但做 agent 对比时通常还要**额外归一化/扁平化**。\n\n3. **是否提供 tool discovery、side effects、runtime/source_service**\n   - **tool discovery：不提供**\n   - **explicit side effects：不提供**\n   - **runtime/source_service：不提供**\n   - 这点在 `observations` 里已经明确写明。\n\n4. **作为 agent baseline 的优缺点**\n   - **优点**\n     - 能直接读到真实业务对象数据；\n     - 列表和详情结果一致，适合做 baseline 对照；\n     - 结构化强，字段边界清楚。\n   - **缺点**\n     - 返回结构偏嵌套，不够 agent-friendly，需要额外归一化；\n     - 不带 tool discovery、side effects、runtime/source_service 这类 agent 编排所需元信息；\n     - 更像“原始数据接口”，不是“面向 agent 的工具接口”。"
+        }
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-02T21:13:37+00:00",
+        "duration_ms": 298.22,
+        "initialize_duration_ms": 52.03,
+        "tools_duration_ms": 55.39,
+        "list_duration_ms": 69.43,
+        "detail_duration_ms": 71.51,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "CDs"
+              ],
+              "currency": "EUR",
+              "name": "POP 2025",
+              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "retail_price_cents": 20,
+              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+            }
+          ],
+          "returned_count": 1,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "description": "POP 2025",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 25860.67,
+          "text": "1. **发现的 MCP 工具**  \n   agent 发现了两个工具：`list_products`、`get_product`。工具发现方式是 `tools/list`。\n\n2. **是否成功读取真实商品**  \n   **成功读取到商品记录**：  \n   - `list_products` 返回了 1 个商品；  \n   - `get_product` 返回 `found: true`；  \n   - 商品名是 **POP 2025**。  \n   但 JSON 只证明读到了 `catalog` 的商品记录，**未单独说明是否是生产环境/“真实业务商品”**。\n\n3. **runtime/source_service 和 side effects 是否明确**  \n   **明确**。两个结果里都写明：  \n   - `runtime`: `misarch-graphql-gateway`  \n   - `source_service`: `catalog`  \n   - `side_effects`: `none (read-only)`  \n   且 `observations` 里也明确：`explicit_side_effects: true`、`explicit_runtime_source: true`。\n\n4. **作为 agent-facing interface 的优缺点**  \n   **优点：**  \n   - 工具发现清晰；  \n   - 返回结构化，商品字段完整；  \n   - runtime / source / side effects 都显式给出，便于 agent 判断来源和安全性。  \n\n   **缺点：**  \n   - 从证据看只暴露了两个工具；  \n   - 且都是只读能力，接口能力范围较窄。"
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "POP 2025",
+          "name": "POP 2025",
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "retail_price_cents": 20,
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+        },
+        "native_duration_ms": 179.19,
+        "mcp_duration_ms": 298.22,
+        "mcp_minus_native_duration_ms": 119.03,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      }
+    },
+    {
+      "trial": 5,
+      "started_at": "2026-06-02T21:14:33+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-02T21:14:03+00:00",
+        "duration_ms": 152.33,
+        "list_duration_ms": 76.73,
+        "detail_duration_ms": 75.55,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "defaultVariant": {
+                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "currentVersion": {
+                      "name": "POP 2025",
+                      "description": "POP 2025",
+                      "retailPrice": 20
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "CDs"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "defaultVariant": {
+                "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                "currentVersion": {
+                  "name": "POP 2025",
+                  "description": "POP 2025",
+                  "retailPrice": 20
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "CDs"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 17250.4,
+          "text": "1. **是否成功读取真实商品**\n   - **是**。原生 GraphQL 成功返回了商品列表和商品详情，且两者一致。\n   - 证据里可见一个商品：\n     - `product_id`: `cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b`\n     - `name`: `POP 2025`\n     - `description`: `POP 2025`\n     - `retailPrice`: `20`\n     - 分类：`CDs`\n\n2. **原生 GraphQL 返回的数据结构特点**\n   - 是典型 GraphQL 嵌套结构，顶层为 `data`\n   - 列表查询走：`data.products.nodes[]`\n   - 详情查询走：`data.product`\n   - 商品核心信息嵌套较深，例如：\n     - `defaultVariant.currentVersion.name`\n     - `defaultVariant.currentVersion.description`\n     - `defaultVariant.currentVersion.retailPrice`\n     - `categories.nodes[]`\n   - 也就是说，**字段精确、结构化强，但需要做 flatten / normalize** 才便于 agent 直接消费。\n\n3. **是否提供 tool discovery、side effects、runtime/source_service**\n   - **tool discovery：不提供**\n   - **side effects：不提供**\n   - **runtime/source_service：不提供**\n   - 这和证据中的 `observations` 一致：raw GraphQL 响应里都没有这些显式信息。\n\n4. **作为 agent baseline 的优缺点**\n   - **优点**\n     - 能直接拿到**真实结构化商品数据**\n     - 列表与详情结果一致，适合做 baseline 对照\n     - 字段级查询明确，便于精确比对\n   - **缺点**\n     - 响应是**原始 GraphQL 结构**，嵌套深，agent 需要额外归一化\n     - 没有 tool discovery，agent 无法从响应中直接知道“还能做什么”\n     - 没有 side effects / runtime / source_service 元信息，不利于通用 agent 编排与可观测性\n\n如果你要，我也可以把这份结果再整理成一段**测试结论摘要**。"
+        }
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-02T21:14:20+00:00",
+        "duration_ms": 325.16,
+        "initialize_duration_ms": 52.59,
+        "tools_duration_ms": 50.25,
+        "list_duration_ms": 92.01,
+        "detail_duration_ms": 77.99,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "CDs"
+              ],
+              "currency": "EUR",
+              "name": "POP 2025",
+              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+              "retail_price_cents": 20,
+              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+            }
+          ],
+          "returned_count": 1,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "CDs"
+            ],
+            "currency": "EUR",
+            "description": "POP 2025",
+            "name": "POP 2025",
+            "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+            "retail_price_cents": 20,
+            "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "agent_report": {
+          "ok": true,
+          "skipped": false,
+          "duration_ms": 12885.28,
+          "text": "1. **发现的 MCP 工具**\n   - `get_product`\n   - `list_products`\n   - 工具发现方式：`tools/list`\n\n2. **是否成功读取真实商品**\n   - **是**。`list_products` 返回了 1 个商品，`get_product` 也返回 `found: true`。\n   - 读取到的商品示例：`POP 2025`，来源服务是 `catalog`。\n\n3. **runtime/source_service 和 side effects 是否明确**\n   - **明确**。\n   - 两个调用结果都显式给出：\n     - `runtime: \"misarch-graphql-gateway\"`\n     - `source_service: \"catalog\"`\n     - `side_effects: \"none (read-only)\"`\n   - 观测项里也明确：\n     - `explicit_side_effects: true`\n     - `explicit_runtime_source: true`\n\n4. **作为 agent-facing interface 的优缺点**\n   - **优点**\n     - 工具集很清晰，发现机制明确（`tools/list`）。\n     - 返回结构规整，包含商品主字段。\n     - `runtime`、`source_service`、`side_effects` 都显式暴露，便于 agent 做路由判断和风险判断。\n     - 只读语义清楚，安全性较好。\n   - **缺点**\n     - 从证据看，当前只提供两个读工具，能力较窄。\n     - 未见更丰富的查询能力说明（如更复杂过滤、分页细节等）。\n     - 作为 agent 接口虽清晰，但功能面目前偏基础。"
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+          "name": "POP 2025",
+          "description": "POP 2025",
+          "retail_price_cents": 20,
+          "currency": "EUR",
+          "categories": [
+            "CDs"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "CDs"
+          ],
+          "currency": "EUR",
+          "description": "POP 2025",
+          "name": "POP 2025",
+          "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+          "retail_price_cents": 20,
+          "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+        },
+        "native_duration_ms": 152.33,
+        "mcp_duration_ms": 325.16,
+        "mcp_minus_native_duration_ms": 172.83,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      }
+    }
+  ]
+}
