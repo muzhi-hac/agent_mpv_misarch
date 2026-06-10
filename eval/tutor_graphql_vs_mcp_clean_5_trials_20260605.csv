@@ -1,0 +1,7 @@
+trial,native_graphql_success,mcp_gateway_success,same_core_product_data,same_product_id,same_name,same_price,native_graphql_duration_ms,mcp_gateway_duration_ms,mcp_minus_native_ms,product_name,mcp_tools
+1,True,True,True,True,True,True,165.50,296.24,130.74,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+2,True,True,True,True,True,True,141.88,314.70,172.82,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+3,True,True,True,True,True,True,163.48,295.19,131.71,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+4,True,True,True,True,True,True,134.75,383.26,248.51,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+5,True,True,True,True,True,True,133.19,302.46,169.27,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+average,5/5,5/5,5/5,5/5,5/5,5/5,147.76,318.37,170.61,,

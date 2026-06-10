@@ -1,0 +1,2989 @@
+{
+  "created_at": "2026-06-04T21:29:06+00:00",
+  "config": {
+    "graphql_url": "http://34.40.117.201:8080/graphql",
+    "mcp_url": "http://34.40.117.201:8001/mcp",
+    "model_base_url": "https://yybb.codes",
+    "model": "gpt-5.4",
+    "trials": 5,
+    "top_k": 2,
+    "skip_llm": false,
+    "skip_agent_reports": true,
+    "use_llm_controller": true,
+    "include_agent_generated_graphql": true,
+    "agent_generated_graphql_doc_level": "minimal",
+    "include_order_test": false,
+    "order_quantity": 1,
+    "order_product_variant_id": "",
+    "order_user_id": "",
+    "order_shipment_method_id": "",
+    "order_shipment_address_id": "",
+    "order_invoice_address_id": "",
+    "order_payment_information_id": "",
+    "order_coupon_ids": "",
+    "graphql_bearer_token_configured": false,
+    "keycloak_token_url_configured": false
+  },
+  "summary": {
+    "trial_count": 5,
+    "llm_controller_enabled": true,
+    "native_success_count": 5,
+    "mcp_success_count": 5,
+    "agent_generated_graphql_enabled_count": 5,
+    "agent_generated_graphql_success_count": 0,
+    "agent_generated_graphql_comparable_count": 0,
+    "agent_generated_graphql_same_core_product_data_count": 0,
+    "agent_generated_graphql_failure_stage_counts": {
+      "model_generation": 5
+    },
+    "comparable_count": 5,
+    "same_core_product_data_count": 5,
+    "pending_order_enabled_count": 0,
+    "native_pending_order_success_count": 0,
+    "mcp_pending_order_success_count": 0,
+    "pending_order_comparable_count": 0,
+    "pending_order_both_pending_count": 0,
+    "native_avg_duration_ms": 6078.48,
+    "mcp_avg_duration_ms": 9433.36,
+    "agent_generated_graphql_avg_duration_ms": null,
+    "agent_generated_graphql_avg_generation_duration_ms": null,
+    "interpretation": "GraphQL and MCP should return the same core MiSArch product data. MCP adds agent-facing metadata and protocol-level tool discovery. Agent-generated GraphQL is optional and measures whether the model can produce valid native GraphQL from schema documentation. Pending-order comparisons are disabled unless explicitly enabled because they create shopping cart items and pending orders."
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "started_at": "2026-06-04T21:24:01+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-04T21:22:52+00:00",
+        "duration_ms": 5840.64,
+        "list_duration_ms": 99.26,
+        "detail_duration_ms": 86.84,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
+                  "defaultVariant": {
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                    "currentVersion": {
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Electronics & Gadgets"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+                  "defaultVariant": {
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
+                    "currentVersion": {
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Pet Supplies"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "defaultVariant": {
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                "currentVersion": {
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Electronics & Gadgets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"executor\":\"fixed_graphql_catalog_lookup\",\"arguments\":{\"top_k\":2},\"rationale\":\"Use the provided safe catalog lookup executor to retrieve a small set of MiSArch products and the first product detail without writing GraphQL.\"}",
+          "decision": {
+            "executor": "fixed_graphql_catalog_lookup",
+            "arguments": {
+              "top_k": 2
+            },
+            "rationale": "Use the provided safe catalog lookup executor to retrieve a small set of MiSArch products and the first product detail without writing GraphQL."
+          },
+          "duration_ms": 5654.37
+        },
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": true,
+        "success": false,
+        "failure_stage": "model_generation",
+        "error": "The read operation timed out",
+        "started_at": "2026-06-04T21:23:52+00:00",
+        "duration_ms": 60358.11,
+        "generation_duration_ms": null,
+        "list_duration_ms": null,
+        "detail_duration_ms": null,
+        "raw_model_output": null,
+        "generated_plan": null,
+        "raw_list_response": null,
+        "raw_detail_response": null,
+        "normalized_first_product": null,
+        "normalized_detail": null,
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_generated_query": true,
+        "llm_controller_used": true,
+        "schema_context_provided": false,
+        "doc_level": "minimal"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-04T21:24:01+00:00",
+        "duration_ms": 9081.16,
+        "initialize_duration_ms": 90.89,
+        "tools_duration_ms": 66.52,
+        "list_duration_ms": 113.62,
+        "detail_duration_ms": 86.64,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Electronics & Gadgets"
+              ],
+              "currency": "EUR",
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+            },
+            {
+              "categories": [
+                "Pet Supplies"
+              ],
+              "currency": "EUR",
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\n  \"tool_calls\": [\n    {\n      \"name\": \"list_products\",\n      \"arguments\": {\n        \"top_k\": 2\n      }\n    },\n    {\n      \"name\": \"get_product\",\n      \"arguments\": {\n        \"product_id\": \"$FIRST_PRODUCT_ID_FROM_LIST\"\n      }\n    }\n  ],\n  \"rationale\": \"First list public catalog products to obtain a valid product UUID, then read one product in detail with a read-only fetch.\"\n}",
+          "decision": {
+            "tool_calls": [
+              {
+                "name": "list_products",
+                "arguments": {
+                  "top_k": 2
+                }
+              },
+              {
+                "name": "get_product",
+                "arguments": {
+                  "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+                }
+              }
+            ],
+            "rationale": "First list public catalog products to obtain a valid product UUID, then read one product in detail with a read-only fetch."
+          },
+          "duration_ms": 8661.94
+        },
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+        },
+        "native_duration_ms": 5840.64,
+        "mcp_duration_ms": 9081.16,
+        "mcp_minus_native_duration_ms": 3240.52,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 2,
+      "started_at": "2026-06-04T21:25:22+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-04T21:24:09+00:00",
+        "duration_ms": 7316.51,
+        "list_duration_ms": 84.35,
+        "detail_duration_ms": 77.27,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
+                  "defaultVariant": {
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                    "currentVersion": {
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Electronics & Gadgets"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+                  "defaultVariant": {
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
+                    "currentVersion": {
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Pet Supplies"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "defaultVariant": {
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                "currentVersion": {
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Electronics & Gadgets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"executor\":\"fixed_graphql_catalog_lookup\",\"arguments\":{\"top_k\":2},\"rationale\":\"Use the available safe catalog lookup to list a small set of MiSArch products and retrieve the first product's details without writing GraphQL.\"}",
+          "decision": {
+            "executor": "fixed_graphql_catalog_lookup",
+            "arguments": {
+              "top_k": 2
+            },
+            "rationale": "Use the available safe catalog lookup to list a small set of MiSArch products and retrieve the first product's details without writing GraphQL."
+          },
+          "duration_ms": 7154.78
+        },
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": true,
+        "success": false,
+        "failure_stage": "model_generation",
+        "error": "The read operation timed out",
+        "started_at": "2026-06-04T21:25:09+00:00",
+        "duration_ms": 60353.41,
+        "generation_duration_ms": null,
+        "list_duration_ms": null,
+        "detail_duration_ms": null,
+        "raw_model_output": null,
+        "generated_plan": null,
+        "raw_list_response": null,
+        "raw_detail_response": null,
+        "normalized_first_product": null,
+        "normalized_detail": null,
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_generated_query": true,
+        "llm_controller_used": true,
+        "schema_context_provided": false,
+        "doc_level": "minimal"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-04T21:25:22+00:00",
+        "duration_ms": 12958.61,
+        "initialize_duration_ms": 62.08,
+        "tools_duration_ms": 72.73,
+        "list_duration_ms": 93.36,
+        "detail_duration_ms": 102.24,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Electronics & Gadgets"
+              ],
+              "currency": "EUR",
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+            },
+            {
+              "categories": [
+                "Pet Supplies"
+              ],
+              "currency": "EUR",
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\n  \"tool_calls\": [\n    {\n      \"name\": \"list_products\",\n      \"arguments\": {\n        \"top_k\": 2\n      }\n    },\n    {\n      \"name\": \"get_product\",\n      \"arguments\": {\n        \"product_id\": \"$FIRST_PRODUCT_ID_FROM_LIST\"\n      }\n    }\n  ],\n  \"rationale\": \"First list public catalog products to obtain a valid product UUID, then fetch one product's full details with the returned ID.\"\n}",
+          "decision": {
+            "tool_calls": [
+              {
+                "name": "list_products",
+                "arguments": {
+                  "top_k": 2
+                }
+              },
+              {
+                "name": "get_product",
+                "arguments": {
+                  "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+                }
+              }
+            ],
+            "rationale": "First list public catalog products to obtain a valid product UUID, then fetch one product's full details with the returned ID."
+          },
+          "duration_ms": 12563.92
+        },
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+        },
+        "native_duration_ms": 7316.51,
+        "mcp_duration_ms": 12958.61,
+        "mcp_minus_native_duration_ms": 5642.1,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 3,
+      "started_at": "2026-06-04T21:26:36+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-04T21:25:28+00:00",
+        "duration_ms": 5953.25,
+        "list_duration_ms": 83.88,
+        "detail_duration_ms": 87.26,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
+                  "defaultVariant": {
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                    "currentVersion": {
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Electronics & Gadgets"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+                  "defaultVariant": {
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
+                    "currentVersion": {
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Pet Supplies"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "defaultVariant": {
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                "currentVersion": {
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Electronics & Gadgets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"executor\":\"fixed_graphql_catalog_lookup\",\"arguments\":{\"top_k\":2},\"rationale\":\"Use the only allowed safe catalog lookup executor to read real MiSArch product data without writing GraphQL.\"}",
+          "decision": {
+            "executor": "fixed_graphql_catalog_lookup",
+            "arguments": {
+              "top_k": 2
+            },
+            "rationale": "Use the only allowed safe catalog lookup executor to read real MiSArch product data without writing GraphQL."
+          },
+          "duration_ms": 5781.89
+        },
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": true,
+        "success": false,
+        "failure_stage": "model_generation",
+        "error": "The read operation timed out",
+        "started_at": "2026-06-04T21:26:28+00:00",
+        "duration_ms": 60357.78,
+        "generation_duration_ms": null,
+        "list_duration_ms": null,
+        "detail_duration_ms": null,
+        "raw_model_output": null,
+        "generated_plan": null,
+        "raw_list_response": null,
+        "raw_detail_response": null,
+        "normalized_first_product": null,
+        "normalized_detail": null,
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_generated_query": true,
+        "llm_controller_used": true,
+        "schema_context_provided": false,
+        "doc_level": "minimal"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-04T21:26:36+00:00",
+        "duration_ms": 7888.8,
+        "initialize_duration_ms": 62.02,
+        "tools_duration_ms": 67.41,
+        "list_duration_ms": 114.3,
+        "detail_duration_ms": 86.69,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Electronics & Gadgets"
+              ],
+              "currency": "EUR",
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+            },
+            {
+              "categories": [
+                "Pet Supplies"
+              ],
+              "currency": "EUR",
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\n  \"tool_calls\": [\n    {\n      \"name\": \"list_products\",\n      \"arguments\": {\n        \"top_k\": 2\n      }\n    },\n    {\n      \"name\": \"get_product\",\n      \"arguments\": {\n        \"product_id\": \"$FIRST_PRODUCT_ID_FROM_LIST\"\n      }\n    }\n  ],\n  \"rationale\": \"First list a small set of public catalog products, then fetch full details for the first returned product by its UUID.\"\n}",
+          "decision": {
+            "tool_calls": [
+              {
+                "name": "list_products",
+                "arguments": {
+                  "top_k": 2
+                }
+              },
+              {
+                "name": "get_product",
+                "arguments": {
+                  "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+                }
+              }
+            ],
+            "rationale": "First list a small set of public catalog products, then fetch full details for the first returned product by its UUID."
+          },
+          "duration_ms": 7493.71
+        },
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+        },
+        "native_duration_ms": 5953.25,
+        "mcp_duration_ms": 7888.8,
+        "mcp_minus_native_duration_ms": 1935.55,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 4,
+      "started_at": "2026-06-04T21:27:52+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-04T21:26:42+00:00",
+        "duration_ms": 5518.79,
+        "list_duration_ms": 115.37,
+        "detail_duration_ms": 85.13,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
+                  "defaultVariant": {
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                    "currentVersion": {
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Electronics & Gadgets"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+                  "defaultVariant": {
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
+                    "currentVersion": {
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Pet Supplies"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "defaultVariant": {
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                "currentVersion": {
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Electronics & Gadgets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"executor\":\"fixed_graphql_catalog_lookup\",\"arguments\":{\"top_k\":2},\"rationale\":\"Use the safe pre-written catalog lookup to retrieve a small set of MiSArch products and the first product detail without writing GraphQL.\"}",
+          "decision": {
+            "executor": "fixed_graphql_catalog_lookup",
+            "arguments": {
+              "top_k": 2
+            },
+            "rationale": "Use the safe pre-written catalog lookup to retrieve a small set of MiSArch products and the first product detail without writing GraphQL."
+          },
+          "duration_ms": 5318.09
+        },
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": true,
+        "success": false,
+        "failure_stage": "model_generation",
+        "error": "The read operation timed out",
+        "started_at": "2026-06-04T21:27:42+00:00",
+        "duration_ms": 60382.64,
+        "generation_duration_ms": null,
+        "list_duration_ms": null,
+        "detail_duration_ms": null,
+        "raw_model_output": null,
+        "generated_plan": null,
+        "raw_list_response": null,
+        "raw_detail_response": null,
+        "normalized_first_product": null,
+        "normalized_detail": null,
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_generated_query": true,
+        "llm_controller_used": true,
+        "schema_context_provided": false,
+        "doc_level": "minimal"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-04T21:27:52+00:00",
+        "duration_ms": 9976.34,
+        "initialize_duration_ms": 69.98,
+        "tools_duration_ms": 63.75,
+        "list_duration_ms": 102.72,
+        "detail_duration_ms": 84.65,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Electronics & Gadgets"
+              ],
+              "currency": "EUR",
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+            },
+            {
+              "categories": [
+                "Pet Supplies"
+              ],
+              "currency": "EUR",
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"tool_calls\":[{\"name\":\"list_products\",\"arguments\":{\"top_k\":2}},{\"name\":\"get_product\",\"arguments\":{\"product_id\":\"$FIRST_PRODUCT_ID_FROM_LIST\"}}],\"rationale\":\"List a small set of public catalog products, then fetch full details for the first returned product UUID.\"}",
+          "decision": {
+            "tool_calls": [
+              {
+                "name": "list_products",
+                "arguments": {
+                  "top_k": 2
+                }
+              },
+              {
+                "name": "get_product",
+                "arguments": {
+                  "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+                }
+              }
+            ],
+            "rationale": "List a small set of public catalog products, then fetch full details for the first returned product UUID."
+          },
+          "duration_ms": 9587.53
+        },
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+        },
+        "native_duration_ms": 5518.79,
+        "mcp_duration_ms": 9976.34,
+        "mcp_minus_native_duration_ms": 4457.55,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 5,
+      "started_at": "2026-06-04T21:29:06+00:00",
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8080/graphql",
+        "started_at": "2026-06-04T21:27:58+00:00",
+        "duration_ms": 5763.2,
+        "list_duration_ms": 83.65,
+        "detail_duration_ms": 85.66,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
+                  "defaultVariant": {
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                    "currentVersion": {
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Electronics & Gadgets"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+                  "defaultVariant": {
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
+                    "currentVersion": {
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Pet Supplies"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "defaultVariant": {
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+                "currentVersion": {
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Electronics & Gadgets"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"executor\":\"fixed_graphql_catalog_lookup\",\"arguments\":{\"top_k\":2},\"rationale\":\"Use the provided safe catalog lookup executor to list MiSArch products and fetch the first product detail without writing GraphQL.\"}",
+          "decision": {
+            "executor": "fixed_graphql_catalog_lookup",
+            "arguments": {
+              "top_k": 2
+            },
+            "rationale": "Use the provided safe catalog lookup executor to list MiSArch products and fetch the first product detail without writing GraphQL."
+          },
+          "duration_ms": 5593.8
+        },
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": true,
+        "success": false,
+        "failure_stage": "model_generation",
+        "error": "The read operation timed out",
+        "started_at": "2026-06-04T21:28:58+00:00",
+        "duration_ms": 60372.1,
+        "generation_duration_ms": null,
+        "list_duration_ms": null,
+        "detail_duration_ms": null,
+        "raw_model_output": null,
+        "generated_plan": null,
+        "raw_list_response": null,
+        "raw_detail_response": null,
+        "normalized_first_product": null,
+        "normalized_detail": null,
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "agent_generated_query": true,
+        "llm_controller_used": true,
+        "schema_context_provided": false,
+        "doc_level": "minimal"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://34.40.117.201:8001/mcp",
+        "started_at": "2026-06-04T21:29:06+00:00",
+        "duration_ms": 7261.9,
+        "initialize_duration_ms": 69.3,
+        "tools_duration_ms": 80.18,
+        "list_duration_ms": 95.64,
+        "detail_duration_ms": 84.72,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Electronics & Gadgets"
+              ],
+              "currency": "EUR",
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+            },
+            {
+              "categories": [
+                "Pet Supplies"
+              ],
+              "currency": "EUR",
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Electronics & Gadgets"
+            ],
+            "currency": "EUR",
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": true,
+        "llm_controller": {
+          "raw_output": "{\"tool_calls\":[{\"name\":\"list_products\",\"arguments\":{\"top_k\":2}},{\"name\":\"get_product\",\"arguments\":{\"product_id\":\"$FIRST_PRODUCT_ID_FROM_LIST\"}}],\"rationale\":\"First list a small set of products to obtain a real product UUID, then fetch one product's full details by that returned ID.\"}",
+          "decision": {
+            "tool_calls": [
+              {
+                "name": "list_products",
+                "arguments": {
+                  "top_k": 2
+                }
+              },
+              {
+                "name": "get_product",
+                "arguments": {
+                  "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+                }
+              }
+            ],
+            "rationale": "First list a small set of products to obtain a real product UUID, then fetch one product's full details by that returned ID."
+          },
+          "duration_ms": 6863.23
+        },
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
+          "currency": "EUR",
+          "categories": [
+            "Electronics & Gadgets"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Electronics & Gadgets"
+          ],
+          "currency": "EUR",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
+        },
+        "native_duration_ms": 5763.2,
+        "mcp_duration_ms": 7261.9,
+        "mcp_minus_native_duration_ms": 1498.7,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+trial,native_success,manual_minimal_success,manual_minimal_recovered_after_failure,manual_minimal_initial_failure_stage,manual_minimal_attempt_count,manual_minimal_same_core_product_data,mcp_success,same_core_product_data_native_vs_mcp,native_duration_ms,manual_minimal_duration_ms,mcp_duration_ms,manual_minimal_product_name,mcp_tools
+1,True,True,True,list_query_graphql_errors,3,True,True,True,205.13,242.99,446.78,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+2,True,True,True,list_query_graphql_errors,3,True,True,True,163.6,230.27,378.54,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+3,True,True,True,list_query_graphql_errors,3,True,True,True,184.63,228.22,398.89,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+4,True,True,True,list_query_graphql_errors,3,True,True,True,168.67,255.8,350.87,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"
+5,True,True,True,list_query_graphql_errors,3,True,True,True,167.09,232.4,383.1,HomeLink Smart Plug Twin Pack,"create_pending_order,get_product,list_products"

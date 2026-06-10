@@ -1,6 +1,0 @@
-trial,native_success,mcp_success,same_core_product_data,same_product_id,same_name,same_price,native_duration_ms,mcp_duration_ms,mcp_minus_native_duration_ms,native_product_name,mcp_product_name,mcp_tools,native_has_tool_discovery,mcp_has_tool_discovery,native_has_explicit_side_effects,mcp_has_explicit_side_effects,native_has_explicit_runtime_source,mcp_has_explicit_runtime_source,native_agent_report_ok,native_agent_report_skipped,mcp_agent_report_ok,mcp_agent_report_skipped
-1,True,True,True,True,True,True,161.85,302.1,140.25,POP 2025,POP 2025,"get_product,list_products",False,True,False,True,False,True,True,False,True,False
-2,True,True,True,True,True,True,178.81,304.45,125.64,POP 2025,POP 2025,"get_product,list_products",False,True,False,True,False,True,True,False,True,False
-3,True,True,True,True,True,True,147.98,309.96,161.98,POP 2025,POP 2025,"get_product,list_products",False,True,False,True,False,True,True,False,True,False
-4,True,True,True,True,True,True,179.19,298.22,119.03,POP 2025,POP 2025,"get_product,list_products",False,True,False,True,False,True,True,False,True,False
-5,True,True,True,True,True,True,152.33,325.16,172.83,POP 2025,POP 2025,"get_product,list_products",False,True,False,True,False,True,True,False,True,False

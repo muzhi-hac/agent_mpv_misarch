@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="980" viewBox="0 0 1160 980">
+<rect x="0" y="0" width="1160" height="980" rx="0" fill="#ffffff" stroke="none" />
+<text x="40" y="52" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933" text-anchor="start">MiSArch Manual Minimal Baseline B Simulation</text>
+<text x="40" y="82" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#737373" text-anchor="start">Baseline A: fixed GraphQL | Manual B: wrong raw GraphQL guess then recovery | MCP: tools/list + tools/call</text>
+<rect x="40" y="110" width="500" height="280" rx="14" fill="#f8fafc" stroke="#e5e7eb" />
+<text x="58" y="144" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#1f2933" text-anchor="start">Success Rate</text>
+<rect x="84" y="327.0" width="365" height="1" rx="0" fill="#d9d9d9" stroke="none" />
+<text x="76" y="331.0" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#737373" text-anchor="end">0%</text>
+<rect x="84" y="290.75" width="365" height="1" rx="0" fill="#d9d9d9" stroke="none" />
+<text x="76" y="294.75" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#737373" text-anchor="end">25%</text>
+<rect x="84" y="254.5" width="365" height="1" rx="0" fill="#d9d9d9" stroke="none" />
+<text x="76" y="258.5" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#737373" text-anchor="end">50%</text>
+<rect x="84" y="218.25" width="365" height="1" rx="0" fill="#d9d9d9" stroke="none" />
+<text x="76" y="222.25" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#737373" text-anchor="end">75%</text>
+<rect x="84" y="182.0" width="365" height="1" rx="0" fill="#d9d9d9" stroke="none" />
+<text x="76" y="186.0" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#737373" text-anchor="end">100%</text>
+<rect x="96" y="182.0" width="82" height="145.0" rx="8" fill="#1f77b4" stroke="none" />
+<text x="137.0" y="172.0" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1f2933" text-anchor="middle">5/5</text>
+<text x="137.0" y="355" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#1f2933" text-anchor="middle">Baseline A</text>
+<text x="137.0" y="372" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#737373" text-anchor="middle">fixed GraphQL</text>
+<rect x="248" y="182.0" width="82" height="145.0" rx="8" fill="#d62728" stroke="none" />
+<text x="289.0" y="172.0" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1f2933" text-anchor="middle">5/5</text>
+<text x="289.0" y="355" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#1f2933" text-anchor="middle">Baseline B</text>
+<text x="289.0" y="372" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#737373" text-anchor="middle">agent GraphQL</text>
+<rect x="400" y="182.0" width="82" height="145.0" rx="8" fill="#2ca02c" stroke="none" />
+<text x="441.0" y="172.0" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1f2933" text-anchor="middle">5/5</text>
+<text x="441.0" y="355" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#1f2933" text-anchor="middle">MCP gateway</text>
+<rect x="540" y="110" width="580" height="280" rx="14" fill="#f8fafc" stroke="#e5e7eb" />
+<text x="558" y="144" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#1f2933" text-anchor="start">Average Duration (successful trials)</text>
+<text x="568" y="209" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2933" text-anchor="start">Baseline A</text>
+<rect x="690" y="186" width="154.3734041466653" height="34" rx="8" fill="#1f77b4" stroke="none" />
+<text x="854.3734041466653" y="209" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">177.82 ms</text>
+<text x="568" y="267" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2933" text-anchor="start">Baseline B</text>
+<rect x="690" y="244" width="206.5662342968032" height="34" rx="8" fill="#d62728" stroke="none" />
+<text x="906.5662342968033" y="267" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">237.94 ms</text>
+<text x="568" y="325" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2933" text-anchor="start">MCP</text>
+<rect x="690" y="302" width="340.0" height="34" rx="8" fill="#2ca02c" stroke="none" />
+<text x="1040.0" y="325" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">391.64 ms</text>
+<text x="568" y="360" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#737373" text-anchor="start">For Baseline B, model query generation dominates total latency when it succeeds.</text>
+<rect x="40" y="420" width="500" height="260" rx="14" fill="#f8fafc" stroke="#e5e7eb" />
+<text x="58" y="454" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#1f2933" text-anchor="start">Baseline B Failure Stages</text>
+<text x="68" y="518" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">list_query_graphql_errors</text>
+<rect x="245" y="496" width="230.0" height="28" rx="7" fill="#d62728" stroke="none" />
+<text x="483.0" y="516" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">5/5</text>
+<text x="68" y="644" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#737373" text-anchor="start">Failure is evidence here: raw GraphQL requires model generation, schema knowledge, and correct fields.</text>
+<rect x="540" y="420" width="580" height="360" rx="14" fill="#f8fafc" stroke="#e5e7eb" />
+<text x="558" y="454" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#1f2933" text-anchor="start">Agent-Facing Capability Matrix</text>
+<rect x="566" y="488" width="270" height="34" rx="4" fill="#e5e7eb" stroke="none" />
+<text x="701.0" y="511" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="middle">Capability</text>
+<rect x="840" y="488" width="70" height="34" rx="4" fill="#e5e7eb" stroke="none" />
+<text x="875.0" y="511" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="middle">A</text>
+<rect x="914" y="488" width="70" height="34" rx="4" fill="#e5e7eb" stroke="none" />
+<text x="949.0" y="511" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="middle">B</text>
+<rect x="988" y="488" width="90" height="34" rx="4" fill="#e5e7eb" stroke="none" />
+<text x="1033.0" y="511" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1f2933" text-anchor="middle">MCP</text>
+<text x="566" y="554" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">No GraphQL query writing</text>
+<rect x="840" y="530" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="551" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="914" y="530" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="551" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="988" y="530" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="551" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="566" y="596" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">Tool discovery</text>
+<rect x="840" y="572" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="593" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="914" y="572" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="593" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="988" y="572" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="593" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="566" y="638" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">Typed input schema</text>
+<rect x="840" y="614" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="635" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="914" y="614" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="635" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="988" y="614" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="635" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="566" y="680" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">Explicit side effects</text>
+<rect x="840" y="656" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="677" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="914" y="656" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="677" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="988" y="656" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="677" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="566" y="722" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">Runtime/source metadata</text>
+<rect x="840" y="698" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="719" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="914" y="698" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="719" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#d62728" text-anchor="middle">NO</text>
+<rect x="988" y="698" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="719" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="566" y="764" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#1f2933" text-anchor="start">Stable success in this run</text>
+<rect x="840" y="740" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="875.0" y="761" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<rect x="914" y="740" width="70" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="949.0" y="761" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<rect x="988" y="740" width="90" height="30" rx="5" fill="#ffffff" stroke="#e5e7eb" />
+<text x="1033.0" y="761" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#2ca02c" text-anchor="middle">YES</text>
+<text x="40" y="830" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="18" font-weight="800" fill="#1f2933" text-anchor="start">Reading the result:</text>
+<text x="40" y="862" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#1f2933" text-anchor="start">Manual minimal B succeeds overall, but every trial first triggers a raw GraphQL field error before recovering.</text>
+<text x="40" y="890" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#1f2933" text-anchor="start">This figure is a no-external-model teaching simulation; it complements, not replaces, the real LLM minimal Baseline B test.</text>
+<text x="40" y="918" font-family="Avenir, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#737373" text-anchor="start">Source: /Users/wang/Desktop/TUB2025sose/misarch-agent-gateway-go/eval/manual_minimal_baseline_b_5_trials_20260604.json</text>
+</svg>

@@ -137,6 +137,46 @@ mutation CreateOrder($input: CreateOrderInput!) {
 }
 """
 
+GRAPHQL_AGENT_SCHEMA_DOC = """
+MiSArch catalog GraphQL documentation excerpt for read-only product lookup:
+
+scalar UUID
+
+type Query {
+  products(first: Int!): ProductConnection!
+  product(id: UUID!): Product
+}
+
+type ProductConnection {
+  nodes: [Product!]!
+}
+
+type Product {
+  id: UUID!
+  defaultVariant: ProductVariant
+  categories(first: Int!): CategoryConnection!
+}
+
+type ProductVariant {
+  id: UUID!
+  currentVersion: ProductVariantVersion
+}
+
+type ProductVariantVersion {
+  name: String
+  description: String
+  retailPrice: Int
+}
+
+type CategoryConnection {
+  nodes: [Category!]!
+}
+
+type Category {
+  name: String!
+}
+"""
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -344,6 +384,217 @@ def extract_response_text(response: dict[str, Any]) -> str:
     return json.dumps(response, ensure_ascii=False, indent=2)
 
 
+def extract_json_object(text: str) -> dict[str, Any]:
+    raw = text.strip()
+    if raw.startswith("```"):
+        lines = raw.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        raw = "\n".join(lines).strip()
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        start = raw.find("{")
+        end = raw.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            raise
+        payload = json.loads(raw[start : end + 1])
+
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"model output JSON is not an object: {payload}")
+    return payload
+
+
+def require_string(payload: dict[str, Any], key: str) -> str:
+    value = payload.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise RuntimeError(f"model output is missing string field {key!r}: {payload}")
+    return value.strip()
+
+
+def safe_graphql_query(query: str, label: str) -> None:
+    lower_query = query.lower()
+    if "mutation" in lower_query or "subscription" in lower_query:
+        raise RuntimeError(f"{label} must be read-only query, got: {query[:160]}")
+    if "query" not in lower_query:
+        raise RuntimeError(f"{label} must contain a GraphQL query operation")
+
+
+def build_agent_generated_graphql_generation_prompt(
+    top_k: int,
+    doc_level: str,
+) -> str:
+    base_prompt = (
+        "You are testing whether an autonomous agent can use a native GraphQL API "
+        "without receiving pre-written queries.\n"
+        "Generate two read-only GraphQL queries: one to list products, and one to "
+        "fetch product details by UUID.\n"
+        "The queries should return enough fields to compare product_id, variant_id, "
+        "name, description, retailPrice, and category names.\n\n"
+        "Return ONLY valid JSON with this exact shape:\n"
+        "{\n"
+        '  "list_query": "...",\n'
+        '  "list_variables": {"first": 2},\n'
+        '  "detail_query": "...",\n'
+        '  "detail_variables": {"id": "$PRODUCT_ID_FROM_LIST"},\n'
+        '  "notes": "short explanation"\n'
+        "}\n\n"
+        f"Use first={top_k} in list_variables.\n"
+    )
+
+    if doc_level == "minimal":
+        return (
+            base_prompt
+            + "\nNo schema documentation is available. Infer the GraphQL shape from "
+            "the task name only. This is intentionally difficult and failures are "
+            "valid experimental evidence.\n"
+        )
+
+    return base_prompt + "\nUse only this documentation excerpt:\n\n" + GRAPHQL_AGENT_SCHEMA_DOC
+
+
+def parse_agent_generated_graphql_plan(text: str, top_k: int) -> dict[str, Any]:
+    payload = extract_json_object(text)
+    list_query = require_string(payload, "list_query")
+    detail_query = require_string(payload, "detail_query")
+    safe_graphql_query(list_query, "list_query")
+    safe_graphql_query(detail_query, "detail_query")
+
+    list_variables = payload.get("list_variables")
+    if not isinstance(list_variables, dict):
+        list_variables = {}
+    if not isinstance(list_variables.get("first"), int):
+        list_variables["first"] = top_k
+
+    detail_variables = payload.get("detail_variables")
+    if not isinstance(detail_variables, dict):
+        detail_variables = {}
+
+    return {
+        "list_query": list_query,
+        "list_variables": list_variables,
+        "detail_query": detail_query,
+        "detail_variables_template": detail_variables,
+        "notes": payload.get("notes"),
+    }
+
+
+def build_fixed_graphql_controller_prompt(top_k: int) -> str:
+    return (
+        "You are an agent controller. Task: read real MiSArch catalog product data.\n"
+        "You are NOT allowed to write GraphQL. You have exactly one executor:\n"
+        "- fixed_graphql_catalog_lookup: executes pre-written safe GraphQL queries "
+        "to list products and fetch the first product detail.\n\n"
+        "Choose the executor and arguments. Return ONLY valid JSON with this shape:\n"
+        "{\n"
+        '  "executor": "fixed_graphql_catalog_lookup",\n'
+        f'  "arguments": {{"top_k": {top_k}}},\n'
+        '  "rationale": "short explanation"\n'
+        "}\n"
+    )
+
+
+def parse_fixed_graphql_decision(text: str, top_k: int) -> dict[str, Any]:
+    payload = extract_json_object(text)
+    executor = require_string(payload, "executor")
+    if executor != "fixed_graphql_catalog_lookup":
+        raise RuntimeError(f"unexpected fixed GraphQL executor: {executor}")
+    arguments = payload.get("arguments")
+    if not isinstance(arguments, dict):
+        arguments = {}
+    selected_top_k = arguments.get("top_k")
+    if not isinstance(selected_top_k, int) or selected_top_k < 1:
+        selected_top_k = top_k
+    arguments["top_k"] = selected_top_k
+    return {
+        "executor": executor,
+        "arguments": arguments,
+        "rationale": payload.get("rationale"),
+    }
+
+
+def build_mcp_controller_prompt(top_k: int, tools: list[Any]) -> str:
+    compact_tools = [
+        {
+            "name": tool.get("name"),
+            "description": tool.get("description"),
+            "inputSchema": tool.get("inputSchema"),
+        }
+        for tool in tools
+        if isinstance(tool, dict)
+    ]
+    return (
+        "You are an agent controller. Task: read real MiSArch catalog product data "
+        "through MCP, using tool discovery and tool calls.\n"
+        "You must select MCP tools from the discovered tool list below. "
+        "Do not write GraphQL.\n\n"
+        "Return ONLY valid JSON with this shape:\n"
+        "{\n"
+        '  "tool_calls": [\n'
+        f'    {{"name": "list_products", "arguments": {{"top_k": {top_k}}}}},\n'
+        '    {"name": "get_product", "arguments": {"product_id": "$FIRST_PRODUCT_ID_FROM_LIST"}}\n'
+        "  ],\n"
+        '  "rationale": "short explanation"\n'
+        "}\n\n"
+        f"Discovered MCP tools:\n{json.dumps(compact_tools, ensure_ascii=False, indent=2)}"
+    )
+
+
+def parse_mcp_tool_plan(text: str, top_k: int) -> dict[str, Any]:
+    payload = extract_json_object(text)
+    calls = payload.get("tool_calls")
+    if not isinstance(calls, list) or not calls:
+        raise RuntimeError(f"MCP controller output has no tool_calls: {payload}")
+
+    normalized_calls: list[dict[str, Any]] = []
+    for call in calls:
+        if not isinstance(call, dict):
+            raise RuntimeError(f"MCP tool call is not an object: {call}")
+        name = require_string(call, "name")
+        arguments = call.get("arguments")
+        if not isinstance(arguments, dict):
+            arguments = {}
+        normalized_calls.append({"name": name, "arguments": arguments})
+
+    tool_names = [call["name"] for call in normalized_calls]
+    if "list_products" not in tool_names:
+        raise RuntimeError(f"MCP plan did not include list_products: {tool_names}")
+    if "get_product" not in tool_names:
+        raise RuntimeError(f"MCP plan did not include get_product: {tool_names}")
+
+    for call in normalized_calls:
+        if call["name"] == "list_products":
+            selected_top_k = call["arguments"].get("top_k")
+            if not isinstance(selected_top_k, int) or selected_top_k < 1:
+                call["arguments"]["top_k"] = top_k
+
+    return {
+        "tool_calls": normalized_calls,
+        "rationale": payload.get("rationale"),
+    }
+
+
+def llm_controller_decision(
+    args: argparse.Namespace,
+    api_key: str | None,
+    prompt: str,
+    parser: Any,
+) -> dict[str, Any]:
+    if not api_key:
+        raise RuntimeError("LLM controller requires an API key")
+    start = time.perf_counter()
+    raw_output = responses_api_call(args.model_base_url, api_key, args.model, prompt)
+    parsed = parser(raw_output)
+    return {
+        "raw_output": raw_output,
+        "decision": parsed,
+        "duration_ms": elapsed_ms(start),
+    }
+
+
 def graphql_request(
     graphql_url: str,
     query: str,
@@ -371,27 +622,155 @@ def graphql_request(
     return response
 
 
+def graphql_request_raw(
+    graphql_url: str,
+    query: str,
+    variables: dict[str, Any],
+    headers: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    request_headers = {"Accept": "application/json"}
+    if headers:
+        request_headers.update(headers)
+
+    response, _ = post_json(
+        graphql_url,
+        {
+            "query": query,
+            "variables": variables,
+        },
+        headers=request_headers,
+        timeout=20,
+    )
+    return response
+
+
+def graphql_errors_text(response: dict[str, Any]) -> str:
+    errors = response.get("errors")
+    if not errors:
+        return ""
+    return json.dumps(errors, ensure_ascii=False)
+
+
+def first_present(payload: dict[str, Any], keys: tuple[str, ...]) -> Any:
+    for key in keys:
+        if key in payload and payload[key] is not None:
+            return payload[key]
+    return None
+
+
+def connection_nodes(value: Any) -> list[Any]:
+    if isinstance(value, dict):
+        nodes = value.get("nodes")
+        return nodes if isinstance(nodes, list) else []
+    if isinstance(value, list):
+        return value
+    return []
+
+
+def category_names(category_nodes: list[Any]) -> list[str]:
+    names: list[str] = []
+    for category in category_nodes:
+        if not isinstance(category, dict):
+            continue
+        name = first_present(category, ("name", "category_name", "categoryName"))
+        if isinstance(name, str) and name.strip():
+            names.append(name)
+    return names
+
+
 def normalize_graphql_product(node: dict[str, Any] | None) -> dict[str, Any] | None:
     if not node:
         return None
 
-    variant = node.get("defaultVariant") or {}
-    version = variant.get("currentVersion") or {}
-    categories_page = node.get("categories") or {}
-    category_nodes = categories_page.get("nodes") or []
+    variant = first_present(
+        node,
+        ("defaultVariant", "default_variant", "variant", "productVariant"),
+    )
+    if not isinstance(variant, dict):
+        variant = {}
+
+    version = first_present(
+        variant,
+        ("currentVersion", "current_version", "version", "productVersion"),
+    )
+    if not isinstance(version, dict):
+        version = {}
+
+    category_nodes = connection_nodes(node.get("categories"))
 
     return {
-        "product_id": node.get("id"),
-        "variant_id": variant.get("id"),
-        "name": version.get("name"),
+        "product_id": first_present(node, ("id", "product_id", "productId")),
+        "variant_id": first_present(variant, ("id", "variant_id", "variantId")),
+        "name": first_present(version, ("name", "product_name", "productName")),
         "description": version.get("description"),
-        "retail_price_cents": version.get("retailPrice"),
+        "retail_price_cents": first_present(
+            version,
+            ("retailPrice", "retail_price", "retailPriceCents", "retail_price_cents"),
+        ),
         "currency": "EUR",
-        "categories": [
-            category.get("name")
-            for category in category_nodes
-            if isinstance(category, dict) and category.get("name")
-        ],
+        "categories": category_names(category_nodes),
+    }
+
+
+def missing_product_fields(product: dict[str, Any] | None) -> list[str]:
+    if not product:
+        return ["product"]
+
+    required = (
+        "product_id",
+        "variant_id",
+        "name",
+        "retail_price_cents",
+        "categories",
+    )
+    missing: list[str] = []
+    for field in required:
+        value = product.get(field)
+        if value is None or value == "" or value == []:
+            missing.append(field)
+    return missing
+
+
+def agent_generated_failure_result(
+    start: float,
+    stage: str,
+    error: str,
+    doc_level: str = "schema",
+    raw_model_output: str | None = None,
+    generated_plan: dict[str, Any] | None = None,
+    raw_list_response: dict[str, Any] | None = None,
+    raw_detail_response: dict[str, Any] | None = None,
+    normalized_first_product: dict[str, Any] | None = None,
+    normalized_detail: dict[str, Any] | None = None,
+    generation_duration_ms: float | None = None,
+    list_duration_ms: float | None = None,
+    detail_duration_ms: float | None = None,
+) -> dict[str, Any]:
+    return {
+        "path": "agent_generated_graphql",
+        "enabled": True,
+        "success": False,
+        "failure_stage": stage,
+        "error": error,
+        "started_at": utc_now(),
+        "duration_ms": elapsed_ms(start),
+        "generation_duration_ms": generation_duration_ms,
+        "list_duration_ms": list_duration_ms,
+        "detail_duration_ms": detail_duration_ms,
+        "raw_model_output": raw_model_output,
+        "generated_plan": generated_plan,
+        "raw_list_response": raw_list_response,
+        "raw_detail_response": raw_detail_response,
+        "normalized_first_product": normalized_first_product,
+        "normalized_detail": normalized_detail,
+        "has_tool_discovery": False,
+        "has_input_schema": False,
+        "has_explicit_side_effects": False,
+        "has_explicit_runtime_source": False,
+        "agent_generated_query": True,
+        "llm_controller_used": True,
+        "schema_context_provided": doc_level == "schema",
+        "doc_level": doc_level,
     }
 
 
@@ -502,12 +881,12 @@ def maybe_agent_report(
     api_key: str | None,
     prompt: str,
 ) -> dict[str, Any]:
-    if args.skip_llm:
+    if args.skip_llm or args.skip_agent_reports:
         return {
             "ok": True,
             "skipped": True,
             "duration_ms": 0.0,
-            "text": "LLM report skipped by --skip-llm.",
+            "text": "LLM report skipped by --skip-llm or --skip-agent-reports.",
         }
 
     if not api_key:
@@ -1002,6 +1381,15 @@ def run_native_graphql_agent(
     api_key: str | None,
 ) -> dict[str, Any]:
     start = time.perf_counter()
+    controller: dict[str, Any] | None = None
+
+    if args.use_llm_controller:
+        controller = llm_controller_decision(
+            args,
+            api_key,
+            build_fixed_graphql_controller_prompt(args.top_k),
+            lambda raw: parse_fixed_graphql_decision(raw, args.top_k),
+        )
 
     list_start = time.perf_counter()
     list_response = graphql_request(
@@ -1048,6 +1436,237 @@ def run_native_graphql_agent(
         "has_input_schema": False,
         "has_explicit_side_effects": False,
         "has_explicit_runtime_source": False,
+        "llm_controller_used": args.use_llm_controller,
+        "llm_controller": controller,
+    }
+    result["agent_report"] = maybe_agent_report(
+        args,
+        api_key,
+        build_native_graphql_prompt(result),
+    )
+    return result
+
+
+def run_agent_generated_graphql_agent(
+    args: argparse.Namespace,
+    api_key: str | None,
+) -> dict[str, Any]:
+    if not api_key:
+        raise RuntimeError("agent-generated GraphQL baseline requires an API key")
+
+    start = time.perf_counter()
+    raw_model_output: str | None = None
+    plan: dict[str, Any] | None = None
+    generation_duration_ms: float | None = None
+    list_duration_ms: float | None = None
+    detail_duration_ms: float | None = None
+
+    def fail(stage: str, error: str, **evidence: Any) -> dict[str, Any]:
+        return agent_generated_failure_result(
+            start,
+            stage,
+            error,
+            doc_level=args.agent_generated_graphql_doc_level,
+            **evidence,
+        )
+
+    generation_prompt = build_agent_generated_graphql_generation_prompt(
+        args.top_k,
+        args.agent_generated_graphql_doc_level,
+    )
+    generation_start = time.perf_counter()
+    try:
+        raw_model_output = responses_api_call(
+            args.model_base_url,
+            api_key,
+            args.model,
+            generation_prompt,
+        )
+        generation_duration_ms = elapsed_ms(generation_start)
+    except Exception as exc:
+        return fail(
+            "model_generation",
+            str(exc),
+        )
+
+    try:
+        plan = parse_agent_generated_graphql_plan(raw_model_output, args.top_k)
+    except Exception as exc:
+        return fail(
+            "model_output_parse",
+            str(exc),
+            raw_model_output=raw_model_output,
+            generation_duration_ms=generation_duration_ms,
+        )
+
+    list_start = time.perf_counter()
+    try:
+        list_response = graphql_request_raw(
+            args.graphql_url,
+            plan["list_query"],
+            plan["list_variables"],
+        )
+    except Exception as exc:
+        return fail(
+            "list_query_http",
+            str(exc),
+            raw_model_output=raw_model_output,
+            generated_plan=plan,
+            generation_duration_ms=generation_duration_ms,
+        )
+    list_duration_ms = elapsed_ms(list_start)
+    if list_response.get("errors"):
+        return fail(
+            "list_query_graphql_errors",
+            graphql_errors_text(list_response),
+            raw_model_output=raw_model_output,
+            generated_plan=plan,
+            raw_list_response=list_response,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+        )
+
+    data = list_response.get("data")
+    if not isinstance(data, dict):
+        return fail(
+            "list_response_shape",
+            "GraphQL list response has no data object",
+            raw_model_output=raw_model_output,
+            generated_plan=plan,
+            raw_list_response=list_response,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+        )
+
+    nodes = (
+        data
+        .get("products", {})
+        .get("nodes", [])
+    )
+    if not nodes:
+        return fail(
+            "list_response_shape",
+            "agent-generated GraphQL returned no products at data.products.nodes",
+            raw_model_output=raw_model_output,
+            generated_plan=plan,
+            raw_list_response=list_response,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+        )
+
+    first_product = normalize_graphql_product(nodes[0])
+    missing_first_fields = missing_product_fields(first_product)
+    if "product_id" in missing_first_fields:
+        return fail(
+            "list_response_shape",
+            "agent-generated GraphQL list result has no usable product_id",
+            raw_model_output=raw_model_output,
+            generated_plan=plan,
+            raw_list_response=list_response,
+            normalized_first_product=first_product,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+        )
+
+    detail_variables = dict(plan["detail_variables_template"])
+    detail_variables["id"] = first_product["product_id"]
+    executable_plan = {
+        **plan,
+        "detail_variables": detail_variables,
+        "doc_level": args.agent_generated_graphql_doc_level,
+    }
+
+    detail_start = time.perf_counter()
+    try:
+        detail_response = graphql_request_raw(
+            args.graphql_url,
+            plan["detail_query"],
+            detail_variables,
+        )
+    except Exception as exc:
+        return fail(
+            "detail_query_http",
+            str(exc),
+            raw_model_output=raw_model_output,
+            generated_plan=executable_plan,
+            raw_list_response=list_response,
+            normalized_first_product=first_product,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+        )
+    detail_duration_ms = elapsed_ms(detail_start)
+    if detail_response.get("errors"):
+        return fail(
+            "detail_query_graphql_errors",
+            graphql_errors_text(detail_response),
+            raw_model_output=raw_model_output,
+            generated_plan=executable_plan,
+            raw_list_response=list_response,
+            raw_detail_response=detail_response,
+            normalized_first_product=first_product,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+            detail_duration_ms=detail_duration_ms,
+        )
+
+    detail_data = detail_response.get("data")
+    if not isinstance(detail_data, dict):
+        return fail(
+            "detail_response_shape",
+            "GraphQL detail response has no data object",
+            raw_model_output=raw_model_output,
+            generated_plan=executable_plan,
+            raw_list_response=list_response,
+            raw_detail_response=detail_response,
+            normalized_first_product=first_product,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+            detail_duration_ms=detail_duration_ms,
+        )
+
+    detail_node = detail_data.get("product")
+    normalized_detail = normalize_graphql_product(detail_node)
+    missing_detail_fields = missing_product_fields(normalized_detail)
+    if missing_detail_fields:
+        return fail(
+            "detail_response_shape",
+            "agent-generated GraphQL detail result is missing fields: "
+            + ", ".join(missing_detail_fields),
+            raw_model_output=raw_model_output,
+            generated_plan=executable_plan,
+            raw_list_response=list_response,
+            raw_detail_response=detail_response,
+            normalized_first_product=first_product,
+            normalized_detail=normalized_detail,
+            generation_duration_ms=generation_duration_ms,
+            list_duration_ms=list_duration_ms,
+            detail_duration_ms=detail_duration_ms,
+        )
+
+    result = {
+        "path": "agent_generated_graphql",
+        "enabled": True,
+        "success": True,
+        "endpoint": args.graphql_url,
+        "started_at": utc_now(),
+        "duration_ms": elapsed_ms(start),
+        "generation_duration_ms": generation_duration_ms,
+        "list_duration_ms": list_duration_ms,
+        "detail_duration_ms": detail_duration_ms,
+        "raw_model_output": raw_model_output,
+        "generated_plan": executable_plan,
+        "raw_list_response": list_response,
+        "raw_detail_response": detail_response,
+        "normalized_first_product": first_product,
+        "normalized_detail": normalized_detail,
+        "has_tool_discovery": False,
+        "has_input_schema": False,
+        "has_explicit_side_effects": False,
+        "has_explicit_runtime_source": False,
+        "agent_generated_query": True,
+        "llm_controller_used": True,
+        "schema_context_provided": args.agent_generated_graphql_doc_level == "schema",
+        "doc_level": args.agent_generated_graphql_doc_level,
     }
     result["agent_report"] = maybe_agent_report(
         args,
@@ -1062,6 +1681,7 @@ def run_mcp_agent(
     api_key: str | None,
 ) -> dict[str, Any]:
     start = time.perf_counter()
+    controller: dict[str, Any] | None = None
 
     initialize_start = time.perf_counter()
     initialize, session_id = mcp_post(
@@ -1071,7 +1691,7 @@ def run_mcp_agent(
             "id": 1,
             "method": "initialize",
             "params": {
-                "protocolVersion": "2025-03-26",
+                "protocolVersion": "2025-06-18",
                 "capabilities": {},
                 "clientInfo": {
                     "name": "misarch-baseline-comparison-agent",
@@ -1111,12 +1731,42 @@ def run_mcp_agent(
     if not isinstance(tools, list):
         raise RuntimeError("tools/list did not return a tools array")
 
+    if args.use_llm_controller:
+        controller = llm_controller_decision(
+            args,
+            api_key,
+            build_mcp_controller_prompt(args.top_k, tools),
+            lambda raw: parse_mcp_tool_plan(raw, args.top_k),
+        )
+        planned_calls = controller["decision"]["tool_calls"]
+    else:
+        planned_calls = [
+            {
+                "name": "list_products",
+                "arguments": {"top_k": args.top_k},
+            },
+            {
+                "name": "get_product",
+                "arguments": {"product_id": "$FIRST_PRODUCT_ID_FROM_LIST"},
+            },
+        ]
+
+    list_call = next(
+        (call for call in planned_calls if call.get("name") == "list_products"),
+        None,
+    )
+    if not isinstance(list_call, dict):
+        raise RuntimeError(f"MCP plan has no list_products call: {planned_calls}")
+    list_arguments = list_call.get("arguments")
+    if not isinstance(list_arguments, dict):
+        list_arguments = {"top_k": args.top_k}
+
     list_start = time.perf_counter()
     product_list = call_mcp_tool(
         args.mcp_url,
         session_id,
         "list_products",
-        {"top_k": args.top_k},
+        list_arguments,
         3,
     )
     list_duration_ms = elapsed_ms(list_start)
@@ -1124,12 +1774,32 @@ def run_mcp_agent(
     if not products:
         raise RuntimeError("MCP list_products returned no products")
 
+    detail_call = next(
+        (call for call in planned_calls if call.get("name") == "get_product"),
+        None,
+    )
+    if not isinstance(detail_call, dict):
+        raise RuntimeError(f"MCP plan has no get_product call: {planned_calls}")
+    detail_arguments = detail_call.get("arguments")
+    if not isinstance(detail_arguments, dict):
+        detail_arguments = {}
+    if detail_arguments.get("product_id") == "$FIRST_PRODUCT_ID_FROM_LIST":
+        detail_arguments = {
+            **detail_arguments,
+            "product_id": products[0]["product_id"],
+        }
+    if not detail_arguments.get("product_id"):
+        detail_arguments = {
+            **detail_arguments,
+            "product_id": products[0]["product_id"],
+        }
+
     detail_start = time.perf_counter()
     product_detail = call_mcp_tool(
         args.mcp_url,
         session_id,
         "get_product",
-        {"product_id": products[0]["product_id"]},
+        detail_arguments,
         4,
     )
     detail_duration_ms = elapsed_ms(detail_start)
@@ -1165,12 +1835,25 @@ def run_mcp_agent(
         "has_input_schema": has_input_schema,
         "has_explicit_side_effects": has_explicit_side_effects,
         "has_explicit_runtime_source": has_explicit_runtime_source,
+        "llm_controller_used": args.use_llm_controller,
+        "llm_controller": controller,
+        "planned_tool_calls": planned_calls,
+        "executed_tool_calls": [
+            {"name": "list_products", "arguments": list_arguments},
+            {"name": "get_product", "arguments": detail_arguments},
+        ],
     }
     result["agent_report"] = maybe_agent_report(args, api_key, build_mcp_prompt(result))
     return result
 
 
 def product_from_native(result: dict[str, Any]) -> dict[str, Any] | None:
+    if not result.get("success"):
+        return None
+    return result.get("normalized_detail") or result.get("normalized_first_product")
+
+
+def product_from_agent_generated(result: dict[str, Any]) -> dict[str, Any] | None:
     if not result.get("success"):
         return None
     return result.get("normalized_detail") or result.get("normalized_first_product")
@@ -1185,6 +1868,48 @@ def product_from_mcp(result: dict[str, Any]) -> dict[str, Any] | None:
         return product
     products = (result.get("product_list") or {}).get("products") or []
     return products[0] if products else None
+
+
+def compare_agent_generated_graphql(
+    native: dict[str, Any],
+    generated: dict[str, Any],
+) -> dict[str, Any]:
+    native_product = product_from_native(native)
+    generated_product = product_from_agent_generated(generated)
+
+    if not native_product or not generated_product:
+        return {
+            "comparable": False,
+            "reason": "fixed or agent-generated GraphQL did not return a product",
+        }
+
+    same_product_id = (
+        native_product.get("product_id") == generated_product.get("product_id")
+    )
+    same_name = native_product.get("name") == generated_product.get("name")
+    same_price = (
+        native_product.get("retail_price_cents")
+        == generated_product.get("retail_price_cents")
+    )
+    same_categories = (
+        native_product.get("categories") == generated_product.get("categories")
+    )
+
+    return {
+        "comparable": True,
+        "same_product_id": same_product_id,
+        "same_name": same_name,
+        "same_price": same_price,
+        "same_categories": same_categories,
+        "same_core_product_data": all(
+            [same_product_id, same_name, same_price, same_categories]
+        ),
+        "fixed_graphql_product": native_product,
+        "agent_generated_graphql_product": generated_product,
+        "fixed_graphql_duration_ms": native.get("duration_ms"),
+        "agent_generated_graphql_duration_ms": generated.get("duration_ms"),
+        "generation_duration_ms": generated.get("generation_duration_ms"),
+    }
 
 
 def compare_paths(
@@ -1246,6 +1971,7 @@ def run_trial(
     print(f"\n=== Trial {trial_number}/{args.trials} ===")
 
     native: dict[str, Any]
+    agent_generated: dict[str, Any]
     mcp: dict[str, Any]
 
     print("[native] direct GraphQL agent path")
@@ -1265,6 +1991,43 @@ def run_trial(
             "started_at": utc_now(),
         }
         print(f"         failed: {exc}")
+
+    if args.include_agent_generated_graphql:
+        print("[agent]  agent-generated GraphQL baseline")
+        try:
+            agent_generated = run_agent_generated_graphql_agent(args, api_key)
+            if agent_generated.get("success"):
+                product = product_from_agent_generated(agent_generated) or {}
+                print(
+                    "         ok "
+                    + f"product={product.get('name')} "
+                    + f"duration_ms={agent_generated.get('duration_ms')} "
+                    + f"generation_ms={agent_generated.get('generation_duration_ms')}"
+                )
+            else:
+                print(
+                    "         failed "
+                    + f"stage={agent_generated.get('failure_stage')} "
+                    + f"error={agent_generated.get('error')}"
+                )
+        except Exception as exc:
+            agent_generated = {
+                "path": "agent_generated_graphql",
+                "enabled": True,
+                "success": False,
+                "failure_stage": "unexpected_exception",
+                "error": str(exc),
+                "started_at": utc_now(),
+            }
+            print(f"         failed: {exc}")
+    else:
+        agent_generated = {
+            "path": "agent_generated_graphql",
+            "enabled": False,
+            "success": False,
+            "skipped": True,
+            "reason": "disabled; pass --include-agent-generated-graphql to enable",
+        }
 
     print("[mcp]    MCP gateway agent path")
     try:
@@ -1293,6 +2056,17 @@ def run_trial(
             + f"mcp_minus_native_ms={comparison.get('mcp_minus_native_duration_ms')}"
         )
 
+    agent_generated_comparison = compare_agent_generated_graphql(
+        native,
+        agent_generated,
+    )
+    if agent_generated_comparison.get("comparable"):
+        print(
+            "[compare-agent] "
+            + "same_core_product_data="
+            + f"{agent_generated_comparison.get('same_core_product_data')}"
+        )
+
     pending_order = run_pending_order_test(args, native, mcp)
     if pending_order.get("enabled"):
         pending_comparison = pending_order.get("comparison", {})
@@ -1316,8 +2090,10 @@ def run_trial(
         "trial": trial_number,
         "started_at": utc_now(),
         "native_graphql": native,
+        "agent_generated_graphql": agent_generated,
         "mcp_gateway": mcp,
         "comparison": comparison,
+        "agent_generated_comparison": agent_generated_comparison,
         "pending_order": pending_order,
     }
 
@@ -1333,6 +2109,35 @@ def build_summary(trials: list[dict[str, Any]]) -> dict[str, Any]:
     mcp_successes = [
         trial for trial in trials if trial.get("mcp_gateway", {}).get("success")
     ]
+    agent_generated_enabled = [
+        trial
+        for trial in trials
+        if trial.get("agent_generated_graphql", {}).get("enabled")
+    ]
+    agent_generated_successes = [
+        trial
+        for trial in agent_generated_enabled
+        if trial.get("agent_generated_graphql", {}).get("success")
+    ]
+    agent_generated_comparable = [
+        trial
+        for trial in agent_generated_enabled
+        if trial.get("agent_generated_comparison", {}).get("comparable")
+    ]
+    agent_generated_same_core = [
+        trial
+        for trial in agent_generated_comparable
+        if trial.get("agent_generated_comparison", {}).get("same_core_product_data")
+    ]
+    agent_generated_failure_stage_counts: dict[str, int] = {}
+    for trial in agent_generated_enabled:
+        agent_result = trial.get("agent_generated_graphql", {})
+        if agent_result.get("success"):
+            continue
+        stage = str(agent_result.get("failure_stage") or "unknown")
+        agent_generated_failure_stage_counts[stage] = (
+            agent_generated_failure_stage_counts.get(stage, 0) + 1
+        )
     comparable = [
         trial
         for trial in trials
@@ -1379,11 +2184,35 @@ def build_summary(trials: list[dict[str, Any]]) -> dict[str, Any]:
         for trial in mcp_successes
         if trial["mcp_gateway"].get("duration_ms") is not None
     ]
+    agent_generated_durations = [
+        float(trial["agent_generated_graphql"]["duration_ms"])
+        for trial in agent_generated_successes
+        if trial["agent_generated_graphql"].get("duration_ms") is not None
+    ]
+    agent_generated_generation_durations = [
+        float(trial["agent_generated_graphql"]["generation_duration_ms"])
+        for trial in agent_generated_successes
+        if trial["agent_generated_graphql"].get("generation_duration_ms") is not None
+    ]
 
     return {
         "trial_count": len(trials),
+        "llm_controller_enabled": any(
+            bool(trial.get("native_graphql", {}).get("llm_controller_used"))
+            or bool(trial.get("mcp_gateway", {}).get("llm_controller_used"))
+            for trial in trials
+        ),
         "native_success_count": len(native_successes),
         "mcp_success_count": len(mcp_successes),
+        "agent_generated_graphql_enabled_count": len(agent_generated_enabled),
+        "agent_generated_graphql_success_count": len(agent_generated_successes),
+        "agent_generated_graphql_comparable_count": len(agent_generated_comparable),
+        "agent_generated_graphql_same_core_product_data_count": len(
+            agent_generated_same_core
+        ),
+        "agent_generated_graphql_failure_stage_counts": (
+            agent_generated_failure_stage_counts
+        ),
         "comparable_count": len(comparable),
         "same_core_product_data_count": len(same_core),
         "pending_order_enabled_count": len(pending_enabled),
@@ -1393,9 +2222,17 @@ def build_summary(trials: list[dict[str, Any]]) -> dict[str, Any]:
         "pending_order_both_pending_count": len(pending_both_pending),
         "native_avg_duration_ms": average(native_durations),
         "mcp_avg_duration_ms": average(mcp_durations),
+        "agent_generated_graphql_avg_duration_ms": average(
+            agent_generated_durations
+        ),
+        "agent_generated_graphql_avg_generation_duration_ms": average(
+            agent_generated_generation_durations
+        ),
         "interpretation": (
             "GraphQL and MCP should return the same core MiSArch product data. "
             "MCP adds agent-facing metadata and protocol-level tool discovery. "
+            "Agent-generated GraphQL is optional and measures whether the model can "
+            "produce valid native GraphQL from schema documentation. "
             "Pending-order comparisons are disabled unless explicitly enabled "
             "because they create shopping cart items and pending orders."
         ),
@@ -1424,6 +2261,12 @@ def write_results(
             "trials": args.trials,
             "top_k": args.top_k,
             "skip_llm": args.skip_llm,
+            "skip_agent_reports": args.skip_agent_reports,
+            "use_llm_controller": args.use_llm_controller,
+            "include_agent_generated_graphql": args.include_agent_generated_graphql,
+            "agent_generated_graphql_doc_level": (
+                args.agent_generated_graphql_doc_level
+            ),
             "include_order_test": args.include_order_test,
             "order_quantity": args.order_quantity,
             "order_product_variant_id": args.order_product_variant_id,
@@ -1447,17 +2290,29 @@ def write_results(
             fieldnames=[
                 "trial",
                 "native_success",
+                "native_llm_controller_used",
+                "agent_generated_enabled",
+                "agent_generated_success",
+                "agent_generated_llm_controller_used",
+                "agent_generated_same_core_product_data",
+                "agent_generated_failure_stage",
+                "agent_generated_doc_level",
                 "mcp_success",
+                "mcp_llm_controller_used",
                 "same_core_product_data",
                 "same_product_id",
                 "same_name",
                 "same_price",
                 "native_duration_ms",
+                "agent_generated_duration_ms",
+                "agent_generated_generation_duration_ms",
                 "mcp_duration_ms",
                 "mcp_minus_native_duration_ms",
                 "native_product_name",
+                "agent_generated_product_name",
                 "mcp_product_name",
                 "mcp_tools",
+                "agent_generated_error",
                 "native_has_tool_discovery",
                 "mcp_has_tool_discovery",
                 "native_has_explicit_side_effects",
@@ -1484,31 +2339,63 @@ def write_results(
         writer.writeheader()
         for trial in trials:
             native = trial.get("native_graphql", {})
+            agent_generated = trial.get("agent_generated_graphql", {})
             mcp = trial.get("mcp_gateway", {})
             comparison = trial.get("comparison", {})
+            agent_generated_comparison = trial.get(
+                "agent_generated_comparison",
+                {},
+            )
             pending_order = trial.get("pending_order", {})
             native_pending = pending_order.get("native_graphql", {})
             mcp_pending = pending_order.get("mcp_gateway", {})
             pending_comparison = pending_order.get("comparison", {})
             native_product = product_from_native(native) or {}
+            agent_generated_product = (
+                product_from_agent_generated(agent_generated) or {}
+            )
             mcp_product = product_from_mcp(mcp) or {}
             writer.writerow(
                 {
-                    "trial": trial.get("trial"),
-                    "native_success": native.get("success"),
-                    "mcp_success": mcp.get("success"),
-                    "same_core_product_data": comparison.get("same_core_product_data"),
+                        "trial": trial.get("trial"),
+                        "native_success": native.get("success"),
+                        "native_llm_controller_used": native.get(
+                            "llm_controller_used"
+                        ),
+                        "agent_generated_enabled": agent_generated.get("enabled"),
+                        "agent_generated_success": agent_generated.get("success"),
+                        "agent_generated_llm_controller_used": (
+                            agent_generated.get("llm_controller_used")
+                        ),
+                        "agent_generated_same_core_product_data": (
+                            agent_generated_comparison.get("same_core_product_data")
+                        ),
+                        "agent_generated_failure_stage": (
+                            agent_generated.get("failure_stage")
+                        ),
+                        "agent_generated_doc_level": agent_generated.get("doc_level"),
+                        "mcp_success": mcp.get("success"),
+                        "mcp_llm_controller_used": mcp.get("llm_controller_used"),
+                        "same_core_product_data": comparison.get(
+                        "same_core_product_data"
+                    ),
                     "same_product_id": comparison.get("same_product_id"),
                     "same_name": comparison.get("same_name"),
                     "same_price": comparison.get("same_price"),
                     "native_duration_ms": native.get("duration_ms"),
+                    "agent_generated_duration_ms": agent_generated.get("duration_ms"),
+                    "agent_generated_generation_duration_ms": (
+                        agent_generated.get("generation_duration_ms")
+                    ),
                     "mcp_duration_ms": mcp.get("duration_ms"),
                     "mcp_minus_native_duration_ms": comparison.get(
                         "mcp_minus_native_duration_ms"
                     ),
                     "native_product_name": native_product.get("name"),
+                    "agent_generated_product_name": agent_generated_product.get("name"),
                     "mcp_product_name": mcp_product.get("name"),
                     "mcp_tools": ",".join(mcp.get("tool_names", [])),
+                    "agent_generated_error": agent_generated.get("error"),
                     "native_has_tool_discovery": native.get("has_tool_discovery"),
                     "mcp_has_tool_discovery": mcp.get("has_tool_discovery"),
                     "native_has_explicit_side_effects": native.get(
@@ -1563,7 +2450,10 @@ def write_results(
 
 
 def run(args: argparse.Namespace) -> None:
-    api_key = None if args.skip_llm else load_api_key()
+    needs_model = args.use_llm_controller or args.include_agent_generated_graphql or not (
+        args.skip_llm or args.skip_agent_reports
+    )
+    api_key = load_api_key() if needs_model else None
     trials = [run_trial(args, api_key, trial) for trial in range(1, args.trials + 1)]
     summary = build_summary(trials)
     json_path, csv_path = write_results(args, trials, summary)
@@ -1575,7 +2465,7 @@ def run(args: argparse.Namespace) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(   
         description=(
             "Compare native MiSArch GraphQL access with MCP gateway access "
             "for agent-facing interoperability."
@@ -1594,13 +2484,41 @@ def main() -> int:
     parser.add_argument("--trials", type=int, default=5)
     parser.add_argument("--top-k", type=int, default=2)
     parser.add_argument("--results-dir", default=DEFAULT_RESULTS_DIR)
-    parser.add_argument("--output-prefix", default="")
+    parser.add_argument("--output-prefix", default="")  
     parser.add_argument(
         "--include-order-test",
         action="store_true",
         help=(
             "Also compare create_pending_order against raw GraphQL. "
             "This creates shopping cart items and pending orders."
+        ),
+    )
+    parser.add_argument(
+        "--include-agent-generated-graphql",
+        action="store_true",
+        help=(
+            "Also run Baseline B: ask the model to generate native GraphQL "
+            "queries from schema documentation, then execute those queries."
+        ),
+    )
+    parser.add_argument(
+        "--use-llm-controller",
+        action="store_true",
+        help=(
+            "Use the same LLM controller for Baseline A and MCP. Baseline A's "
+            "controller must choose the fixed GraphQL executor; MCP's controller "
+            "must plan tools/list-driven tool calls. Baseline B already uses the "
+            "LLM to generate GraphQL."
+        ),
+    )
+    parser.add_argument(
+        "--agent-generated-graphql-doc-level",
+        choices=("schema", "minimal"),
+        default="schema",
+        help=(
+            "How much GraphQL documentation Baseline B receives. 'schema' gives "
+            "a concise schema excerpt; 'minimal' gives no field documentation so "
+            "query failures become valid evidence of raw GraphQL difficulty."
         ),
     )
     parser.add_argument("--order-quantity", type=int, default=1)
@@ -1662,8 +2580,21 @@ def main() -> int:
     parser.add_argument(
         "--skip-llm",
         action="store_true",
-        help="Run GraphQL and MCP calls only; skip model-generated agent reports.",
+        help=(
+            "Run deterministic GraphQL and MCP calls only; skip all model calls. "
+            "This cannot be combined with --include-agent-generated-graphql "
+            "or --use-llm-controller."
+        ),
     )
+    parser.add_argument(
+        "--skip-agent-reports",
+        action="store_true",
+        help=(
+            "Skip optional model-generated written reports while still allowing "
+            "--include-agent-generated-graphql to use the model for query generation."
+        ),
+    )
+
     args = parser.parse_args()
 
     if args.trials < 1:
@@ -1677,6 +2608,13 @@ def main() -> int:
         return 1
     if args.order_quantity > 3:
         print("ERROR: --order-quantity must be <= 3", file=sys.stderr)
+        return 1
+    if args.skip_llm and (args.include_agent_generated_graphql or args.use_llm_controller):
+        print(
+            "ERROR: --include-agent-generated-graphql/--use-llm-controller require model access; "
+            "use --skip-agent-reports if you only want to skip written reports",
+            file=sys.stderr,
+        )
         return 1
     if args.include_order_test and not (
         args.graphql_bearer_token or args.keycloak_token_url

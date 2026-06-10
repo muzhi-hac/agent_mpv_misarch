@@ -1,72 +1,100 @@
 {
-  "created_at": "2026-06-02T21:20:17+00:00",
+  "created_at": "2026-06-05T14:56:56+00:00",
   "config": {
     "graphql_url": "http://34.40.117.201:8080/graphql",
     "mcp_url": "http://34.40.117.201:8001/mcp",
     "model_base_url": "https://yybb.codes",
     "model": "gpt-5.4",
     "trials": 5,
-    "top_k": 10,
-    "skip_llm": true
+    "top_k": 2,
+    "skip_llm": true,
+    "skip_agent_reports": true,
+    "use_llm_controller": false,
+    "include_agent_generated_graphql": false,
+    "agent_generated_graphql_doc_level": "schema",
+    "include_order_test": false,
+    "order_quantity": 1,
+    "order_product_variant_id": "",
+    "order_user_id": "",
+    "order_shipment_method_id": "",
+    "order_shipment_address_id": "",
+    "order_invoice_address_id": "",
+    "order_payment_information_id": "",
+    "order_coupon_ids": "",
+    "graphql_bearer_token_configured": false,
+    "keycloak_token_url_configured": false
   },
   "summary": {
     "trial_count": 5,
+    "llm_controller_enabled": false,
     "native_success_count": 5,
     "mcp_success_count": 5,
+    "agent_generated_graphql_enabled_count": 0,
+    "agent_generated_graphql_success_count": 0,
+    "agent_generated_graphql_comparable_count": 0,
+    "agent_generated_graphql_same_core_product_data_count": 0,
+    "agent_generated_graphql_failure_stage_counts": {},
     "comparable_count": 5,
     "same_core_product_data_count": 5,
-    "native_avg_duration_ms": 181.03,
-    "mcp_avg_duration_ms": 360.41,
-    "interpretation": "GraphQL and MCP should return the same core MiSArch product data. MCP adds agent-facing metadata and protocol-level tool discovery."
+    "pending_order_enabled_count": 0,
+    "native_pending_order_success_count": 0,
+    "mcp_pending_order_success_count": 0,
+    "pending_order_comparable_count": 0,
+    "pending_order_both_pending_count": 0,
+    "native_avg_duration_ms": 212.63,
+    "mcp_avg_duration_ms": 443.01,
+    "agent_generated_graphql_avg_duration_ms": null,
+    "agent_generated_graphql_avg_generation_duration_ms": null,
+    "interpretation": "GraphQL and MCP should return the same core MiSArch product data. MCP adds agent-facing metadata and protocol-level tool discovery. Agent-generated GraphQL is optional and measures whether the model can produce valid native GraphQL from schema documentation. Pending-order comparisons are disabled unless explicitly enabled because they create shopping cart items and pending orders."
   },
   "trials": [
     {
       "trial": 1,
-      "started_at": "2026-06-02T21:20:15+00:00",
+      "started_at": "2026-06-05T14:56:54+00:00",
       "native_graphql": {
         "path": "native_graphql",
         "success": true,
         "endpoint": "http://34.40.117.201:8080/graphql",
-        "started_at": "2026-06-02T21:20:15+00:00",
-        "duration_ms": 267.72,
-        "list_duration_ms": 159.16,
-        "detail_duration_ms": 106.89,
+        "started_at": "2026-06-05T14:56:53+00:00",
+        "duration_ms": 481.0,
+        "list_duration_ms": 344.28,
+        "detail_duration_ms": 136.24,
         "raw_list_response": {
           "data": {
             "products": {
               "nodes": [
                 {
-                  "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
                   "defaultVariant": {
-                    "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                     "currentVersion": {
-                      "name": "MCP Demo Album 20260602211822",
-                      "description": "Added from GCP product-data test at 20260602211822 UTC",
-                      "retailPrice": 42
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Electronics & Gadgets"
                       }
                     ]
                   }
                 },
                 {
-                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
                   "defaultVariant": {
-                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
                     "currentVersion": {
-                      "name": "POP 2025",
-                      "description": "POP 2025",
-                      "retailPrice": 20
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Pet Supplies"
                       }
                     ]
                   }
@@ -78,19 +106,19 @@
         "raw_detail_response": {
           "data": {
             "product": {
-              "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
               "defaultVariant": {
-                "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                 "currentVersion": {
-                  "name": "MCP Demo Album 20260602211822",
-                  "description": "Added from GCP product-data test at 20260602211822 UTC",
-                  "retailPrice": 42
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
                 }
               },
               "categories": {
                 "nodes": [
                   {
-                    "name": "CDs"
+                    "name": "Electronics & Gadgets"
                   }
                 ]
               }
@@ -98,53 +126,155 @@
           }
         },
         "normalized_first_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "normalized_detail": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "has_tool_discovery": false,
         "has_input_schema": false,
         "has_explicit_side_effects": false,
         "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
       },
       "mcp_gateway": {
         "path": "mcp_gateway",
         "success": true,
         "endpoint": "http://34.40.117.201:8001/mcp",
-        "started_at": "2026-06-02T21:20:15+00:00",
-        "duration_ms": 460.25,
-        "initialize_duration_ms": 61.96,
-        "tools_duration_ms": 77.13,
-        "list_duration_ms": 101.97,
-        "detail_duration_ms": 149.67,
+        "started_at": "2026-06-05T14:56:54+00:00",
+        "duration_ms": 665.44,
+        "initialize_duration_ms": 314.42,
+        "tools_duration_ms": 60.42,
+        "list_duration_ms": 155.1,
+        "detail_duration_ms": 83.42,
         "server_info": {
           "name": "misarch-agent-gateway",
           "version": "0.1.0"
         },
         "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
           {
             "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
             "inputSchema": {
@@ -316,6 +446,7 @@
           }
         ],
         "tool_names": [
+          "create_pending_order",
           "get_product",
           "list_products"
         ],
@@ -323,23 +454,23 @@
           "products": [
             {
               "categories": [
-                "CDs"
+                "Electronics & Gadgets"
               ],
               "currency": "EUR",
-              "name": "MCP Demo Album 20260602211822",
-              "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-              "retail_price_cents": 42,
-              "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
             },
             {
               "categories": [
-                "CDs"
+                "Pet Supplies"
               ],
               "currency": "EUR",
-              "name": "POP 2025",
-              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
-              "retail_price_cents": 20,
-              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
             }
           ],
           "returned_count": 2,
@@ -351,14 +482,14 @@
           "found": true,
           "product": {
             "categories": [
-              "CDs"
+              "Electronics & Gadgets"
             ],
             "currency": "EUR",
-            "description": "Added from GCP product-data test at 20260602211822 UTC",
-            "name": "MCP Demo Album 20260602211822",
-            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-            "retail_price_cents": 42,
-            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
           },
           "runtime": "misarch-graphql-gateway",
           "side_effects": "none (read-only)",
@@ -368,11 +499,41 @@
         "has_input_schema": true,
         "has_explicit_side_effects": true,
         "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
       },
       "comparison": {
@@ -383,30 +544,30 @@
         "same_categories": true,
         "same_core_product_data": true,
         "native_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "mcp_product": {
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ],
           "currency": "EUR",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "name": "MCP Demo Album 20260602211822",
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "retail_price_cents": 42,
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
         },
-        "native_duration_ms": 267.72,
-        "mcp_duration_ms": 460.25,
-        "mcp_minus_native_duration_ms": 192.53,
+        "native_duration_ms": 481.0,
+        "mcp_duration_ms": 665.44,
+        "mcp_minus_native_duration_ms": 184.44,
         "native_has_tool_discovery": false,
         "mcp_has_tool_discovery": true,
         "native_has_input_schema": false,
@@ -415,55 +576,63 @@
         "mcp_has_explicit_side_effects": true,
         "native_has_explicit_runtime_source": false,
         "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
       }
     },
     {
       "trial": 2,
-      "started_at": "2026-06-02T21:20:16+00:00",
+      "started_at": "2026-06-05T14:56:54+00:00",
       "native_graphql": {
         "path": "native_graphql",
         "success": true,
         "endpoint": "http://34.40.117.201:8080/graphql",
-        "started_at": "2026-06-02T21:20:15+00:00",
-        "duration_ms": 186.61,
-        "list_duration_ms": 112.98,
-        "detail_duration_ms": 73.55,
+        "started_at": "2026-06-05T14:56:54+00:00",
+        "duration_ms": 136.19,
+        "list_duration_ms": 69.86,
+        "detail_duration_ms": 66.27,
         "raw_list_response": {
           "data": {
             "products": {
               "nodes": [
                 {
-                  "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
                   "defaultVariant": {
-                    "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                     "currentVersion": {
-                      "name": "MCP Demo Album 20260602211822",
-                      "description": "Added from GCP product-data test at 20260602211822 UTC",
-                      "retailPrice": 42
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Electronics & Gadgets"
                       }
                     ]
                   }
                 },
                 {
-                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
                   "defaultVariant": {
-                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
                     "currentVersion": {
-                      "name": "POP 2025",
-                      "description": "POP 2025",
-                      "retailPrice": 20
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Pet Supplies"
                       }
                     ]
                   }
@@ -475,19 +644,19 @@
         "raw_detail_response": {
           "data": {
             "product": {
-              "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
               "defaultVariant": {
-                "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                 "currentVersion": {
-                  "name": "MCP Demo Album 20260602211822",
-                  "description": "Added from GCP product-data test at 20260602211822 UTC",
-                  "retailPrice": 42
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
                 }
               },
               "categories": {
                 "nodes": [
                   {
-                    "name": "CDs"
+                    "name": "Electronics & Gadgets"
                   }
                 ]
               }
@@ -495,53 +664,155 @@
           }
         },
         "normalized_first_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "normalized_detail": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "has_tool_discovery": false,
         "has_input_schema": false,
         "has_explicit_side_effects": false,
         "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
       },
       "mcp_gateway": {
         "path": "mcp_gateway",
         "success": true,
         "endpoint": "http://34.40.117.201:8001/mcp",
-        "started_at": "2026-06-02T21:20:16+00:00",
-        "duration_ms": 341.18,
-        "initialize_duration_ms": 95.94,
-        "tools_duration_ms": 50.78,
-        "list_duration_ms": 73.58,
-        "detail_duration_ms": 71.76,
+        "started_at": "2026-06-05T14:56:54+00:00",
+        "duration_ms": 314.95,
+        "initialize_duration_ms": 51.56,
+        "tools_duration_ms": 53.21,
+        "list_duration_ms": 84.83,
+        "detail_duration_ms": 70.97,
         "server_info": {
           "name": "misarch-agent-gateway",
           "version": "0.1.0"
         },
         "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
           {
             "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
             "inputSchema": {
@@ -713,6 +984,7 @@
           }
         ],
         "tool_names": [
+          "create_pending_order",
           "get_product",
           "list_products"
         ],
@@ -720,23 +992,23 @@
           "products": [
             {
               "categories": [
-                "CDs"
+                "Electronics & Gadgets"
               ],
               "currency": "EUR",
-              "name": "MCP Demo Album 20260602211822",
-              "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-              "retail_price_cents": 42,
-              "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
             },
             {
               "categories": [
-                "CDs"
+                "Pet Supplies"
               ],
               "currency": "EUR",
-              "name": "POP 2025",
-              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
-              "retail_price_cents": 20,
-              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
             }
           ],
           "returned_count": 2,
@@ -748,14 +1020,14 @@
           "found": true,
           "product": {
             "categories": [
-              "CDs"
+              "Electronics & Gadgets"
             ],
             "currency": "EUR",
-            "description": "Added from GCP product-data test at 20260602211822 UTC",
-            "name": "MCP Demo Album 20260602211822",
-            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-            "retail_price_cents": 42,
-            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
           },
           "runtime": "misarch-graphql-gateway",
           "side_effects": "none (read-only)",
@@ -765,11 +1037,41 @@
         "has_input_schema": true,
         "has_explicit_side_effects": true,
         "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
       },
       "comparison": {
@@ -780,30 +1082,30 @@
         "same_categories": true,
         "same_core_product_data": true,
         "native_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "mcp_product": {
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ],
           "currency": "EUR",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "name": "MCP Demo Album 20260602211822",
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "retail_price_cents": 42,
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
         },
-        "native_duration_ms": 186.61,
-        "mcp_duration_ms": 341.18,
-        "mcp_minus_native_duration_ms": 154.57,
+        "native_duration_ms": 136.19,
+        "mcp_duration_ms": 314.95,
+        "mcp_minus_native_duration_ms": 178.76,
         "native_has_tool_discovery": false,
         "mcp_has_tool_discovery": true,
         "native_has_input_schema": false,
@@ -812,55 +1114,63 @@
         "mcp_has_explicit_side_effects": true,
         "native_has_explicit_runtime_source": false,
         "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
       }
     },
     {
       "trial": 3,
-      "started_at": "2026-06-02T21:20:16+00:00",
+      "started_at": "2026-06-05T14:56:54+00:00",
       "native_graphql": {
         "path": "native_graphql",
         "success": true,
         "endpoint": "http://34.40.117.201:8080/graphql",
-        "started_at": "2026-06-02T21:20:16+00:00",
-        "duration_ms": 137.38,
-        "list_duration_ms": 70.64,
-        "detail_duration_ms": 66.7,
+        "started_at": "2026-06-05T14:56:54+00:00",
+        "duration_ms": 139.21,
+        "list_duration_ms": 70.02,
+        "detail_duration_ms": 69.09,
         "raw_list_response": {
           "data": {
             "products": {
               "nodes": [
                 {
-                  "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
                   "defaultVariant": {
-                    "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                     "currentVersion": {
-                      "name": "MCP Demo Album 20260602211822",
-                      "description": "Added from GCP product-data test at 20260602211822 UTC",
-                      "retailPrice": 42
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Electronics & Gadgets"
                       }
                     ]
                   }
                 },
                 {
-                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
                   "defaultVariant": {
-                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
                     "currentVersion": {
-                      "name": "POP 2025",
-                      "description": "POP 2025",
-                      "retailPrice": 20
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Pet Supplies"
                       }
                     ]
                   }
@@ -872,19 +1182,19 @@
         "raw_detail_response": {
           "data": {
             "product": {
-              "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
               "defaultVariant": {
-                "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                 "currentVersion": {
-                  "name": "MCP Demo Album 20260602211822",
-                  "description": "Added from GCP product-data test at 20260602211822 UTC",
-                  "retailPrice": 42
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
                 }
               },
               "categories": {
                 "nodes": [
                   {
-                    "name": "CDs"
+                    "name": "Electronics & Gadgets"
                   }
                 ]
               }
@@ -892,53 +1202,155 @@
           }
         },
         "normalized_first_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "normalized_detail": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "has_tool_discovery": false,
         "has_input_schema": false,
         "has_explicit_side_effects": false,
         "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
       },
       "mcp_gateway": {
         "path": "mcp_gateway",
         "success": true,
         "endpoint": "http://34.40.117.201:8001/mcp",
-        "started_at": "2026-06-02T21:20:16+00:00",
-        "duration_ms": 311.33,
-        "initialize_duration_ms": 48.98,
-        "tools_duration_ms": 54.28,
-        "list_duration_ms": 74.93,
-        "detail_duration_ms": 72.53,
+        "started_at": "2026-06-05T14:56:54+00:00",
+        "duration_ms": 327.86,
+        "initialize_duration_ms": 51.79,
+        "tools_duration_ms": 57.71,
+        "list_duration_ms": 74.78,
+        "detail_duration_ms": 88.83,
         "server_info": {
           "name": "misarch-agent-gateway",
           "version": "0.1.0"
         },
         "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
           {
             "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
             "inputSchema": {
@@ -1110,6 +1522,7 @@
           }
         ],
         "tool_names": [
+          "create_pending_order",
           "get_product",
           "list_products"
         ],
@@ -1117,23 +1530,23 @@
           "products": [
             {
               "categories": [
-                "CDs"
+                "Electronics & Gadgets"
               ],
               "currency": "EUR",
-              "name": "MCP Demo Album 20260602211822",
-              "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-              "retail_price_cents": 42,
-              "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
             },
             {
               "categories": [
-                "CDs"
+                "Pet Supplies"
               ],
               "currency": "EUR",
-              "name": "POP 2025",
-              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
-              "retail_price_cents": 20,
-              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
             }
           ],
           "returned_count": 2,
@@ -1145,14 +1558,14 @@
           "found": true,
           "product": {
             "categories": [
-              "CDs"
+              "Electronics & Gadgets"
             ],
             "currency": "EUR",
-            "description": "Added from GCP product-data test at 20260602211822 UTC",
-            "name": "MCP Demo Album 20260602211822",
-            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-            "retail_price_cents": 42,
-            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
           },
           "runtime": "misarch-graphql-gateway",
           "side_effects": "none (read-only)",
@@ -1162,11 +1575,41 @@
         "has_input_schema": true,
         "has_explicit_side_effects": true,
         "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
       },
       "comparison": {
@@ -1177,30 +1620,30 @@
         "same_categories": true,
         "same_core_product_data": true,
         "native_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "mcp_product": {
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ],
           "currency": "EUR",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "name": "MCP Demo Album 20260602211822",
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "retail_price_cents": 42,
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
         },
-        "native_duration_ms": 137.38,
-        "mcp_duration_ms": 311.33,
-        "mcp_minus_native_duration_ms": 173.95,
+        "native_duration_ms": 139.21,
+        "mcp_duration_ms": 327.86,
+        "mcp_minus_native_duration_ms": 188.65,
         "native_has_tool_discovery": false,
         "mcp_has_tool_discovery": true,
         "native_has_input_schema": false,
@@ -1209,55 +1652,63 @@
         "mcp_has_explicit_side_effects": true,
         "native_has_explicit_runtime_source": false,
         "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
       }
     },
     {
       "trial": 4,
-      "started_at": "2026-06-02T21:20:17+00:00",
+      "started_at": "2026-06-05T14:56:55+00:00",
       "native_graphql": {
         "path": "native_graphql",
         "success": true,
         "endpoint": "http://34.40.117.201:8080/graphql",
-        "started_at": "2026-06-02T21:20:16+00:00",
-        "duration_ms": 152.83,
-        "list_duration_ms": 79.37,
-        "detail_duration_ms": 73.42,
+        "started_at": "2026-06-05T14:56:55+00:00",
+        "duration_ms": 162.23,
+        "list_duration_ms": 86.06,
+        "detail_duration_ms": 76.05,
         "raw_list_response": {
           "data": {
             "products": {
               "nodes": [
                 {
-                  "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
                   "defaultVariant": {
-                    "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                     "currentVersion": {
-                      "name": "MCP Demo Album 20260602211822",
-                      "description": "Added from GCP product-data test at 20260602211822 UTC",
-                      "retailPrice": 42
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Electronics & Gadgets"
                       }
                     ]
                   }
                 },
                 {
-                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
                   "defaultVariant": {
-                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
                     "currentVersion": {
-                      "name": "POP 2025",
-                      "description": "POP 2025",
-                      "retailPrice": 20
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Pet Supplies"
                       }
                     ]
                   }
@@ -1269,19 +1720,19 @@
         "raw_detail_response": {
           "data": {
             "product": {
-              "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
               "defaultVariant": {
-                "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                 "currentVersion": {
-                  "name": "MCP Demo Album 20260602211822",
-                  "description": "Added from GCP product-data test at 20260602211822 UTC",
-                  "retailPrice": 42
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
                 }
               },
               "categories": {
                 "nodes": [
                   {
-                    "name": "CDs"
+                    "name": "Electronics & Gadgets"
                   }
                 ]
               }
@@ -1289,53 +1740,155 @@
           }
         },
         "normalized_first_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "normalized_detail": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "has_tool_discovery": false,
         "has_input_schema": false,
         "has_explicit_side_effects": false,
         "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
       },
       "mcp_gateway": {
         "path": "mcp_gateway",
         "success": true,
         "endpoint": "http://34.40.117.201:8001/mcp",
-        "started_at": "2026-06-02T21:20:17+00:00",
-        "duration_ms": 322.98,
-        "initialize_duration_ms": 48.88,
-        "tools_duration_ms": 50.39,
-        "list_duration_ms": 78.8,
-        "detail_duration_ms": 72.79,
+        "started_at": "2026-06-05T14:56:55+00:00",
+        "duration_ms": 316.08,
+        "initialize_duration_ms": 60.96,
+        "tools_duration_ms": 53.53,
+        "list_duration_ms": 74.1,
+        "detail_duration_ms": 71.78,
         "server_info": {
           "name": "misarch-agent-gateway",
           "version": "0.1.0"
         },
         "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
           {
             "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
             "inputSchema": {
@@ -1507,6 +2060,7 @@
           }
         ],
         "tool_names": [
+          "create_pending_order",
           "get_product",
           "list_products"
         ],
@@ -1514,23 +2068,23 @@
           "products": [
             {
               "categories": [
-                "CDs"
+                "Electronics & Gadgets"
               ],
               "currency": "EUR",
-              "name": "MCP Demo Album 20260602211822",
-              "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-              "retail_price_cents": 42,
-              "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
             },
             {
               "categories": [
-                "CDs"
+                "Pet Supplies"
               ],
               "currency": "EUR",
-              "name": "POP 2025",
-              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
-              "retail_price_cents": 20,
-              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
             }
           ],
           "returned_count": 2,
@@ -1542,14 +2096,14 @@
           "found": true,
           "product": {
             "categories": [
-              "CDs"
+              "Electronics & Gadgets"
             ],
             "currency": "EUR",
-            "description": "Added from GCP product-data test at 20260602211822 UTC",
-            "name": "MCP Demo Album 20260602211822",
-            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-            "retail_price_cents": 42,
-            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
           },
           "runtime": "misarch-graphql-gateway",
           "side_effects": "none (read-only)",
@@ -1559,11 +2113,41 @@
         "has_input_schema": true,
         "has_explicit_side_effects": true,
         "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
       },
       "comparison": {
@@ -1574,30 +2158,30 @@
         "same_categories": true,
         "same_core_product_data": true,
         "native_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "mcp_product": {
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ],
           "currency": "EUR",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "name": "MCP Demo Album 20260602211822",
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "retail_price_cents": 42,
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
         },
-        "native_duration_ms": 152.83,
-        "mcp_duration_ms": 322.98,
-        "mcp_minus_native_duration_ms": 170.15,
+        "native_duration_ms": 162.23,
+        "mcp_duration_ms": 316.08,
+        "mcp_minus_native_duration_ms": 153.85,
         "native_has_tool_discovery": false,
         "mcp_has_tool_discovery": true,
         "native_has_input_schema": false,
@@ -1606,55 +2190,63 @@
         "mcp_has_explicit_side_effects": true,
         "native_has_explicit_runtime_source": false,
         "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
       }
     },
     {
       "trial": 5,
-      "started_at": "2026-06-02T21:20:17+00:00",
+      "started_at": "2026-06-05T14:56:56+00:00",
       "native_graphql": {
         "path": "native_graphql",
         "success": true,
         "endpoint": "http://34.40.117.201:8080/graphql",
-        "started_at": "2026-06-02T21:20:17+00:00",
-        "duration_ms": 160.6,
-        "list_duration_ms": 76.43,
-        "detail_duration_ms": 84.1,
+        "started_at": "2026-06-05T14:56:55+00:00",
+        "duration_ms": 144.53,
+        "list_duration_ms": 68.54,
+        "detail_duration_ms": 75.43,
         "raw_list_response": {
           "data": {
             "products": {
               "nodes": [
                 {
-                  "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+                  "id": "0418eaa4-4621-427a-824b-0051097bd602",
                   "defaultVariant": {
-                    "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                    "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                     "currentVersion": {
-                      "name": "MCP Demo Album 20260602211822",
-                      "description": "Added from GCP product-data test at 20260602211822 UTC",
-                      "retailPrice": 42
+                      "name": "HomeLink Smart Plug Twin Pack",
+                      "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                      "retailPrice": 2799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Electronics & Gadgets"
                       }
                     ]
                   }
                 },
                 {
-                  "id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
+                  "id": "057fcca5-149d-4de8-ac46-ab836e57400d",
                   "defaultVariant": {
-                    "id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef",
+                    "id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9",
                     "currentVersion": {
-                      "name": "POP 2025",
-                      "description": "POP 2025",
-                      "retailPrice": 20
+                      "name": "Crunchy Chicken Dog Treats 500g",
+                      "description": "Oven-baked chicken treats for training rewards.",
+                      "retailPrice": 799
                     }
                   },
                   "categories": {
                     "nodes": [
                       {
-                        "name": "CDs"
+                        "name": "Pet Supplies"
                       }
                     ]
                   }
@@ -1666,19 +2258,19 @@
         "raw_detail_response": {
           "data": {
             "product": {
-              "id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
+              "id": "0418eaa4-4621-427a-824b-0051097bd602",
               "defaultVariant": {
-                "id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
+                "id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
                 "currentVersion": {
-                  "name": "MCP Demo Album 20260602211822",
-                  "description": "Added from GCP product-data test at 20260602211822 UTC",
-                  "retailPrice": 42
+                  "name": "HomeLink Smart Plug Twin Pack",
+                  "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+                  "retailPrice": 2799
                 }
               },
               "categories": {
                 "nodes": [
                   {
-                    "name": "CDs"
+                    "name": "Electronics & Gadgets"
                   }
                 ]
               }
@@ -1686,53 +2278,155 @@
           }
         },
         "normalized_first_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "normalized_detail": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "has_tool_discovery": false,
         "has_input_schema": false,
         "has_explicit_side_effects": false,
         "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
       },
       "mcp_gateway": {
         "path": "mcp_gateway",
         "success": true,
         "endpoint": "http://34.40.117.201:8001/mcp",
-        "started_at": "2026-06-02T21:20:17+00:00",
-        "duration_ms": 366.3,
-        "initialize_duration_ms": 87.89,
-        "tools_duration_ms": 51.67,
-        "list_duration_ms": 97.13,
-        "detail_duration_ms": 73.93,
+        "started_at": "2026-06-05T14:56:56+00:00",
+        "duration_ms": 590.7,
+        "initialize_duration_ms": 185.45,
+        "tools_duration_ms": 55.26,
+        "list_duration_ms": 81.49,
+        "detail_duration_ms": 210.23,
         "server_info": {
           "name": "misarch-agent-gateway",
           "version": "0.1.0"
         },
         "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
           {
             "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
             "inputSchema": {
@@ -1904,6 +2598,7 @@
           }
         ],
         "tool_names": [
+          "create_pending_order",
           "get_product",
           "list_products"
         ],
@@ -1911,23 +2606,23 @@
           "products": [
             {
               "categories": [
-                "CDs"
+                "Electronics & Gadgets"
               ],
               "currency": "EUR",
-              "name": "MCP Demo Album 20260602211822",
-              "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-              "retail_price_cents": 42,
-              "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+              "name": "HomeLink Smart Plug Twin Pack",
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+              "retail_price_cents": 2799,
+              "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
             },
             {
               "categories": [
-                "CDs"
+                "Pet Supplies"
               ],
               "currency": "EUR",
-              "name": "POP 2025",
-              "product_id": "cea4fbfb-7d9c-4bb7-b5a2-a74cb49c5e1b",
-              "retail_price_cents": 20,
-              "variant_id": "e8fd8dab-a592-430c-a659-880ad4d6d2ef"
+              "name": "Crunchy Chicken Dog Treats 500g",
+              "product_id": "057fcca5-149d-4de8-ac46-ab836e57400d",
+              "retail_price_cents": 799,
+              "variant_id": "a56b5bc0-1fc7-48d1-97ad-f98baa69a7c9"
             }
           ],
           "returned_count": 2,
@@ -1939,14 +2634,14 @@
           "found": true,
           "product": {
             "categories": [
-              "CDs"
+              "Electronics & Gadgets"
             ],
             "currency": "EUR",
-            "description": "Added from GCP product-data test at 20260602211822 UTC",
-            "name": "MCP Demo Album 20260602211822",
-            "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-            "retail_price_cents": 42,
-            "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+            "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+            "name": "HomeLink Smart Plug Twin Pack",
+            "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+            "retail_price_cents": 2799,
+            "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
           },
           "runtime": "misarch-graphql-gateway",
           "side_effects": "none (read-only)",
@@ -1956,11 +2651,41 @@
         "has_input_schema": true,
         "has_explicit_side_effects": true,
         "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "0418eaa4-4621-427a-824b-0051097bd602"
+            }
+          }
+        ],
         "agent_report": {
           "ok": true,
           "skipped": true,
           "duration_ms": 0.0,
-          "text": "LLM report skipped by --skip-llm."
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
         }
       },
       "comparison": {
@@ -1971,30 +2696,30 @@
         "same_categories": true,
         "same_core_product_data": true,
         "native_product": {
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501",
-          "name": "MCP Demo Album 20260602211822",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "retail_price_cents": 42,
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "retail_price_cents": 2799,
           "currency": "EUR",
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ]
         },
         "mcp_product": {
           "categories": [
-            "CDs"
+            "Electronics & Gadgets"
           ],
           "currency": "EUR",
-          "description": "Added from GCP product-data test at 20260602211822 UTC",
-          "name": "MCP Demo Album 20260602211822",
-          "product_id": "cddaa9d1-3364-47e6-868d-ba6c8aa134e0",
-          "retail_price_cents": 42,
-          "variant_id": "2fa6849a-1ade-42d1-8867-8a6742d5b501"
+          "description": "Two Wi-Fi smart plugs with scheduling and energy monitoring.",
+          "name": "HomeLink Smart Plug Twin Pack",
+          "product_id": "0418eaa4-4621-427a-824b-0051097bd602",
+          "retail_price_cents": 2799,
+          "variant_id": "934b29e0-4280-4c04-af2d-59d4625f8f3f"
         },
-        "native_duration_ms": 160.6,
-        "mcp_duration_ms": 366.3,
-        "mcp_minus_native_duration_ms": 205.7,
+        "native_duration_ms": 144.53,
+        "mcp_duration_ms": 590.7,
+        "mcp_minus_native_duration_ms": 446.17,
         "native_has_tool_discovery": false,
         "mcp_has_tool_discovery": true,
         "native_has_input_schema": false,
@@ -2003,6 +2728,14 @@
         "mcp_has_explicit_side_effects": true,
         "native_has_explicit_runtime_source": false,
         "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
       }
     }
   ]

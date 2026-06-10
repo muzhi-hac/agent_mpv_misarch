@@ -107,6 +107,7 @@ func NewService(gql GraphQLClient) *Service {
 		gql: gql,
 	}
 }
+
 func (s *Service) ListProducts(
 	ctx context.Context,
 	topK int,
