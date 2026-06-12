@@ -24,7 +24,7 @@ from scripts.agent_gcp_baseline_test import (
 )
 
 
-READ_ONLY_TOOL_ALLOWLIST = frozenset({"list_products", "get_product",})
+READ_ONLY_TOOL_ALLOWLIST = frozenset({"list_products", "get_product","search_products"})
 DEFAULT_MAX_STEPS = 6
 DEFAULT_MAX_PARSE_RETRIES = 2
 
