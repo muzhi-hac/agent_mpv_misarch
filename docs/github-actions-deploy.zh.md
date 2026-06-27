@@ -61,6 +61,7 @@ attribute.ref == 'refs/heads/main'
 - 查看 VM 信息
 - 通过 `gcloud compute scp` 上传文件
 - 通过 `gcloud compute ssh` 在 VM 上执行部署命令
+- 使用 VM 当前绑定的 Compute Engine default service account
 
 实验环境可以先给这个 service account：
 
@@ -72,6 +73,18 @@ Compute Instance Admin (v1)
 
 ```text
 roles/iam.workloadIdentityUser
+```
+
+因为 `gcloud compute ssh/scp` 会检查 VM 绑定的 service account，部署账号还需要在当前 VM 使用的 default Compute Engine service account 上拥有：
+
+```text
+roles/iam.serviceAccountUser
+```
+
+当前绑定对象：
+
+```text
+170116153285-compute@developer.gserviceaccount.com
 ```
 
 如果项目启用了 OS Login 或更严格 IAM，再补对应的 SSH/OS Login 权限。
