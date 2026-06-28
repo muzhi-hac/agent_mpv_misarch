@@ -1,0 +1,11 @@
+{
+  "users": {
+    "demo-user": {
+      "categories": {
+        "cup":  { "material": "stainless steel", "min_capacity_ml": 500, "price_sensitivity": "medium" },
+        "tent": { "weight_preference": "light", "price_sensitivity": "low" }
+      },
+      "global": { "currency": "EUR", "max_single_item_cents": 8000 }
+    }
+  }
+}

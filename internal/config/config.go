@@ -17,6 +17,7 @@ type Config struct {
 	HTTPAddr        string
 	GraphQLEndpoint string
 	GraphQLTimeout  time.Duration
+	PublicBaseURL   string
 	Auth            AuthConfig
 }
 
@@ -46,10 +47,17 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 
+	httpAddr := envOrDefault("HTTP_ADDR", defaultHTTPAddr)
+	publicBaseURL := envOrDefault("PUBLIC_BASE_URL", "http://"+httpAddr)
+	if err := validateEndpoint(publicBaseURL); err != nil {
+		return Config{}, fmt.Errorf("validate public base URL: %w", err)
+	}
+
 	return Config{
-		HTTPAddr:        envOrDefault("HTTP_ADDR", defaultHTTPAddr),
+		HTTPAddr:        httpAddr,
 		GraphQLEndpoint: endpoint,
 		GraphQLTimeout:  timeout,
+		PublicBaseURL:   publicBaseURL,
 		Auth:            auth,
 	}, nil
 

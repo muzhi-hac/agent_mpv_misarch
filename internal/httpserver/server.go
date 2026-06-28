@@ -13,6 +13,7 @@ type ReadinessChecker interface {
 
 func NewHandler(
 	mcpHandler http.Handler,
+	a2aHandler http.Handler,
 	checker ReadinessChecker,
 ) http.Handler {
 	mux := http.NewServeMux()
@@ -20,6 +21,8 @@ func NewHandler(
 	mux.HandleFunc("GET /healthz", healthz)
 	mux.HandleFunc("GET /readyz", readyz(checker))
 	mux.Handle("/mcp", mcpHandler)
+	mux.Handle("GET /.well-known/agent-card.json", a2aHandler)
+	mux.Handle("POST /tasks", a2aHandler)
 
 	return mux
 }

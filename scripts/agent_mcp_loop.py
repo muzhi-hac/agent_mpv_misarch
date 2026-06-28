@@ -29,6 +29,12 @@ DEFAULT_MAX_STEPS = 6
 DEFAULT_MAX_PARSE_RETRIES = 2
 
 
+def load_profile_for_user(profile_path: str, user_id: str) -> dict[str, Any]:
+    """Load one user's structured preference profile (Arm D control group)."""
+    data = json.loads(pathlib.Path(profile_path).read_text(encoding="utf-8"))
+    return data.get("users", {}).get(user_id, {})
+
+
 class ModelDecisionError(RuntimeError):
     def __init__(
         self,
@@ -639,11 +645,22 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get("OPENAI_MODEL", DEFAULT_MODEL),
     )
     parser.add_argument("--max-steps", type=int, default=DEFAULT_MAX_STEPS)
+    parser.add_argument(
+        "--profile",
+        default="",
+        help="path to structured user_profile.json; enables Arm D (MCP + structured profile)",
+    )
+    parser.add_argument("--user-id", default="demo-user")
     parser.add_argument("--output", default="")
     return parser
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
     args = build_parser().parse_args()
     if args.max_steps < 1:
         print("ERROR: --max-steps must be >= 1", file=sys.stderr)
@@ -655,11 +672,25 @@ def main() -> int:
             args.model,
         )
         mcp = MCPClient(args.mcp_url)
+
+        task = args.task
+        profile = None
+        if args.profile:
+            profile = load_profile_for_user(args.profile, args.user_id)
+            task = (
+                task
+                + "\n\nUser preference profile (structured JSON; apply it when "
+                "choosing or recommending a product):\n"
+                + json.dumps(profile, ensure_ascii=False)
+            )
+
         result = AgentOrchestrator(
             model,
             mcp,
             max_steps=args.max_steps,
-        ).run(args.task)
+        ).run(task)
+        result["arm"] = "mcp+profile" if profile else "mcp"
+        result["preference_used"] = bool(profile)
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)
@@ -667,7 +698,7 @@ def main() -> int:
         if args.output:
             output_path = pathlib.Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(rendered + "\n")
+            output_path.write_text(rendered + "\n", encoding="utf-8")
 
         return 0 if result.get("success") else 1
     except Exception as exc:
