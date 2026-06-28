@@ -20,6 +20,7 @@ func (f fakeChecker) Ready(ctx context.Context) error {
 func TestHealthz(t *testing.T) {
 	handler := NewHandler(
 		http.NotFoundHandler(),
+		http.NotFoundHandler(),
 		fakeChecker{},
 	)
 
@@ -40,6 +41,7 @@ func TestHealthz(t *testing.T) {
 func TestReadyzSuccess(t *testing.T) {
 	handler := NewHandler(
 		http.NotFoundHandler(),
+		http.NotFoundHandler(),
 		fakeChecker{},
 	)
 
@@ -59,6 +61,7 @@ func TestReadyzSuccess(t *testing.T) {
 
 func TestReadyzFailure(t *testing.T) {
 	handler := NewHandler(
+		http.NotFoundHandler(),
 		http.NotFoundHandler(),
 		fakeChecker{
 			err: errors.New("upstream unavailable"),
@@ -93,6 +96,7 @@ func TestMCPRouteIsMounted(t *testing.T) {
 
 	handler := NewHandler(
 		mcpHandler,
+		http.NotFoundHandler(),
 		fakeChecker{},
 	)
 

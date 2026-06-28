@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"misarch-agent-gateway-go/internal/a2aserver"
 	"misarch-agent-gateway-go/internal/catalog"
 	"misarch-agent-gateway-go/internal/config"
 	"misarch-agent-gateway-go/internal/httpserver"
@@ -17,6 +18,26 @@ import (
 	"misarch-agent-gateway-go/internal/misarch"
 	"misarch-agent-gateway-go/internal/order"
 )
+
+// storeAdapter bundles the existing catalog and order services behind the
+// a2aserver.Service interface. Both concrete types are named Service, so they
+// cannot be embedded together; the methods are forwarded explicitly instead.
+type storeAdapter struct {
+	catalog *catalog.Service
+	order   *order.Service
+}
+
+func (a storeAdapter) ListProducts(ctx context.Context, topK int) (catalog.ListProductsOutput, error) {
+	return a.catalog.ListProducts(ctx, topK)
+}
+
+func (a storeAdapter) GetProduct(ctx context.Context, productID string) (catalog.GetProductOutput, error) {
+	return a.catalog.GetProduct(ctx, productID)
+}
+
+func (a storeAdapter) CreatePendingOrder(ctx context.Context, in order.CreatePendingOrderInput) (order.CreatePendingOrderOutput, error) {
+	return a.order.CreatePendingOrder(ctx, in)
+}
 
 func main() {
 	if err := run(context.Background()); err != nil {
@@ -49,7 +70,11 @@ func run(ctx context.Context) error {
 	mcpServer := mcpserver.New(catalogService)
 	mcpserver.RegisterOrderTools(mcpServer, orderService)
 	mcpHandler := mcpserver.NewHTTPHandler(mcpServer)
-	handler := httpserver.NewHandler(mcpHandler, graphQLClient)
+
+	storeCard := a2aserver.DefaultCard(cfg.PublicBaseURL)
+	a2aHandler := a2aserver.NewHandler(storeAdapter{catalog: catalogService, order: orderService}, storeCard)
+
+	handler := httpserver.NewHandler(mcpHandler, a2aHandler, graphQLClient)
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,

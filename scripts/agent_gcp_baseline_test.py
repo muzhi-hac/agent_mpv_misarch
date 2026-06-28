@@ -18,8 +18,8 @@ from typing import Any
 
 DEFAULT_GRAPHQL_URL = "http://34.40.117.201:8080/graphql"
 DEFAULT_MCP_URL = "http://34.40.117.201:8001/mcp"
-DEFAULT_MODEL_BASE_URL = "https://yybb.codes"
-DEFAULT_MODEL = "gpt-5.4"
+DEFAULT_MODEL_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com")
+DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4")
 DEFAULT_RESULTS_DIR = "eval"
 DEFAULT_KEYCLOAK_CLIENT_ID = "frontend"
 DEFAULT_KEYCLOAK_USERNAME = "gatling"
