@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"time"
@@ -48,7 +49,7 @@ func Load() (Config, error) {
 	}
 
 	httpAddr := envOrDefault("HTTP_ADDR", defaultHTTPAddr)
-	publicBaseURL := envOrDefault("PUBLIC_BASE_URL", "http://"+httpAddr)
+	publicBaseURL := envOrDefault("PUBLIC_BASE_URL", defaultPublicBaseURL(httpAddr))
 	if err := validateEndpoint(publicBaseURL); err != nil {
 		return Config{}, fmt.Errorf("validate public base URL: %w", err)
 	}
@@ -70,6 +71,20 @@ func envOrDefault(key string, fallback string) string {
 	}
 	return value
 }
+
+func defaultPublicBaseURL(httpAddr string) string {
+	host, port, err := net.SplitHostPort(httpAddr)
+	if err != nil {
+		return "http://" + httpAddr
+	}
+
+	if host == "" || host == "0.0.0.0" || host == "::" || host == "[::]" {
+		host = "127.0.0.1"
+	}
+
+	return "http://" + net.JoinHostPort(host, port)
+}
+
 func parsePositiveDuration(raw string) (time.Duration, error) {
 	duration, err := time.ParseDuration(raw)
 	if err != nil {

@@ -99,6 +99,7 @@ jobs:
           : "${HTTP_ADDR:?}"
           : "${MISARCH_GRAPHQL_URL:?}"
           : "${MISARCH_GRAPHQL_TIMEOUT:?}"
+          : "${PUBLIC_BASE_URL:?}"
 
           echo "== disk before deploy =="
           df -h /
@@ -126,6 +127,7 @@ jobs:
             -e HTTP_ADDR="$HTTP_ADDR" \
             -e MISARCH_GRAPHQL_URL="$MISARCH_GRAPHQL_URL" \
             -e MISARCH_GRAPHQL_TIMEOUT="$MISARCH_GRAPHQL_TIMEOUT" \
+            -e PUBLIC_BASE_URL="$PUBLIC_BASE_URL" \
             "$IMAGE_NAME"
 
           echo "== waiting for gateway readiness =="
@@ -178,10 +180,15 @@ jobs:
         run: |
           set -euo pipefail
 
+          PUBLIC_IP="$(gcloud compute instances describe "$GCP_VM_NAME" \
+            --zone "$GCP_ZONE" \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
+          PUBLIC_BASE_URL="http://$PUBLIC_IP:8001"
+
           gcloud compute ssh "$GCP_VM_NAME" \
             --zone "$GCP_ZONE" \
             --quiet \
-            --command "DEPLOY_PARENT='$DEPLOY_PARENT' DEPLOY_DIR='$DEPLOY_DIR' ARCHIVE_NAME='$ARCHIVE_NAME' IMAGE_NAME='$IMAGE_NAME' CONTAINER_NAME='$CONTAINER_NAME' DOCKER_NETWORK='$DOCKER_NETWORK' HTTP_ADDR='$HTTP_ADDR' MISARCH_GRAPHQL_URL='$MISARCH_GRAPHQL_URL' MISARCH_GRAPHQL_TIMEOUT='$MISARCH_GRAPHQL_TIMEOUT' bash /tmp/deploy-on-vm.sh"
+            --command "DEPLOY_PARENT='$DEPLOY_PARENT' DEPLOY_DIR='$DEPLOY_DIR' ARCHIVE_NAME='$ARCHIVE_NAME' IMAGE_NAME='$IMAGE_NAME' CONTAINER_NAME='$CONTAINER_NAME' DOCKER_NETWORK='$DOCKER_NETWORK' HTTP_ADDR='$HTTP_ADDR' MISARCH_GRAPHQL_URL='$MISARCH_GRAPHQL_URL' MISARCH_GRAPHQL_TIMEOUT='$MISARCH_GRAPHQL_TIMEOUT' PUBLIC_BASE_URL='$PUBLIC_BASE_URL' bash /tmp/deploy-on-vm.sh"
 
       - name: Verify public endpoint
         run: |
