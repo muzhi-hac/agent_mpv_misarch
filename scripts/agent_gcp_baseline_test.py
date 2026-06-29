@@ -843,12 +843,12 @@ def build_native_graphql_prompt(result: dict[str, Any]) -> str:
         },
     }
     return (
-        "你是一个外部 agent 测试员。你这次直接访问 MiSArch 原生 GraphQL API。\n"
-        "只基于下面 JSON 证据回答，不要编造。请用中文简短说明：\n"
-        "1. 是否成功读取真实商品；\n"
-        "2. 原生 GraphQL 返回的数据结构特点；\n"
-        "3. 它是否提供 tool discovery、side effects、runtime/source_service；\n"
-        "4. 作为 agent baseline 的优缺点。\n\n"
+        "You are an external agent tester. This time you access the MiSArch native GraphQL API directly.\n"
+        "Answer based only on the JSON evidence below, do not make things up. Briefly explain in English:\n"
+        "1. whether real products were read successfully;\n"
+        "2. the structural characteristics of the data returned by native GraphQL;\n"
+        "3. whether it provides tool discovery, side effects, runtime/source_service;\n"
+        "4. the pros and cons as an agent baseline.\n\n"
         f"JSON evidence:\n{json.dumps(evidence, ensure_ascii=False, indent=2)}"
     )
 
@@ -866,12 +866,12 @@ def build_mcp_prompt(result: dict[str, Any]) -> str:
         },
     }
     return (
-        "你是一个外部 agent 测试员。你这次通过 MCP gateway 访问 MiSArch。\n"
-        "只基于下面 JSON 证据回答，不要编造。请用中文简短说明：\n"
-        "1. agent 发现了哪些 MCP 工具；\n"
-        "2. 是否成功读取真实商品；\n"
-        "3. runtime/source_service 和 side effects 是否明确；\n"
-        "4. 作为 agent-facing interface 的优缺点。\n\n"
+        "You are an external agent tester. This time you access MiSArch through the MCP gateway.\n"
+        "Answer based only on the JSON evidence below, do not make things up. Briefly explain in English:\n"
+        "1. which MCP tools the agent discovered;\n"
+        "2. whether real products were read successfully;\n"
+        "3. whether runtime/source_service and side effects are explicit;\n"
+        "4. the pros and cons as an agent-facing interface.\n\n"
         f"JSON evidence:\n{json.dumps(evidence, ensure_ascii=False, indent=2)}"
     )
 
