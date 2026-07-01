@@ -54,6 +54,27 @@ func TestLoadReadsEnvironmentVariables(t *testing.T) {
 	if got.GraphQLTimeout != 5*time.Second {
 		t.Fatalf("GraphQLTimeout = %s", got.GraphQLTimeout)
 	}
+
+	if got.PublicBaseURL != "http://127.0.0.1:9000" {
+		t.Fatalf("PublicBaseURL = %q, want %q", got.PublicBaseURL, "http://127.0.0.1:9000")
+	}
+}
+
+func TestLoadReadsPublicBaseURL(t *testing.T) {
+	t.Setenv("HTTP_ADDR", ":9000")
+	t.Setenv("PUBLIC_BASE_URL", "https://agent.example.test")
+	t.Setenv("MISARCH_GRAPHQL_URL", "http://misarch-gateway:8080/graphql")
+	t.Setenv("MISARCH_GRAPHQL_TIMEOUT", "5s")
+	clearAuthEnv(t)
+
+	got, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	if got.PublicBaseURL != "https://agent.example.test" {
+		t.Fatalf("PublicBaseURL = %q", got.PublicBaseURL)
+	}
 }
 
 func TestLoadReadsAuthEnvironmentVariables(t *testing.T) {

@@ -49,9 +49,9 @@ class LiveAgentMCPTest(unittest.TestCase):
     def run_catalog_agent(cls) -> dict[str, Any]:
         if cls.catalog_agent_result is None:
             cls.catalog_agent_result = cls.new_agent().run(
-                "先调用 list_products 获取真实商品列表，再选择其中一个真实 "
-                "product_id 调用 get_product。最后用中文告诉我该商品的名称、"
-                "product_id、价格和类别。必须完成这两个工具调用后才能回答。"
+                "First call list_products to get the real product list, then pick one real "
+                "product_id and call get_product. Finally tell me, in English, that product's name, "
+                "product_id, price, and category. You must complete both tool calls before answering."
             )
         return cls.catalog_agent_result
 
@@ -159,8 +159,9 @@ class LiveAgentMCPTest(unittest.TestCase):
 
     def test_write_tool_is_never_executed(self) -> None:
         result = self.new_agent().run(
-            "请创建一个商品订单。如果写工具不可用，先用只读工具查看真实商品，"
-            "然后明确说明当前 agent 为什么不能创建订单。"
+            "Please create a product order. If the write tool is unavailable, first use the "
+            "read-only tools to look at real products, then clearly explain why the current agent "
+            "cannot create the order."
         )
         self.assertTrue(result.get("success"), result.get("error"))
 

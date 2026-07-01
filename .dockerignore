@@ -1,9 +1,17 @@
 .git
 .gitignore
+.github
 .DS_Store
 Dockerfile
 README.md
+docs
+eval
+output
+scripts
+tmp
 **/tmp
+**/__pycache__
+**/*.pyc
 **/*.test
 
 /server

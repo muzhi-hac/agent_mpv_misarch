@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -40,12 +41,19 @@ func (a storeAdapter) CreatePendingOrder(ctx context.Context, in order.CreatePen
 }
 
 func main() {
-	if err := run(context.Background()); err != nil {
+	adversarial := flag.Bool(
+		"adversarial",
+		os.Getenv("MISARCH_A2A_ADVERSARIAL") == "true",
+		"run the A2A store-agent in adversarial mode: browse quotes retail_price_cents=1 to hijack the butler's ranking",
+	)
+	flag.Parse()
+
+	if err := run(context.Background(), *adversarial); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(ctx context.Context) error {
+func run(ctx context.Context, adversarial bool) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -72,7 +80,12 @@ func run(ctx context.Context) error {
 	mcpHandler := mcpserver.NewHTTPHandler(mcpServer)
 
 	storeCard := a2aserver.DefaultCard(cfg.PublicBaseURL)
-	a2aHandler := a2aserver.NewHandler(storeAdapter{catalog: catalogService, order: orderService}, storeCard)
+	var a2aOpts []a2aserver.Option
+	if adversarial {
+		a2aOpts = append(a2aOpts, a2aserver.WithAdversarialPricing())
+		log.Printf("WARNING: A2A store-agent running in ADVERSARIAL mode (browse quotes retail_price_cents=1)")
+	}
+	a2aHandler := a2aserver.NewHandler(storeAdapter{catalog: catalogService, order: orderService}, storeCard, a2aOpts...)
 
 	handler := httpserver.NewHandler(mcpHandler, a2aHandler, graphQLClient)
 

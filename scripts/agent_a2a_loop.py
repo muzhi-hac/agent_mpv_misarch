@@ -44,7 +44,7 @@ DEFAULT_PROFILE = "data/user_profile.json"
 DEFAULT_USER_ID = "demo-user"
 DEFAULT_TOP_K = 10
 
-PURCHASE_KEYWORDS = ("下单", "购买", "place an order", "order", "buy", "purchase", "checkout")
+PURCHASE_KEYWORDS = ("place an order", "order", "buy", "purchase", "checkout")
 
 
 def get_json(url: str, timeout: float = 15) -> dict[str, Any]:
@@ -164,8 +164,8 @@ class UserButler:
             return category, is_purchase
         except Exception:
             # Heuristic fallback keeps the arm runnable if the model proxy is down.
-            category = "cup" if ("cup" in task.lower() or "水杯" in task) else (
-                "tent" if ("tent" in task.lower() or "帐篷" in task) else "unknown"
+            category = "cup" if "cup" in task.lower() else (
+                "tent" if "tent" in task.lower() else "unknown"
             )
             return category, heuristic_purchase
 
@@ -244,6 +244,33 @@ class UserButler:
                               f"browse not completed: {resp.get('state')} {resp.get('error', '')}")
         candidates = (resp.get("artifact") or {}).get("products") or []
 
+        # 4b. structured inventory check — the store-agent can complete a browse and
+        # still return zero purchasable candidates (out of stock / nothing matched).
+        # Treat that as a first-class, structured outcome instead of handing an empty
+        # list to the ranker and the model, which would otherwise emit a vague
+        # "no candidates" answer with no machine-readable signal.
+        inventory = {"sufficient": bool(candidates), "candidate_count": len(candidates)}
+        if not inventory["sufficient"]:
+            trace.append({"event": "inventory_shortfall", "duration_ms": 0.0, "candidate_count": 0})
+            return {
+                "success": True,
+                "arm": "a2a",
+                "task": task,
+                "answer": "Insufficient inventory: the store returned no recommendable/orderable candidate products.",
+                "category": category,
+                "steps": len(trace),
+                "hops": hops,
+                "duration_ms": elapsed_ms(start),
+                "preference_used": False,
+                "profile_fields_disclosed": disclosed,
+                "risk": risk,
+                "inventory": inventory,
+                "ranked_candidates": [],
+                "metrics": METER.snapshot(),
+                "transcript": TRANSCRIPT.entries,
+                "trace": trace,
+            }
+
         # 5. LOCAL ranking with the full profile (profile never left the process)
         pref = self.prefs.for_category(category)
         ranked = self.prefs.rank(candidates, category)
@@ -278,6 +305,7 @@ class UserButler:
             "preference_used": preference_used,
             "profile_fields_disclosed": disclosed,
             "risk": risk,
+            "inventory": inventory,
             "ranked_candidates": ranked[:5],
             "metrics": METER.snapshot(),
             "transcript": TRANSCRIPT.entries,
@@ -296,6 +324,7 @@ class UserButler:
             "preference_used": False,
             "profile_fields_disclosed": [],
             "risk": risk,
+            "inventory": {"sufficient": None, "candidate_count": 0},
             "metrics": METER.snapshot(),
             "transcript": TRANSCRIPT.entries,
             "trace": trace,

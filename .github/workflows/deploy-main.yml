@@ -1,0 +1,212 @@
+name: Deploy main to GCP VM
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main-to-gcp-vm
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: project-b04b8a42-0a18-46d0-bc6
+  GCP_WORKLOAD_IDENTITY_PROVIDER: projects/170116153285/locations/global/workloadIdentityPools/github-actions/providers/github
+  GCP_SERVICE_ACCOUNT: github-actions-deployer@project-b04b8a42-0a18-46d0-bc6.iam.gserviceaccount.com
+  GCP_ZONE: europe-west3-b
+  GCP_VM_NAME: misarch-compose
+  DEPLOY_PARENT: /opt/misarch
+  DEPLOY_DIR: /opt/misarch/misarch-agent-gateway-go
+  ARCHIVE_NAME: misarch-agent-gateway-go.tgz
+  IMAGE_NAME: misarch-agent-gateway:main
+  CONTAINER_NAME: misarch-agent-gateway
+  DOCKER_NETWORK: infrastructure-docker_default
+  HTTP_ADDR: :8001
+  MISARCH_GRAPHQL_URL: http://gateway:8080/graphql
+  MISARCH_GRAPHQL_TIMEOUT: 3s
+
+jobs:
+  deploy:
+    name: Test and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Package source
+        run: |
+          set -euo pipefail
+
+          STAGING_DIR="$RUNNER_TEMP/deploy-staging"
+          rm -rf "$STAGING_DIR"
+          mkdir -p "$STAGING_DIR/misarch-agent-gateway-go"
+
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.DS_Store' \
+            --exclude='tmp/' \
+            --exclude='output/' \
+            --exclude='**/__pycache__/' \
+            ./ "$STAGING_DIR/misarch-agent-gateway-go/"
+
+          tar -czf "$RUNNER_TEMP/$ARCHIVE_NAME" -C "$STAGING_DIR" misarch-agent-gateway-go
+
+      - name: Create VM deploy script
+        run: |
+          set -euo pipefail
+
+          cat > "$RUNNER_TEMP/deploy-on-vm.sh" <<'REMOTE_SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          : "${DEPLOY_PARENT:?}"
+          : "${DEPLOY_DIR:?}"
+          : "${ARCHIVE_NAME:?}"
+          : "${IMAGE_NAME:?}"
+          : "${CONTAINER_NAME:?}"
+          : "${DOCKER_NETWORK:?}"
+          : "${HTTP_ADDR:?}"
+          : "${MISARCH_GRAPHQL_URL:?}"
+          : "${MISARCH_GRAPHQL_TIMEOUT:?}"
+          : "${PUBLIC_BASE_URL:?}"
+
+          echo "== disk before deploy =="
+          df -h /
+
+          sudo mkdir -p "$DEPLOY_PARENT"
+          sudo rm -rf "$DEPLOY_DIR"
+          sudo tar -xzf "/tmp/$ARCHIVE_NAME" -C "$DEPLOY_PARENT"
+          sudo chown -R "$USER:$USER" "$DEPLOY_DIR" || true
+
+          cd "$DEPLOY_DIR"
+
+          echo "== building Docker image =="
+          sudo docker build -t "$IMAGE_NAME" .
+
+          echo "== checking Docker network =="
+          sudo docker network inspect "$DOCKER_NETWORK" >/dev/null
+
+          echo "== replacing gateway container =="
+          sudo docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+          sudo docker run -d \
+            --name "$CONTAINER_NAME" \
+            --restart unless-stopped \
+            --network "$DOCKER_NETWORK" \
+            -p 8001:8001 \
+            -e HTTP_ADDR="$HTTP_ADDR" \
+            -e MISARCH_GRAPHQL_URL="$MISARCH_GRAPHQL_URL" \
+            -e MISARCH_GRAPHQL_TIMEOUT="$MISARCH_GRAPHQL_TIMEOUT" \
+            -e PUBLIC_BASE_URL="$PUBLIC_BASE_URL" \
+            "$IMAGE_NAME"
+
+          echo "== waiting for gateway readiness =="
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8001/readyz; then
+              echo
+              echo "Gateway is ready."
+              break
+            fi
+
+            if [ "$attempt" -eq 30 ]; then
+              echo "Gateway did not become ready in time." >&2
+              sudo docker logs --tail=120 "$CONTAINER_NAME" >&2 || true
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          sudo docker image prune -f >/dev/null 2>&1 || true
+          rm -f "/tmp/$ARCHIVE_NAME" /tmp/deploy-on-vm.sh
+
+          echo "== deployed container =="
+          sudo docker ps --filter "name=$CONTAINER_NAME" \
+            --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+
+          echo "== disk after deploy =="
+          df -h /
+          REMOTE_SCRIPT
+
+          chmod +x "$RUNNER_TEMP/deploy-on-vm.sh"
+
+      - name: Upload package and deploy script
+        run: |
+          set -euo pipefail
+
+          gcloud compute scp \
+            --zone "$GCP_ZONE" \
+            --quiet \
+            "$RUNNER_TEMP/$ARCHIVE_NAME" \
+            "$GCP_VM_NAME:/tmp/$ARCHIVE_NAME"
+
+          gcloud compute scp \
+            --zone "$GCP_ZONE" \
+            --quiet \
+            "$RUNNER_TEMP/deploy-on-vm.sh" \
+            "$GCP_VM_NAME:/tmp/deploy-on-vm.sh"
+
+      - name: Deploy on VM
+        run: |
+          set -euo pipefail
+
+          PUBLIC_IP="$(gcloud compute instances describe "$GCP_VM_NAME" \
+            --zone "$GCP_ZONE" \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
+          PUBLIC_BASE_URL="http://$PUBLIC_IP:8001"
+
+          gcloud compute ssh "$GCP_VM_NAME" \
+            --zone "$GCP_ZONE" \
+            --quiet \
+            --command "DEPLOY_PARENT='$DEPLOY_PARENT' DEPLOY_DIR='$DEPLOY_DIR' ARCHIVE_NAME='$ARCHIVE_NAME' IMAGE_NAME='$IMAGE_NAME' CONTAINER_NAME='$CONTAINER_NAME' DOCKER_NETWORK='$DOCKER_NETWORK' HTTP_ADDR='$HTTP_ADDR' MISARCH_GRAPHQL_URL='$MISARCH_GRAPHQL_URL' MISARCH_GRAPHQL_TIMEOUT='$MISARCH_GRAPHQL_TIMEOUT' PUBLIC_BASE_URL='$PUBLIC_BASE_URL' bash /tmp/deploy-on-vm.sh"
+
+      - name: Verify public endpoint
+        run: |
+          set -euo pipefail
+
+          PUBLIC_IP="$(gcloud compute instances describe "$GCP_VM_NAME" \
+            --zone "$GCP_ZONE" \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')"
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS "http://$PUBLIC_IP:8001/readyz"; then
+              echo
+              echo "Public MCP endpoint is ready: http://$PUBLIC_IP:8001/readyz"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "Public MCP endpoint did not become ready in time." >&2
+          curl -i "http://$PUBLIC_IP:8001/readyz" || true
+          exit 1
