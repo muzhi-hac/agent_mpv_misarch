@@ -31,6 +31,13 @@ from scripts.agent_gcp_baseline_test import (
     responses_api_call,
     utc_now,
 )
+from scripts.run_metrics import (
+    METER,
+    TRANSCRIPT,
+    read_server_metrics,
+    server_delta,
+    write_transcript_sidecar,
+)
 
 DEFAULT_A2A_URL = os.environ.get("MISARCH_A2A_URL", "http://127.0.0.1:8001")
 DEFAULT_PROFILE = "data/user_profile.json"
@@ -42,15 +49,23 @@ PURCHASE_KEYWORDS = ("下单", "购买", "place an order", "order", "buy", "purc
 
 def get_json(url: str, timeout: float = 15) -> dict[str, Any]:
     request = urllib.request.Request(url, headers={"Accept": "application/json"}, method="GET")
+    t_req = TRANSCRIPT.now_ms()
     try:
         response = urllib.request.urlopen(request, timeout=timeout)
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
+        raw = exc.read()
+        METER.record_http("backend", 0, len(raw))
+        body = raw.decode("utf-8", errors="replace")
         raise RuntimeError(f"GET {url} failed with HTTP {exc.code}: {body[:400]}") from exc
     except urllib.error.URLError as exc:
+        METER.record_http("backend", 0, 0)
         raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
     with response:
-        return json.loads(response.read().decode("utf-8"))
+        raw = response.read()
+    METER.record_http("backend", 0, len(raw))
+    parsed = json.loads(raw.decode("utf-8"))
+    TRANSCRIPT.record_http(url, None, "backend", parsed, t_req, TRANSCRIPT.now_ms())
+    return parsed
 
 
 class A2AClient:
@@ -183,6 +198,8 @@ class UserButler:
         if not task:
             raise ValueError("task must not be empty")
 
+        METER.reset()
+        TRANSCRIPT.reset()
         start = time.perf_counter()
         trace: list[dict[str, Any]] = []
         hops = 0
@@ -262,6 +279,8 @@ class UserButler:
             "profile_fields_disclosed": disclosed,
             "risk": risk,
             "ranked_candidates": ranked[:5],
+            "metrics": METER.snapshot(),
+            "transcript": TRANSCRIPT.entries,
             "trace": trace,
         }
 
@@ -277,6 +296,8 @@ class UserButler:
             "preference_used": False,
             "profile_fields_disclosed": [],
             "risk": risk,
+            "metrics": METER.snapshot(),
+            "transcript": TRANSCRIPT.entries,
             "trace": trace,
         }
 
@@ -312,7 +333,11 @@ def main() -> int:
             args.model,
             top_k=args.top_k,
         )
+        server_pre = read_server_metrics(args.a2a_url)
         result = butler.run(args.task)
+        delta = server_delta(server_pre, read_server_metrics(args.a2a_url))
+        if delta and isinstance(result.get("metrics"), dict):
+            result["metrics"]["server"] = delta
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)
@@ -320,6 +345,7 @@ def main() -> int:
             output_path = pathlib.Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(rendered + "\n", encoding="utf-8")
+            write_transcript_sidecar(args.output)
         return 0 if result.get("success") else 1
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

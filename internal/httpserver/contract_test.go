@@ -29,6 +29,7 @@ func TestRouteContract(t *testing.T) {
 		{"health always ok", http.MethodGet, "/healthz", nil, http.StatusOK, false, false},
 		{"readiness upstream up", http.MethodGet, "/readyz", nil, http.StatusOK, false, false},
 		{"readiness upstream down", http.MethodGet, "/readyz", errors.New("upstream down"), http.StatusServiceUnavailable, false, false},
+		{"runtime metrics ok", http.MethodGet, "/debug/runtime-metrics", nil, http.StatusOK, false, false},
 		{"mcp route delegates", http.MethodPost, "/mcp", nil, mcpStatus, true, false},
 		{"a2a agent card delegates", http.MethodGet, "/.well-known/agent-card.json", nil, a2aStatus, false, true},
 		{"a2a tasks delegates", http.MethodPost, "/tasks", nil, a2aStatus, false, true},

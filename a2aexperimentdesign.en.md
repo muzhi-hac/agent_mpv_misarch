@@ -95,9 +95,27 @@ the B -> C jump into two clean, single-variable comparisons:
 
 ### Metrics
 
+Every arm now emits a `metrics` block (from the shared meter `scripts/run_metrics.py`,
+instrumented at the common HTTP/LLM choke points `post_json` / `responses_api_call`),
+so latency can be decomposed and cost compared across architectures rather than
+reported as a single opaque total.
+
 | Metric | Schema key | Meaning | Expected direction |
 |--------|-----------|---------|-------------------|
 | `duration_ms` | `duration_ms` | end-to-end latency | A < B < C |
+| LLM round-trips | `metrics.llm_calls` | number of model calls (the dominant latency driver) | B/D (ReAct loop) > C (fixed hops) > A |
+| Model time | `metrics.llm_ms` | wall-clock inside model calls; `duration_ms − llm_ms` = backend/protocol time | tracks `llm_calls` |
+| Token usage | `metrics.{prompt,completion,total}_tokens` | model tokens consumed | scales with prompt size + #calls |
+| Network bytes | `metrics.{bytes_sent,bytes_recv}` | wire bytes (backend + model channels) | C adds Agent Card + task hops |
+| HTTP calls | `metrics.http_calls` | backend + model requests | — |
+| Client CPU/RSS | `metrics.{cpu_seconds,peak_rss_mb}` | orchestration cost on the agent host (psutil sampler) | small vs LLM wait; B/D (ReAct) ≥ C |
+| Server work | `metrics.server.total_alloc_bytes_delta` | Go gateway bytes allocated during the task (monotonic `TotalAlloc` delta, read from `GET /debug/runtime-metrics` before/after; low-noise, GC-independent) | scales with protocol layers touched |
+
+Every run also records a **unified conversation transcript** — the agent↔server
+protocol dialogue (A2A tasks, MCP tool calls, GraphQL) interleaved with the
+agent↔LLM prompts/completions, in call order — into `result.transcript` plus a
+readable `<output>.transcript.md` sidecar, so a run can be replayed as one
+communication log (useful as a report appendix / pipeline figure).
 | `hops` | `hops` | number of A2A round trips | A=0, B=0, C>=1 |
 | `preference_used` | `preference_used` | was the preference actually applied (LLM-judge / manual) | C highest |
 | `profile_fields_disclosed` | `profile_fields_disclosed` | profile fields that crossed the A2A boundary (list; count for charts) | A,B: effectively all (preference baked into backend-bound queries); C: minimised & logged, often empty |

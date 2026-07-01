@@ -15,6 +15,8 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any
 
+from scripts.run_metrics import METER, TRANSCRIPT
+
 
 DEFAULT_GRAPHQL_URL = "http://34.40.117.201:8080/graphql"
 DEFAULT_MCP_URL = "http://34.40.117.201:8001/mcp"
@@ -238,36 +240,57 @@ def post_json(
     payload: dict[str, Any],
     headers: dict[str, str] | None = None,
     timeout: float = 30,
+    channel: str = "backend",
 ) -> tuple[dict[str, Any], Any]:
     request_headers = {
         "Content-Type": "application/json",
         **(headers or {}),
     }
+    data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
         url,
-        data=json.dumps(payload).encode("utf-8"),
+        data=data,
         headers=request_headers,
         method="POST",
     )
 
+    t_req = TRANSCRIPT.now_ms()
     try:
         response = urllib.request.urlopen(request, timeout=timeout)
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
+        raw = exc.read()
+        METER.record_http(channel, len(data), len(raw))
+        body = raw.decode("utf-8", errors="replace")
+        if channel != "llm":
+            TRANSCRIPT.record_http(
+                url, payload, channel,
+                {"http_error": exc.code, "body": body[:800]}, t_req, TRANSCRIPT.now_ms(),
+            )
         raise RuntimeError(
             f"POST {url} failed with HTTP {exc.code}: {body[:800]}"
         ) from exc
     except urllib.error.URLError as exc:
+        METER.record_http(channel, len(data), 0)
         raise RuntimeError(f"POST {url} failed: {exc.reason}") from exc
 
-    body = response.read().decode("utf-8", errors="replace")
+    raw = response.read()
+    t_res = TRANSCRIPT.now_ms()
+    METER.record_http(channel, len(data), len(raw))
+    body = raw.decode("utf-8", errors="replace")
     if not body.strip():
-        return {}, response
+        parsed: dict[str, Any] = {}
+    else:
+        content_type = response.headers.get("Content-Type", "")
+        if "text/event-stream" in content_type:
+            parsed = parse_sse_json(body)
+        else:
+            parsed = json.loads(body)
 
-    content_type = response.headers.get("Content-Type", "")
-    if "text/event-stream" in content_type:
-        return parse_sse_json(body), response
-    return json.loads(body), response
+    # LLM traffic is recorded separately (clean prompt/completion) in
+    # responses_api_call; here we log the agent<->server protocol dialogue only.
+    if channel != "llm":
+        TRANSCRIPT.record_http(url, payload, channel, parsed, t_req, t_res)
+    return parsed, response
 
 
 def responses_api_call(
@@ -288,13 +311,20 @@ def responses_api_call(
     errors: list[str] = []
     for path in ("/v1/responses", "/responses"):
         try:
+            call_start = time.perf_counter()
+            t_req = TRANSCRIPT.now_ms()
             response, _ = post_json(
                 base_url.rstrip("/") + path,
                 payload,
                 headers=headers,
                 timeout=60,
+                channel="llm",
             )
-            return extract_response_text(response)
+            usage = response.get("usage") if isinstance(response, dict) else None
+            METER.record_llm(usage, elapsed_ms(call_start))
+            text = extract_response_text(response)
+            TRANSCRIPT.record_llm(prompt, text, t_req, TRANSCRIPT.now_ms())
+            return text
         except RuntimeError as exc:
             message = str(exc)
             errors.append(message)

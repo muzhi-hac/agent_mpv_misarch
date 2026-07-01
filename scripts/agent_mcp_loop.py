@@ -22,6 +22,13 @@ from scripts.agent_gcp_baseline_test import (
     responses_api_call,
     utc_now,
 )
+from scripts.run_metrics import (
+    METER,
+    TRANSCRIPT,
+    read_server_metrics,
+    server_delta,
+    write_transcript_sidecar,
+)
 
 
 READ_ONLY_TOOL_ALLOWLIST = frozenset({"list_products", "get_product","search_products"})
@@ -684,6 +691,9 @@ def main() -> int:
                 + json.dumps(profile, ensure_ascii=False)
             )
 
+        server_pre = read_server_metrics(args.mcp_url)
+        METER.reset()
+        TRANSCRIPT.reset()
         result = AgentOrchestrator(
             model,
             mcp,
@@ -691,6 +701,11 @@ def main() -> int:
         ).run(task)
         result["arm"] = "mcp+profile" if profile else "mcp"
         result["preference_used"] = bool(profile)
+        result["metrics"] = METER.snapshot()
+        result["transcript"] = TRANSCRIPT.entries
+        delta = server_delta(server_pre, read_server_metrics(args.mcp_url))
+        if delta:
+            result["metrics"]["server"] = delta
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)
@@ -699,6 +714,7 @@ def main() -> int:
             output_path = pathlib.Path(args.output)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(rendered + "\n", encoding="utf-8")
+            write_transcript_sidecar(args.output)
 
         return 0 if result.get("success") else 1
     except Exception as exc:
