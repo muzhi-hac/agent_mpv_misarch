@@ -1,0 +1,3 @@
+# Optional evaluation dependencies. Core protocol clients use the standard library.
+matplotlib>=3.8,<4
+psutil>=5.9,<8
