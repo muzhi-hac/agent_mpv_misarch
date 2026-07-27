@@ -70,6 +70,20 @@ tasks=(
   "place an order for this water cup"
 )
 
+manifest_args=(
+  --mode fixed_trials
+  --out "$OUTDIR/run_manifest.json"
+  --arms B,D,C
+  --endpoint "a2a=$A2A_URL"
+  --endpoint "mcp=$MCP_URL"
+  --parameter "trials_per_task=$N"
+  --parameter "concurrency=1"
+)
+for task in "${tasks[@]}"; do
+  manifest_args+=(--task "$task")
+done
+"$PYTHON_BIN" -m scripts.experiment_manifest "${manifest_args[@]}"
+
 emit_row() { # arm task_idx trial jsonfile -> one CSV line on stdout
   "$PYTHON_BIN" - "$@" <<'PY'
 import json, sys

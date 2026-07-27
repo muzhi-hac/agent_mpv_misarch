@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable
 
 from scripts.agent_gcp_baseline_test import load_api_key, utc_now
+from scripts.experiment_manifest import build_manifest, write_manifest
 from scripts.run_metrics import (
     PER_TASK_SERVER_METRICS_ENV,
     read_server_metrics,
@@ -385,6 +386,21 @@ def run_duration(
     summary_path = config.outdir / "summary.csv"
     if summary_path.exists():
         summary_path.unlink()
+
+    write_manifest(
+        config.outdir / "run_manifest.json",
+        build_manifest(
+            mode="duration",
+            arms=config.arms,
+            tasks=config.tasks,
+            endpoints={"a2a": config.a2a_url, "mcp": config.mcp_url},
+            parameters={
+                "duration_seconds": config.duration_seconds,
+                "concurrency": config.concurrency,
+                "safe_concurrency_cap": SAFE_CONCURRENCY_CAP,
+            },
+        ),
+    )
 
     server_pre = server_reader(config.a2a_url)
     started_at = utc_now()

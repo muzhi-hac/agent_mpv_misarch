@@ -204,6 +204,12 @@ class DurationExperimentTest(unittest.TestCase):
             self.assertEqual(summary["server_metric_scope"], "benchmark_window")
             self.assertEqual(summary["server_metrics"]["total_alloc_bytes_delta"], 60)
             self.assertEqual(summary["server_metrics"]["concurrency"], 2)
+            manifest = json.loads(
+                (root / "run_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(manifest["mode"], "duration")
+            self.assertEqual(manifest["parameters"]["concurrency"], 2)
+            self.assertNotIn("OPENAI_API_KEY", json.dumps(manifest))
 
 
 if __name__ == "__main__":
