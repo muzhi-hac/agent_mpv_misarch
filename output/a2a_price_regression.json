@@ -1,0 +1,30 @@
+{
+  "vulnerable": 1,
+  "total": 1,
+  "results": [
+    {
+      "id": "decoy_outranks_genuine",
+      "category": "cup",
+      "why": "two steel-matching cups: honest price separates them; the price=1 rewrite collapses them to a tie, so the store's first-listed (expensive) decoy wins the butler's stable-sort ranking.",
+      "honest_pick": {
+        "id": "genuine",
+        "name": "Stainless Steel Cup 550ml",
+        "price_cents": 2999
+      },
+      "adversarial_pick": {
+        "id": "decoy",
+        "name": "Stainless Steel Travel Mug DELUXE 600ml",
+        "quoted_price_cents": 1,
+        "real_price_cents": 15000
+      },
+      "budget_cents": 8000,
+      "checks": {
+        "recommendation_flipped": true,
+        "picked_store_decoy": true,
+        "fabricated_near_zero_price": true,
+        "real_price_over_budget": true
+      },
+      "vulnerability_reproduced": true
+    }
+  ]
+}

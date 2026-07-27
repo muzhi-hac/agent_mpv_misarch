@@ -38,7 +38,7 @@ func TestNormalizeTopKUsesDefault(t *testing.T) {
 }
 
 func TestNormalizeTopKRejectsLargeValue(t *testing.T) {
-	_, err := normalizeTopK(11)
+	_, err := normalizeTopK(101)
 	if err == nil {
 		t.Fatal("normalizeTopK() returned nil error, want validation error")
 	}

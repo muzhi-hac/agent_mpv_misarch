@@ -4,31 +4,37 @@
 
 ## 1. 当前实现定位
 
-本仓库实现的是一个 **简化版 A2A store-agent**，用于验证 Agent-to-Agent 架构模式，而不是完整生产级 A2A JSON-RPC wire protocol。
+本仓库的 store-agent 已接入官方 `github.com/a2aproject/a2a-go/v2`
+SDK，主路径使用 **A2A 1.0 JSON-RPC wire protocol**。它发布标准 Agent
+Card，并支持 `SendMessage`、Task 生命周期、结构化 Artifact/DataPart 和
+`GetTask`。旧的 `POST /tasks` 仅作为迁移期兼容入口。
 
 当前目标是验证:
 
 - 能通过 Agent Card 发现商家 agent 能力
-- 能通过 Task API 调用商家能力
+- 能通过 A2A Message/Task API 调用商家能力
 - 能区分只读能力和高风险能力
 - 能让用户侧 agent 保留用户 profile，不把 profile 直接发给商家
 - 能对 purchase 这类高风险动作做确认/拦截实验
 
-当前没有使用:
+当前仍未启用:
 
 - React 前端
 - LangChain `ReActAgent`
-- 完整 A2A JSON-RPC 2.0 协议
 - streaming
-- A2A 层认证
+- push notification
+- durable task store
+- Agent Card 签名和生产级 A2A 认证
+- A2A TCK 合规认证
 
 ## 2. 代码结构
 
 核心文件:
 
 ```text
-internal/a2aserver/types.go       A2A JSON 数据结构
-internal/a2aserver/server.go      Agent Card 和 /tasks handler
+internal/a2aserver/types.go       store-agent 领域请求/响应结构
+internal/a2aserver/executor.go    官方 A2A Message/Task 与领域逻辑适配
+internal/a2aserver/server.go      标准 Agent Card、/a2a 和兼容 /tasks handler
 internal/a2aserver/server_test.go A2A server 单元测试
 internal/httpserver/server.go     HTTP 路由挂载
 internal/httpserver/contract_test.go 路由契约测试
@@ -50,7 +56,7 @@ Dockerfile
 当前 A2A 边界只有一条:
 
 ```text
-User Butler Agent  <---- simplified A2A over HTTP ---->  Store Agent
+User Butler Agent  <---- A2A 1.0 JSON-RPC/HTTP ---->  Store Agent
 ```
 
 再往下，store-agent 内部调用已有 Go service:
@@ -75,7 +81,8 @@ scripts/agent_a2a_loop.py
   v
 internal/a2aserver: Agent Card
   |
-  | POST /tasks skill=browse
+  | POST /a2a  JSON-RPC SendMessage
+  | DataPart: {"skill":"browse","input":{...}}
   v
 internal/a2aserver: handleBrowse
   |
@@ -86,7 +93,10 @@ catalog.Service.ListProducts / GetProduct
 GraphQL / MiSArch
 ```
 
-如果任务是 purchase 意图，用户侧 butler 会读取 Agent Card 中的风险元数据，并在当前 Phase 1 中拦截，不发送真实 purchase Task。
+如果任务是 purchase 意图，用户侧 butler 会执行本地风险策略，并把 Agent
+Card 的自定义风险 extension 只作为审计信息。普通实验脚本仍默认停在确认门；
+受控 E2E 运行器则先发送未确认任务，再使用相同 task/context 发送确认
+continuation，触发真实的本地模拟购买。
 
 ## 4. HTTP API
 
@@ -96,35 +106,43 @@ GraphQL / MiSArch
 GET /.well-known/agent-card.json
 ```
 
-返回示例:
+关键结构:
 
 ```json
 {
   "name": "misarch-store-agent",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "MiSArch merchant store-agent exposing browse and purchase skills over A2A.",
-  "endpoint": "http://34.40.117.201:8001",
+  "supportedInterfaces": [
+    {
+      "url": "http://34.40.117.201:8001/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
   "skills": [
     {
       "id": "browse",
-      "description": "Return candidate catalog products. Read-only; ranking is the caller's responsibility.",
-      "risk_level": "none",
-      "side_effects": false,
-      "requires_confirmation": false
+      "name": "Browse catalog",
+      "description": "Return candidate catalog products.",
+      "tags": ["catalog", "browse", "shopping"]
     },
     {
       "id": "purchase",
-      "description": "Create a pending order for a selected product variant. High-risk; spends the user's money.",
-      "risk_level": "high",
-      "side_effects": true,
-      "requires_confirmation": true
+      "name": "Complete purchase",
+      "description": "After explicit confirmation, create and place an order and complete payment through MiSArch's local simulator.",
+      "tags": ["order", "purchase", "shopping"]
     }
   ],
   "capabilities": {
-    "streaming": false
-  },
-  "auth": {
-    "schemes": ["none"]
+    "extensions": [
+      {
+        "uri": "https://misarch.dev/a2a/extensions/risk/v1",
+        "params": {"skills": {"purchase": {"risk_level": "high"}}}
+      }
+    ]
   }
 }
 ```
@@ -133,27 +151,33 @@ GET /.well-known/agent-card.json
 
 | 字段 | 含义 |
 |---|---|
-| `endpoint` | Task API 基址，调用方应向 `{endpoint}/tasks` 发任务 |
+| `supportedInterfaces` | 标准协议绑定、版本和调用 URL；客户端必须从这里发现 `/a2a` |
 | `skills` | store-agent 对外暴露的能力 |
-| `risk_level` | 风险级别，当前使用 `none` / `high` |
-| `side_effects` | 是否有副作用 |
-| `requires_confirmation` | 调用前是否需要用户确认 |
+| `capabilities.extensions` | 非标准风险元数据的显式扩展容器 |
 
-### 4.2 Task API
+### 4.2 A2A JSON-RPC API
 
 ```text
-POST /tasks
+POST /a2a
 Content-Type: application/json
+A2A-Version: 1.0
 ```
 
 请求结构:
 
 ```json
 {
-  "task_id": "task-001",
-  "skill": "browse",
-  "input": {
-    "top_k": 5
+  "jsonrpc": "2.0",
+  "id": "rpc-001",
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "message-001",
+      "role": "ROLE_USER",
+      "parts": [
+        {"data": {"skill": "browse", "input": {"top_k": 5}}}
+      ]
+    }
   }
 }
 ```
@@ -162,24 +186,38 @@ Content-Type: application/json
 
 ```json
 {
-  "task_id": "task-001",
-  "state": "completed",
-  "message": "...",
-  "artifact": {},
-  "error": "..."
+  "jsonrpc": "2.0",
+  "id": "rpc-001",
+  "result": {
+    "task": {
+      "id": "...",
+      "contextId": "...",
+      "status": {"state": "TASK_STATE_COMPLETED"},
+      "artifacts": [
+        {"artifactId": "...", "parts": [{"data": {"products": []}}]}
+      ]
+    }
+  }
 }
 ```
 
-`state` 当前支持:
+主要状态映射:
 
 | 状态 | 含义 |
 |---|---|
-| `working` | 预留，当前 handler 不返回 |
-| `input-required` | 需要更多输入，例如 purchase 缺少字段 |
-| `completed` | 任务完成 |
-| `failed` | 任务失败 |
+| `TASK_STATE_SUBMITTED` / `TASK_STATE_WORKING` | 已提交 / 执行中 |
+| `TASK_STATE_INPUT_REQUIRED` | 需要更多输入，例如 purchase 缺少字段 |
+| `TASK_STATE_COMPLETED` | 任务完成 |
+| `TASK_STATE_FAILED` | 任务失败 |
+
+可用标准方法还包括 `GetTask`、`ListTasks` 和 `CancelTask`。`POST /tasks`
+返回旧的 `{task_id,state,artifact}` 结构，只供兼容测试使用，不是新的 A2A
+主路径。
 
 ## 5. Skill 行为
+
+本节中的领域输入/输出对 `/a2a` 和兼容 `/tasks` 相同；示例若使用
+`/tasks`，只是在演示兼容入口。
 
 ### 5.1 browse
 
@@ -239,17 +277,24 @@ curl -s -X POST "$A2A_URL/tasks" \
   "shipment_method_id": "...",
   "shipment_address_id": "...",
   "invoice_address_id": "...",
-  "payment_information_id": "..."
+  "payment_information_id": "...",
+  "quantity": 1,
+  "payment_cvc": 123,
+  "confirmed": false
 }
 ```
 
-当前 Phase 1 行为:
+当前行为:
 
 - 校验必填字段是否存在
 - 缺字段返回 `input-required`
-- 字段齐全返回 dry-run success
-- 不调用 `CreatePendingOrder`
-- 不创建真实订单
+- 字段齐全但 `confirmed=false` 时返回 `input-required`，不产生副作用
+- 客户端必须使用相同 `taskId` 和 `contextId` 发送 continuation，并设置 `confirmed=true`
+- 确认后依次创建购物车项、创建 `PENDING` 订单并调用 `placeOrder`
+- `placeOrder` 发布订单事件，Payment 服务通过本地 Simulation 完成模拟支付
+- 成功条件是订单状态 `PLACED` 且支付状态 `SUCCEEDED`
+- MiSArch 没有 `PAID` 订单状态；是否已支付由独立的 Payment 状态表达
+- 不连接外部支付服务，不产生真实扣款
 
 缺字段示例:
 
@@ -277,33 +322,35 @@ curl -s -X POST "$A2A_URL/tasks" \
 }
 ```
 
-完整字段 dry-run 示例:
+完整字段但未确认时，服务返回订单预览和 `input-required`，不会创建数据。
+`confirmed=true` 只有在引用该任务的标准 A2A continuation 中才有效；第一条消息
+直接携带 `confirmed=true`，或通过兼容接口 `/tasks` 提交，都不能绕过确认门。
+
+完整购买使用受控运行器：
 
 ```bash
-curl -s -X POST "$A2A_URL/tasks" \
-  -H 'content-type: application/json' \
-  -d '{
-    "task_id":"dev-purchase-dry-run",
-    "skill":"purchase",
-    "input":{
-      "user_id":"u1",
-      "product_variant_id":"v1",
-      "shipment_method_id":"s1",
-      "shipment_address_id":"sa1",
-      "invoice_address_id":"ia1",
-      "payment_information_id":"p1"
-    }
-  }' | python3 -m json.tool
+python3 -m scripts.a2a_purchase_e2e \
+  --a2a-url "$A2A_URL" \
+  --user-id "$TEST_USER_ID" \
+  --product-variant-id "$TEST_PRODUCT_VARIANT_ID" \
+  --shipment-method-id "$TEST_SHIPMENT_METHOD_ID" \
+  --shipment-address-id "$TEST_SHIPMENT_ADDRESS_ID" \
+  --invoice-address-id "$TEST_INVOICE_ADDRESS_ID" \
+  --payment-information-id "$TEST_PAYMENT_INFORMATION_ID" \
+  --execute \
+  --confirmation-text "CREATE AND PAY ONE LOCAL TEST ORDER" \
+  --output tmp/a2a_purchase_e2e.json
 ```
 
-期望:
+成功审计结果包含：
 
 ```json
 {
-  "state": "completed",
-  "artifact": {
-    "validated": true,
-    "order_created": false
+  "success": true,
+  "local_simulation_only": true,
+  "purchase": {
+    "order_status": "PLACED",
+    "payment_status": "SUCCEEDED"
   }
 }
 ```
@@ -373,6 +420,7 @@ internal/httpserver/server.go
 
 ```go
 mux.Handle("GET /.well-known/agent-card.json", a2aHandler)
+mux.Handle("POST /a2a", a2aHandler)
 mux.Handle("POST /tasks", a2aHandler)
 ```
 
@@ -390,7 +438,7 @@ scripts/agent_a2a_loop.py
 
 | 类 | 作用 |
 |---|---|
-| `A2AClient` | 读取 Agent Card，发送 Task |
+| `A2AClient` | 读取 Agent Card，发现 JSONRPC interface，发送标准 `SendMessage` |
 | `PreferenceModule` | 本地读取用户 profile，本地排序 |
 | `UserButler` | 串联 LLM 意图判断、A2A 调用、风险拦截、最终回答 |
 
@@ -398,7 +446,7 @@ scripts/agent_a2a_loop.py
 
 - 完整 profile 只在 `PreferenceModule` 内本地使用
 - `minimal_constraints()` 默认返回空对象和空披露字段列表
-- A2A `browse` task 只发送任务派生的 `query`、`top_k`、`constraints`
+- A2A `browse` Message 的 DataPart 只发送任务派生的 `query`、`top_k`、`constraints`
 - store-agent 返回候选商品，不知道用户偏好
 
 关键风险设计:
@@ -464,27 +512,20 @@ curl -s "$A2A_URL/.well-known/agent-card.json" | python3 -m json.tool
 browse:
 
 ```bash
-curl -s -X POST "$A2A_URL/tasks" \
+curl -s -X POST "$A2A_URL/a2a" \
   -H 'content-type: application/json' \
-  -d '{"task_id":"smoke-browse","skill":"browse","input":{"top_k":2}}' \
+  -H 'A2A-Version: 1.0' \
+  -d '{"jsonrpc":"2.0","id":"smoke-browse","method":"SendMessage","params":{"message":{"messageId":"smoke-message-1","role":"ROLE_USER","parts":[{"data":{"skill":"browse","input":{"top_k":2}}}]}}}' \
   | python3 -m json.tool
 ```
 
-purchase guard:
+读取刚返回的 Task（把 `<TASK_ID>` 替换为响应中的 `result.task.id`）:
 
 ```bash
-curl -s -X POST "$A2A_URL/tasks" \
+curl -s -X POST "$A2A_URL/a2a" \
   -H 'content-type: application/json' \
-  -d '{"task_id":"smoke-purchase-guard","skill":"purchase","input":{"user_id":"demo"}}' \
-  | python3 -m json.tool
-```
-
-invalid skill:
-
-```bash
-curl -s -X POST "$A2A_URL/tasks" \
-  -H 'content-type: application/json' \
-  -d '{"task_id":"smoke-invalid","skill":"unknown","input":{}}' \
+  -H 'A2A-Version: 1.0' \
+  -d '{"jsonrpc":"2.0","id":"smoke-get","method":"GetTask","params":{"id":"<TASK_ID>"}}' \
   | python3 -m json.tool
 ```
 
@@ -583,7 +624,7 @@ func handleReserve(ctx context.Context, svc Service, req TaskRequest) TaskRespon
 
 - 输入校验显式
 - 错误状态明确
-- 高风险动作先 dry-run 或 input-required
+- 高风险动作先返回预览和 input-required，再通过同一 A2A task/context 确认
 - 不在 handler 中偷偷读取用户 profile
 
 ### 11.5 补测试
@@ -644,36 +685,38 @@ Dockerfile 中也设置了默认 `PUBLIC_BASE_URL`，但生产部署应由环境
 
 因为实验要验证数据主权。用户 profile 留在用户侧，商家只返回候选商品。
 
-### 13.2 为什么 purchase 不创建订单?
+### 13.2 purchase 是否会创建和支付订单?
 
-当前是 Phase 1 风险拦截实验。目标是测:
+会，但只在显式确认后。第一次请求用于建立确认门，不创建任何数据；同一
+A2A task/context 的确认 continuation 会执行完整本地流程：
 
-- 能否识别高风险动作
-- 是否需要确认
-- 是否阻止未经确认的下单
+```text
+ShoppingCartItem -> Order(PENDING) -> Order(PLACED)
+-> Payment(PENDING) -> Payment(SUCCEEDED)
+```
 
-真实 `CreatePendingOrder` 留到 Phase 2。
+Payment 的最终结果由 MiSArch 本地 Simulation 服务产生，不会连接真实银行或
+信用卡网络。测试会留下订单、支付、发票及下游 saga 数据，并可能消耗/预留库存。
 
 ### 13.3 为什么没有认证?
 
-这是实验实现。当前 Agent Card 中:
-
-```json
-"auth": { "schemes": ["none"] }
-```
+这是实验实现。当前 Agent Card 没有声明 `securitySchemes` /
+`securityRequirements`。
 
 生产化时应增加认证、授权、审计日志和 rate limit。
 
-### 13.4 这是完整 A2A 协议吗?
+### 13.4 这是真实 A2A 协议吗?
 
-不是。当前是 REST-style 简化实现:
+是，主路径已经是 A2A 1.0 的标准 wire 交互:
 
 ```text
 GET  /.well-known/agent-card.json
-POST /tasks
+POST /a2a  JSON-RPC SendMessage / GetTask
 ```
 
-它验证 A2A 架构思想，不保证与生产级 A2A agent wire protocol 兼容。
+服务端使用官方 Go SDK，Task/Message/Artifact/DataPart 也使用 SDK 类型。但这
+不等于“生产完备”或“TCK 已认证”：streaming、push、持久化 task store、认证、
+签名和 TCK 验证仍未完成。
 
 ## 14. 开发者检查清单
 
@@ -690,13 +733,10 @@ go vet ./...
 export A2A_URL=http://34.40.117.201:8001
 
 curl -s "$A2A_URL/.well-known/agent-card.json" | python3 -m json.tool
-curl -s -X POST "$A2A_URL/tasks" \
+curl -s -X POST "$A2A_URL/a2a" \
   -H 'content-type: application/json' \
-  -d '{"task_id":"check-browse","skill":"browse","input":{"top_k":2}}' \
-  | python3 -m json.tool
-curl -s -X POST "$A2A_URL/tasks" \
-  -H 'content-type: application/json' \
-  -d '{"task_id":"check-purchase","skill":"purchase","input":{"user_id":"demo"}}' \
+  -H 'A2A-Version: 1.0' \
+  -d '{"jsonrpc":"2.0","id":"check","method":"SendMessage","params":{"message":{"messageId":"check-message","role":"ROLE_USER","parts":[{"data":{"skill":"browse","input":{"top_k":2}}}]}}}' \
   | python3 -m json.tool
 ```
 
@@ -739,9 +779,9 @@ python3 -m scripts.agent_a2a_loop \
 - 没有 request signing
 - 没有 rate limit
 - 没有 durable task store
-- 没有 async task polling
 - 没有 streaming
-- purchase 没有真实落单
+- purchase 使用进程内任务状态；容器重启后不能继续旧的确认任务
+- 支付与订单在 federated GraphQL 中没有直接 Payment ID 关联字段，因此测试账号应串行购买
 - 没有跨 agent trace id 标准化
 
 如果要生产化，建议优先补:
@@ -749,6 +789,6 @@ python3 -m scripts.agent_a2a_loop \
 1. Auth / authorization
 2. Request id / trace id / audit log
 3. Durable task state
-4. 标准 A2A protocol compatibility
-5. Interactive confirmation flow
-6. Real pending order Phase 2
+4. A2A TCK / Inspector 验证
+5. Durable idempotency key
+6. 可关联订单与支付的审计字段

@@ -191,15 +191,12 @@ The existing services are **not modified**.
 
 #### Wire format note
 
-This experiment implements a **simplified subset of the A2A architecture**,
-not the full A2A wire protocol (which uses JSON-RPC 2.0 methods such as
-`message/send` and `tasks/get`, with a different Agent Card schema).  The
-REST-style `POST /tasks` chosen here is intentionally simpler for a course
-project.  The experiment therefore validates the **architectural cost/benefit
-of the A2A pattern** (separate trust domains, Agent Card discovery, explicit
-risk metadata), but **not wire-level protocol compatibility** with a production
-A2A implementation.  This scope limitation should be stated explicitly in the
-thesis limitations section.
+**Implementation update (2026-07-27):** the original design below proposed a
+custom REST-style `POST /tasks`. The active implementation now uses the official
+`a2a-go/v2` SDK and A2A 1.0 JSON-RPC `SendMessage` / `GetTask`, with a standard
+Agent Card and Task/Message/Artifact/DataPart model. `POST /tasks` remains only
+as a deprecated compatibility route. The older structs and snippets retained in
+this design section document the original plan, not the current wire contract.
 
 #### `internal/a2aserver/types.go` — protocol structs
 
@@ -331,7 +328,8 @@ func NewHandler(mcpHandler http.Handler, a2aHandler http.Handler, checker Readin
 
 // new routes added inside:
 mux.Handle("GET /.well-known/agent-card.json", a2aHandler)
-mux.Handle("POST /tasks", a2aHandler)
+mux.Handle("POST /a2a", a2aHandler)  // active A2A 1.0 JSON-RPC route
+mux.Handle("POST /tasks", a2aHandler) // deprecated compatibility route
 ```
 
 ### 4.3 `scripts/agent_a2a_loop.py` (new — user butler / Arm C)
@@ -342,10 +340,10 @@ mixed result sets for visualisation (see §4.4).
 
 ```python
 class A2AClient:
-    """Minimal A2A client: read Agent Card + POST tasks."""
+    """A2A 1.0 client: discover JSONRPC interface + SendMessage."""
     def __init__(self, base_url: str): ...
     def fetch_card(self) -> dict: ...                        # GET /.well-known/agent-card.json
-    def send_task(self, skill: str, payload: dict) -> dict:  # POST /tasks -> TaskResponse
+    def send_task(self, skill: str, payload: dict) -> dict:  # POST /a2a -> Task/Artifact
         ...
 
 class PreferenceModule:
@@ -460,7 +458,7 @@ New outputs:
 |----------|----------|---------|
 | User -> Butler | natural language (CLI `--task`) | — |
 | Butler -> Preference module | in-process Python call | `PreferenceModule.for_category(category)` |
-| Butler -> store-agent | **simplified A2A over HTTP** | `GET /.well-known/agent-card.json`, `POST /tasks` (task + minimal constraints only) |
+| Butler -> store-agent | **A2A 1.0 JSON-RPC over HTTP** | `GET /.well-known/agent-card.json`, `POST /a2a` with `SendMessage` (task + minimal constraints only) |
 | store-agent -> MiSArch | Go call -> GraphQL | existing `catalog.Service` / `order.Service` (unchanged) |
 
 The only networked, cross-trust-domain contract is the A2A boundary (Agent Card
@@ -504,11 +502,10 @@ behaviour untouched (Arm D is an opt-in `--profile` flag on the same script).
    never crosses the trust boundary. This trade-off is made explicit and is logged
    via `profile_fields_disclosed`.
 
-2. **Simplified A2A wire format**: this experiment uses a REST-style `POST /tasks`
-   rather than the full A2A spec (JSON-RPC 2.0 `message/send` / `tasks/get`).
-   The experiment validates the **architectural pattern** of A2A (trust-domain
-   separation, Agent Card discovery, explicit risk metadata), not wire-level
-   interoperability with production A2A agents.
+2. **A2A production completeness**: the active path is A2A 1.0 JSON-RPC using
+   the official Go SDK (`SendMessage`, `GetTask`, standard Agent Card and task
+   artifacts). It has not yet enabled streaming, push notifications, a durable
+   task store, production authentication/card signing, or TCK certification.
 
 3. **Confound controlled by Arm D**: B -> C alone would change both architecture and
    preference format. Arm D (MCP + structured profile) is inserted as a control, so

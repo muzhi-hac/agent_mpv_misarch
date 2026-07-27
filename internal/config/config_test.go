@@ -1,6 +1,7 @@
 package config
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -30,6 +31,16 @@ func TestLoadUsesDefaults(t *testing.T) {
 	if got.Auth.Enabled {
 		t.Fatal("Auth.Enabled = true, want false")
 	}
+
+	wantOrigins := []string{
+		"http://127.0.0.1:8080",
+		"http://localhost:8080",
+		"http://127.0.0.1:6274",
+		"http://localhost:6274",
+	}
+	if !reflect.DeepEqual(got.CORSAllowedOrigins, wantOrigins) {
+		t.Fatalf("CORSAllowedOrigins = %#v, want %#v", got.CORSAllowedOrigins, wantOrigins)
+	}
 }
 
 func TestLoadReadsEnvironmentVariables(t *testing.T) {
@@ -57,6 +68,24 @@ func TestLoadReadsEnvironmentVariables(t *testing.T) {
 
 	if got.PublicBaseURL != "http://127.0.0.1:9000" {
 		t.Fatalf("PublicBaseURL = %q, want %q", got.PublicBaseURL, "http://127.0.0.1:9000")
+	}
+}
+
+func TestLoadReadsCORSAllowedOrigins(t *testing.T) {
+	t.Setenv("CORS_ALLOWED_ORIGINS", "http://127.0.0.1:3000, https://app.example.test, http://127.0.0.1:3000")
+	clearAuthEnv(t)
+
+	got, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	want := []string{
+		"http://127.0.0.1:3000",
+		"https://app.example.test",
+	}
+	if !reflect.DeepEqual(got.CORSAllowedOrigins, want) {
+		t.Fatalf("CORSAllowedOrigins = %#v, want %#v", got.CORSAllowedOrigins, want)
 	}
 }
 

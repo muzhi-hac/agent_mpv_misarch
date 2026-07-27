@@ -32,6 +32,7 @@ func TestRouteContract(t *testing.T) {
 		{"runtime metrics ok", http.MethodGet, "/debug/runtime-metrics", nil, http.StatusOK, false, false},
 		{"mcp route delegates", http.MethodPost, "/mcp", nil, mcpStatus, true, false},
 		{"a2a agent card delegates", http.MethodGet, "/.well-known/agent-card.json", nil, a2aStatus, false, true},
+		{"a2a json-rpc delegates", http.MethodPost, "/a2a", nil, a2aStatus, false, true},
 		{"a2a tasks delegates", http.MethodPost, "/tasks", nil, a2aStatus, false, true},
 	}
 

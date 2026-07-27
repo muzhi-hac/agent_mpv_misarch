@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -12,14 +13,16 @@ const (
 	defaultHTTPAddr        = "127.0.0.1:8001"
 	defaultGraphQLEndpoint = "http://localhost:8080/graphql"
 	defaultGraphQLTimeout  = "3s"
+	defaultCORSOrigins     = "http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:6274,http://localhost:6274"
 )
 
 type Config struct {
-	HTTPAddr        string
-	GraphQLEndpoint string
-	GraphQLTimeout  time.Duration
-	PublicBaseURL   string
-	Auth            AuthConfig
+	HTTPAddr           string
+	GraphQLEndpoint    string
+	GraphQLTimeout     time.Duration
+	PublicBaseURL      string
+	CORSAllowedOrigins []string
+	Auth               AuthConfig
 }
 
 type AuthConfig struct {
@@ -55,11 +58,12 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		HTTPAddr:        httpAddr,
-		GraphQLEndpoint: endpoint,
-		GraphQLTimeout:  timeout,
-		PublicBaseURL:   publicBaseURL,
-		Auth:            auth,
+		HTTPAddr:           httpAddr,
+		GraphQLEndpoint:    endpoint,
+		GraphQLTimeout:     timeout,
+		PublicBaseURL:      publicBaseURL,
+		CORSAllowedOrigins: parseCommaSeparated(envOrDefault("CORS_ALLOWED_ORIGINS", defaultCORSOrigins)),
+		Auth:               auth,
 	}, nil
 
 }
@@ -70,6 +74,27 @@ func envOrDefault(key string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func parseCommaSeparated(raw string) []string {
+	parts := strings.Split(raw, ",")
+	values := make([]string, 0, len(parts))
+	seen := make(map[string]struct{}, len(parts))
+
+	for _, part := range parts {
+		value := strings.TrimSpace(part)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+
+		seen[value] = struct{}{}
+		values = append(values, value)
+	}
+
+	return values
 }
 
 func defaultPublicBaseURL(httpAddr string) string {

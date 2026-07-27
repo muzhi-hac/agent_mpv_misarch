@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "misarch-store-agent",
+  "main": "cloudflare/src/index.js",
+  "compatibility_date": "2026-07-27",
+  "account_id": "e0ed6b4a0d6a44bc17fcdbf9939b90d9",
+  "workers_dev": true,
+  "vars": {
+    "PUBLIC_BASE_URL": "https://misarch-store-agent.young-math-5a26.workers.dev",
+    "MISARCH_GRAPHQL_TIMEOUT": "8s",
+    "MISARCH_KEYCLOAK_CLIENT_ID": "frontend",
+    "CORS_ALLOWED_ORIGINS": "https://misarch-store-agent.young-math-5a26.workers.dev"
+  },
+  "containers": [
+    {
+      "class_name": "MisarchGatewayContainer",
+      "image": "./Dockerfile",
+      "instance_type": "lite",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MISARCH_GATEWAY",
+        "class_name": "MisarchGatewayContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "MisarchGatewayContainer"
+      ]
+    }
+  ]
+}

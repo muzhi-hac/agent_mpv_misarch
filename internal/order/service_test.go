@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 )
 
 const (
@@ -48,6 +49,14 @@ func validInput() CreatePendingOrderInput {
 		InvoiceAddressID:     testInvoiceAddressID,
 		PaymentInformationID: testPaymentInformationID,
 		CouponIDs:            []string{testCouponID},
+	}
+}
+
+func validCompletePurchaseInput() CompletePurchaseInput {
+	cvc := 123
+	return CompletePurchaseInput{
+		CreatePendingOrderInput: validInput(),
+		PaymentCVC:              &cvc,
 	}
 }
 
@@ -215,5 +224,167 @@ func TestCreatePendingOrderStopsAfterCartError(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "cart unavailable") {
 		t.Fatalf("error = %q", err)
+	}
+}
+
+func TestCompletePurchasePlacesOrderAndWaitsForSimulatedPayment(t *testing.T) {
+	const (
+		cartID    = "550e8400-e29b-41d4-a716-446655440010"
+		orderID   = "550e8400-e29b-41d4-a716-446655440011"
+		paymentID = "550e8400-e29b-41d4-a716-446655440012"
+	)
+	gql := &fakeGraphQLClient{
+		do: func(call int, out any) error {
+			switch call {
+			case 0:
+				out.(*paymentStatusResponse).Payments.Nodes = []paymentNode{
+					{ID: "550e8400-e29b-41d4-a716-446655440099", Status: "SUCCEEDED"},
+				}
+			case 1:
+				out.(*createShoppingCartItemResponse).ShoppingCartItem = shoppingCartItemNode{
+					ID: cartID,
+				}
+			case 2:
+				out.(*createOrderResponse).Order = orderNode{
+					ID: orderID, OrderStatus: "PENDING",
+				}
+			case 3:
+				out.(*placeOrderResponse).Order = orderNode{
+					ID: orderID, OrderStatus: "PLACED",
+				}
+			case 4:
+				out.(*paymentStatusResponse).Payments.Nodes = []paymentNode{
+					{ID: paymentID, Status: "PENDING"},
+				}
+			case 5:
+				out.(*paymentStatusResponse).Payments.Nodes = []paymentNode{
+					{ID: paymentID, Status: "SUCCEEDED"},
+				}
+			default:
+				t.Fatalf("unexpected GraphQL call %d", call)
+			}
+			return nil
+		},
+	}
+
+	service := NewService(gql, WithPaymentPolling(time.Second, time.Millisecond))
+	got, err := service.CompletePurchase(context.Background(), validCompletePurchaseInput())
+	if err != nil {
+		t.Fatalf("CompletePurchase() returned error: %v", err)
+	}
+	if got.OrderID != orderID || got.OrderStatus != "PLACED" {
+		t.Fatalf("order result = %+v, want order %s PLACED", got, orderID)
+	}
+	if got.ShoppingCartItemID != cartID {
+		t.Fatalf("ShoppingCartItemID = %q, want %q", got.ShoppingCartItemID, cartID)
+	}
+	if got.PaymentID != paymentID || got.PaymentStatus != "SUCCEEDED" {
+		t.Fatalf("payment result = %+v, want payment %s SUCCEEDED", got, paymentID)
+	}
+	if !strings.Contains(got.SideEffects, "locally simulated payment") {
+		t.Fatalf("SideEffects = %q, want local simulation disclosure", got.SideEffects)
+	}
+
+	placeInput := gql.calls[3].variables["input"].(map[string]any)
+	if placeInput["id"] != orderID {
+		t.Fatalf("placeOrder id = %#v, want %q", placeInput["id"], orderID)
+	}
+	authorization := placeInput["paymentAuthorization"].(map[string]any)
+	if authorization["cvc"] != 123 {
+		t.Fatalf("paymentAuthorization.cvc = %#v, want 123", authorization["cvc"])
+	}
+	if gotFilter := gql.calls[0].variables["paymentInformationId"]; gotFilter != testPaymentInformationID {
+		t.Fatalf("paymentInformationId filter = %#v, want %q", gotFilter, testPaymentInformationID)
+	}
+}
+
+func TestCompletePurchaseStopsBeforePlaceOrderWhenCreateOrderFails(t *testing.T) {
+	gql := &fakeGraphQLClient{
+		do: func(call int, out any) error {
+			if call == 0 {
+				out.(*paymentStatusResponse).Payments.Nodes = nil
+				return nil
+			}
+			if call == 1 {
+				out.(*createShoppingCartItemResponse).ShoppingCartItem = shoppingCartItemNode{
+					ID: "550e8400-e29b-41d4-a716-446655440010",
+				}
+				return nil
+			}
+			return errors.New("create order unavailable")
+		},
+	}
+
+	_, err := NewService(gql).CompletePurchase(context.Background(), validCompletePurchaseInput())
+	if err == nil || !strings.Contains(err.Error(), "create order unavailable") {
+		t.Fatalf("CompletePurchase() error = %v, want create order error", err)
+	}
+	if len(gql.calls) != 3 {
+		t.Fatalf("GraphQL calls = %d, want payment snapshot, cart, and createOrder", len(gql.calls))
+	}
+}
+
+func TestCompletePurchaseReportsFailedSimulatedPayment(t *testing.T) {
+	const orderID = "550e8400-e29b-41d4-a716-446655440011"
+	gql := completePurchaseGraphQLFixture(t, orderID, "FAILED")
+
+	_, err := NewService(gql).CompletePurchase(context.Background(), validCompletePurchaseInput())
+	if err == nil || !strings.Contains(err.Error(), "status FAILED") {
+		t.Fatalf("CompletePurchase() error = %v, want failed payment status", err)
+	}
+}
+
+func TestCompletePurchasePaymentPollingTimesOut(t *testing.T) {
+	const orderID = "550e8400-e29b-41d4-a716-446655440011"
+	gql := completePurchaseGraphQLFixture(t, orderID, "PENDING")
+	service := NewService(gql, WithPaymentPolling(4*time.Millisecond, time.Millisecond))
+
+	_, err := service.CompletePurchase(context.Background(), validCompletePurchaseInput())
+	if err == nil || !strings.Contains(err.Error(), "deadline exceeded") {
+		t.Fatalf("CompletePurchase() error = %v, want bounded timeout", err)
+	}
+}
+
+func TestCompletePurchaseRejectsInvalidCVC(t *testing.T) {
+	input := validCompletePurchaseInput()
+	invalid := 12
+	input.PaymentCVC = &invalid
+
+	_, err := NewService(&fakeGraphQLClient{}).CompletePurchase(context.Background(), input)
+	if err == nil || !strings.Contains(err.Error(), "3 or 4 digits") {
+		t.Fatalf("CompletePurchase() error = %v, want CVC validation error", err)
+	}
+}
+
+func completePurchaseGraphQLFixture(
+	t *testing.T,
+	orderID string,
+	paymentStatus string,
+) *fakeGraphQLClient {
+	t.Helper()
+	return &fakeGraphQLClient{
+		do: func(call int, out any) error {
+			switch call {
+			case 0:
+				out.(*paymentStatusResponse).Payments.Nodes = nil
+			case 1:
+				out.(*createShoppingCartItemResponse).ShoppingCartItem = shoppingCartItemNode{
+					ID: "550e8400-e29b-41d4-a716-446655440010",
+				}
+			case 2:
+				out.(*createOrderResponse).Order = orderNode{
+					ID: orderID, OrderStatus: "PENDING",
+				}
+			case 3:
+				out.(*placeOrderResponse).Order = orderNode{
+					ID: orderID, OrderStatus: "PLACED",
+				}
+			default:
+				out.(*paymentStatusResponse).Payments.Nodes = []paymentNode{
+					{ID: "550e8400-e29b-41d4-a716-446655440012", Status: paymentStatus},
+				}
+			}
+			return nil
+		},
 	}
 }

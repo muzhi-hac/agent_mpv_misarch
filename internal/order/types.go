@@ -20,3 +20,25 @@ type CreatePendingOrderOutput struct {
 	SideEffects        string `json:"side_effects"`
 	NextAction         string `json:"next_action"`
 }
+
+// CompletePurchaseInput extends the pending-order fields with the optional
+// payment authorization used by MiSArch's placeOrder mutation. MiSArch routes
+// the resulting payment to its local Simulation service.
+type CompletePurchaseInput struct {
+	CreatePendingOrderInput
+	PaymentCVC *int `json:"payment_cvc,omitempty"`
+}
+
+// CompletePurchaseOutput reports both state machines involved in checkout.
+// MiSArch has no PAID order status: a successful purchase is represented by a
+// PLACED order and a separate SUCCEEDED payment.
+type CompletePurchaseOutput struct {
+	OrderID            string `json:"order_id"`
+	OrderStatus        string `json:"order_status"`
+	ShoppingCartItemID string `json:"shopping_cart_item_id"`
+	PaymentID          string `json:"payment_id"`
+	PaymentStatus      string `json:"payment_status"`
+	SourceService      string `json:"source_service"`
+	Runtime            string `json:"runtime"`
+	SideEffects        string `json:"side_effects"`
+}

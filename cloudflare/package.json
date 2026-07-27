@@ -1,0 +1,18 @@
+{
+  "name": "misarch-store-agent-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "wrangler deploy --config ../wrangler.jsonc --dry-run",
+    "deploy": "wrangler deploy --config ../wrangler.jsonc",
+    "check:free": "wrangler deploy --config ../wrangler.proxy.jsonc --dry-run",
+    "deploy:free": "wrangler deploy --config ../wrangler.proxy.jsonc",
+    "smoke": "node test/smoke.mjs"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "wrangler": "4.114.0"
+  }
+}

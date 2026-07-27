@@ -1,48 +1,34 @@
-// Package a2aserver is a thin A2A (agent-to-agent) shell over the existing
-// catalog and order services. It exposes a merchant "store-agent" with two
-// coarse-grained skills — browse and purchase — discoverable via an Agent Card,
-// and dispatched over a simplified REST-style task endpoint.
-//
-// This is a deliberately minimal subset of the A2A architecture (not the full
-// JSON-RPC 2.0 wire protocol): it validates the architectural pattern — separate
-// trust domains, Agent Card capability discovery, explicit risk metadata — rather
-// than wire-level interoperability with production A2A agents.
+// Package a2aserver exposes the merchant store-agent through the official A2A
+// JSON-RPC protocol. The domain request/response types below are deliberately
+// transport-neutral: the A2A executor and the deprecated REST compatibility
+// endpoint both adapt them to their respective wire formats.
 package a2aserver
 
-// AgentCard is served at GET /.well-known/agent-card.json.
-type AgentCard struct {
-	Name         string  `json:"name"`
-	Version      string  `json:"version"`
-	Description  string  `json:"description"`
-	Endpoint     string  `json:"endpoint"` // base URL; tasks are posted to {endpoint}/tasks
-	Skills       []Skill `json:"skills"`
-	Capabilities struct {
-		Streaming bool `json:"streaming"` // false for now
-	} `json:"capabilities"`
-	Auth struct {
-		Schemes []string `json:"schemes"` // e.g. ["none"] for the demo
-	} `json:"auth"`
-}
-
-// Skill is a coarse-grained capability with explicit risk metadata. The risk
-// fields let the user-side butler decide whether to enforce confirmation before
-// invoking the skill — keeping the confirmation responsibility on the user side.
-type Skill struct {
-	ID                   string `json:"id"`          // "browse" | "purchase"
-	Description          string `json:"description"`
-	RiskLevel            string `json:"risk_level"`  // "none" | "low" | "medium" | "high"
-	SideEffects          bool   `json:"side_effects"`
-	RequiresConfirmation bool   `json:"requires_confirmation"`
-}
-
-// TaskRequest is the body of POST /tasks.
+// TaskRequest is the internal command decoded from an A2A Message DataPart. It
+// also remains the body of the deprecated POST /tasks compatibility endpoint.
 type TaskRequest struct {
-	TaskID string         `json:"task_id"`
-	Skill  string         `json:"skill"` // must match a Skill.ID
-	Input  map[string]any `json:"input"` // skill-specific payload
+	TaskID          string         `json:"task_id"`
+	Skill           string         `json:"skill"` // must match a Skill.ID
+	Input           map[string]any `json:"input"` // skill-specific payload
+	IsContinuation  bool           `json:"-"`     // true only for an A2A message referencing a stored task
+	ExpectedPreview map[string]any `json:"-"`     // server-owned preview from the stored A2A task
 }
 
-// TaskState mirrors the A2A lifecycle (minimal subset).
+type purchaseTaskInput struct {
+	UserID               string   `json:"user_id"`
+	ProductVariantID     string   `json:"product_variant_id"`
+	Quantity             int      `json:"quantity"`
+	ShipmentMethodID     string   `json:"shipment_method_id"`
+	ShipmentAddressID    string   `json:"shipment_address_id"`
+	InvoiceAddressID     string   `json:"invoice_address_id"`
+	PaymentInformationID string   `json:"payment_information_id"`
+	CouponIDs            []string `json:"coupon_ids,omitempty"`
+	PaymentCVC           *int     `json:"payment_cvc,omitempty"`
+	Confirmed            bool     `json:"confirmed"`
+}
+
+// TaskState is the legacy experiment-facing state. The A2A executor maps these
+// values onto the protocol's TASK_STATE_* lifecycle values.
 type TaskState string
 
 const (
@@ -52,7 +38,8 @@ const (
 	StateFailed        TaskState = "failed"
 )
 
-// TaskResponse is returned by POST /tasks.
+// TaskResponse is the transport-neutral result and the response returned by the
+// deprecated POST /tasks compatibility endpoint.
 type TaskResponse struct {
 	TaskID   string         `json:"task_id"`
 	State    TaskState      `json:"state"`

@@ -178,14 +178,11 @@ call、GraphQL)与 agent↔LLM 的 prompt/completion 按调用顺序交织在一
 
 #### Wire format 说明
 
-本实验实现的是一个 **A2A 架构模式的简化子集**,而非完整的 A2A 规范
-(完整规范使用 JSON-RPC 2.0 的 `message/send`、`tasks/get` 等方法,
-Agent Card 字段名也不同)。此处选用更简单的 REST 风格 `POST /tasks`
-是课程项目范围内的合理取舍。
-
-因此本实验验证的是 **A2A 架构模式的代价与收益**(独立信任域、Agent Card
-能力发现、显式风险元数据),而**不是 wire 层面的协议兼容性**。
-这一范围限制应在论文 limitation 部分明确说明。
+**实现更新（2026-07-27）：**下面的原始设计曾计划使用自定义 REST
+`POST /tasks`。当前主路径已改为官方 `a2a-go/v2` SDK 和 A2A 1.0
+JSON-RPC `SendMessage` / `GetTask`，使用标准 Agent Card 以及
+Task/Message/Artifact/DataPart 模型。`POST /tasks` 仅保留为弃用的兼容入口。
+本节后面的旧结构体和代码片段用于记录原始方案，不再代表当前 wire contract。
 
 #### `internal/a2aserver/types.go` — 协议结构体
 
@@ -313,7 +310,8 @@ func NewHandler(mcpHandler http.Handler, a2aHandler http.Handler, checker Readin
 
 // 新增路由:
 mux.Handle("GET /.well-known/agent-card.json", a2aHandler)
-mux.Handle("POST /tasks", a2aHandler)
+mux.Handle("POST /a2a", a2aHandler)  // 当前 A2A 1.0 JSON-RPC 主路径
+mux.Handle("POST /tasks", a2aHandler) // 弃用的兼容入口
 ```
 
 ### 4.3 `scripts/agent_a2a_loop.py`(新增 — 用户管家 / Arm C)
@@ -323,10 +321,10 @@ Arm C 的结果 schema 是 Arm A/B schema 的**超集**;A/B 没有的字段需�
 
 ```python
 class A2AClient:
-    """最小 A2A 客户端:读 Agent Card + POST tasks。"""
+    """A2A 1.0 客户端:发现 JSONRPC interface + SendMessage。"""
     def __init__(self, base_url: str): ...
     def fetch_card(self) -> dict: ...                        # GET /.well-known/agent-card.json
-    def send_task(self, skill: str, payload: dict) -> dict:  # POST /tasks -> TaskResponse
+    def send_task(self, skill: str, payload: dict) -> dict:  # POST /a2a -> Task/Artifact
         ...
 
 class PreferenceModule:
@@ -436,7 +434,7 @@ def normalise(result: dict) -> dict:
 |------|------|--------|
 | 用户 -> 管家 | 自然语言(CLI `--task`) | — |
 | 管家 -> 偏好模块 | 进程内 Python 调用 | `PreferenceModule.for_category(category)` |
-| 管家 -> store-agent | **HTTP 上的简化 A2A** | `GET /.well-known/agent-card.json`, `POST /tasks`(仅任务 + 最小化约束) |
+| 管家 -> store-agent | **HTTP 上的 A2A 1.0 JSON-RPC** | `GET /.well-known/agent-card.json`, `POST /a2a` + `SendMessage`(仅任务 + 最小化约束) |
 | store-agent -> MiSArch | Go 调用 -> GraphQL | 现有 `catalog.Service` / `order.Service`(不改动) |
 
 唯一联网、跨信任域的契约就是那条 A2A 边界(Agent Card + Task)。
@@ -474,9 +472,10 @@ store-agent 内部对 GraphQL 的使用对管家是不透明的——这就是
    (跨边界多几 KB),而非服务端过滤后的短名单;收益是 profile 永不跨信任边界。
    这个 trade-off 被显式化,并通过 `profile_fields_disclosed` 记录。
 
-2. **简化的 A2A wire format**:本实验用 REST 风格 `POST /tasks`,
-   而非完整 A2A 规范(JSON-RPC 2.0)。验证的是 **A2A 架构模式**的代价/收益,
-   不是与生产级 A2A agent 的 wire 层兼容性。
+2. **A2A 生产完备性**:当前主路径已经使用官方 Go SDK 的 A2A 1.0
+   JSON-RPC(`SendMessage`、`GetTask`、标准 Agent Card 和 Task Artifact)。
+   尚未启用 streaming、push、持久化 task store、生产认证/卡签名，也未做
+   TCK 认证。
 
 3. **混淆变量由 Arm D 控制**:单看 B -> C 会同时改变架构与偏好格式两个变量。
    插入 Arm D(MCP + 结构化 profile)作为控制组后,B -> D 隔离偏好格式、

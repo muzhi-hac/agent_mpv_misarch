@@ -14,7 +14,10 @@ const (
 	sideEffects   = "none (read-only)"
 	currency      = "EUR"
 	defaultTopK   = 5
-	maxTopK       = 10
+	// maxTopK bounds a single ListProducts page. It is large enough for the
+	// A2A store-agent to scan the whole catalog before applying a query filter
+	// (see a2aserver.browseScanLimit); the default page stays small.
+	maxTopK = 100
 )
 
 const listProductsQuery = `

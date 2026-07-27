@@ -15,7 +15,13 @@
 #   OPENAI_API_KEY=sk-... ./scripts/run_experiment.sh [N] [OUTDIR]
 #   e.g.  OPENAI_API_KEY=sk-... ./scripts/run_experiment.sh 5 eval/run1
 #
-# Overridable via env: A2A_URL, MCP_URL, PROFILE, USER_ID
+# Duration mode:
+#   DURATION_SECONDS=120 CONCURRENCY=2 OPENAI_API_KEY=sk-... ./scripts/run_experiment.sh ignored eval/duration1
+#
+# In duration mode, no fixed request count is set. The completed request count is
+# whatever finishes inside the time window; concurrency is capped by the runner.
+#
+# Overridable via env: A2A_URL, MCP_URL, PROFILE, USER_ID, DURATION_SECONDS, CONCURRENCY
 set -uo pipefail
 
 N="${1:-5}"
@@ -24,6 +30,7 @@ A2A_URL="${A2A_URL:-http://127.0.0.1:8001}"
 MCP_URL="${MCP_URL:-${A2A_URL}/mcp}"
 PROFILE="${PROFILE:-data/user_profile.json}"
 USER_ID="${USER_ID:-demo-user}"
+PYTHON_BIN="${PYTHON:-python3}"
 
 # Always run from the repo root so `python -m scripts.xxx` resolves.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -39,6 +46,18 @@ if ! curl -sf -o /dev/null "${A2A_URL}/healthz"; then
   exit 1
 fi
 
+if [ -n "${DURATION_SECONDS:-}" ]; then
+  "$PYTHON_BIN" -m scripts.run_duration_experiment \
+    --duration-seconds "$DURATION_SECONDS" \
+    --concurrency "${CONCURRENCY:-2}" \
+    --outdir "$OUTDIR" \
+    --a2a-url "$A2A_URL" \
+    --mcp-url "$MCP_URL" \
+    --profile "$PROFILE" \
+    --user-id "$USER_ID"
+  exit $?
+fi
+
 mkdir -p "$OUTDIR"
 : > "$OUTDIR/errors.log"
 SUMMARY="$OUTDIR/summary.csv"
@@ -52,7 +71,7 @@ tasks=(
 )
 
 emit_row() { # arm task_idx trial jsonfile -> one CSV line on stdout
-  python - "$@" <<'PY'
+  "$PYTHON_BIN" - "$@" <<'PY'
 import json, sys
 arm, ti, tr, path = sys.argv[1:5]
 def q(v):
@@ -91,9 +110,9 @@ for ti in "${!tasks[@]}"; do
     bf="$OUTDIR/B_${ti}_${tr}.json"
     df="$OUTDIR/D_${ti}_${tr}.json"
     cf="$OUTDIR/C_${ti}_${tr}.json"
-    run "B" "$bf" python -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL"
-    run "D" "$df" python -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL" --profile "$PROFILE" --user-id "$USER_ID"
-    run "C" "$cf" python -m scripts.agent_a2a_loop --task "$t" --a2a-url "$A2A_URL" --profile "$PROFILE" --user-id "$USER_ID"
+    run "B" "$bf" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL"
+    run "D" "$df" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL" --profile "$PROFILE" --user-id "$USER_ID"
+    run "C" "$cf" "$PYTHON_BIN" -m scripts.agent_a2a_loop --task "$t" --a2a-url "$A2A_URL" --profile "$PROFILE" --user-id "$USER_ID"
     emit_row B "$ti" "$tr" "$bf" >> "$SUMMARY"
     emit_row D "$ti" "$tr" "$df" >> "$SUMMARY"
     emit_row C "$ti" "$tr" "$cf" >> "$SUMMARY"

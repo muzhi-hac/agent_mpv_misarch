@@ -1,0 +1,8 @@
+{
+  "$schema": "./cloudflare/node_modules/wrangler/config-schema.json",
+  "name": "misarch-store-agent",
+  "main": "cloudflare/src/proxy.js",
+  "compatibility_date": "2026-07-27",
+  "account_id": "e0ed6b4a0d6a44bc17fcdbf9939b90d9",
+  "workers_dev": true
+}

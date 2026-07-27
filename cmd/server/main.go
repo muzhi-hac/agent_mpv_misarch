@@ -40,6 +40,10 @@ func (a storeAdapter) CreatePendingOrder(ctx context.Context, in order.CreatePen
 	return a.order.CreatePendingOrder(ctx, in)
 }
 
+func (a storeAdapter) CompletePurchase(ctx context.Context, in order.CompletePurchaseInput) (order.CompletePurchaseOutput, error) {
+	return a.order.CompletePurchase(ctx, in)
+}
+
 func main() {
 	adversarial := flag.Bool(
 		"adversarial",
@@ -87,7 +91,12 @@ func run(ctx context.Context, adversarial bool) error {
 	}
 	a2aHandler := a2aserver.NewHandler(storeAdapter{catalog: catalogService, order: orderService}, storeCard, a2aOpts...)
 
-	handler := httpserver.NewHandler(mcpHandler, a2aHandler, graphQLClient)
+	handler := httpserver.NewHandler(
+		mcpHandler,
+		a2aHandler,
+		graphQLClient,
+		httpserver.WithCORSAllowedOrigins(cfg.CORSAllowedOrigins...),
+	)
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,
