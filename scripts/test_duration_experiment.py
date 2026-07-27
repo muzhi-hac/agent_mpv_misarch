@@ -127,6 +127,10 @@ class DurationExperimentTest(unittest.TestCase):
                 "success": True,
                 "duration_ms": 123.4,
                 "hops": 2,
+                "business_calls": 1,
+                "protocol_round_trips": 2,
+                "measurement": {"scope": "agent_end_to_end"},
+                "metrics": {"token_source": "responses_api_usage"},
                 "preference_used": True,
                 "profile_fields_disclosed": ["budget", "category"],
                 "risk": {
@@ -143,6 +147,10 @@ class DurationExperimentTest(unittest.TestCase):
         self.assertEqual(row["sequence"], 7)
         self.assertEqual(row["arm"], "C")
         self.assertEqual(row["success"], True)
+        self.assertEqual(row["business_calls"], 1)
+        self.assertEqual(row["protocol_round_trips"], 2)
+        self.assertEqual(row["measurement_scope"], "agent_end_to_end")
+        self.assertEqual(row["token_source"], "responses_api_usage")
         self.assertEqual(row["profile_fields_disclosed"], "budget|category")
         self.assertEqual(row["risk_detected"], True)
         self.assertEqual(row["finished_in_window"], True)

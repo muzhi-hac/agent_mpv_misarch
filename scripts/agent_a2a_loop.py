@@ -35,6 +35,7 @@ from scripts.agent_gcp_baseline_test import (
 from scripts.run_metrics import (
     METER,
     TRANSCRIPT,
+    annotate_measurement,
     per_task_server_metrics_enabled,
     read_server_metrics,
     server_delta,
@@ -446,6 +447,20 @@ class UserButler:
             self.a2a_transcript.append(entry)
 
     def _attach_debug(self, result: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(result.get("metrics"), dict):
+            result["metrics"] = METER.snapshot()
+        trace = result.get("trace") if isinstance(result.get("trace"), list) else []
+        cross_agent_round_trips = int(result.get("hops", 0))
+        business_calls = sum(
+            1 for event in trace if event.get("event") == "browse_task"
+        )
+        annotate_measurement(
+            result,
+            protocol="a2a",
+            cross_agent_round_trips=cross_agent_round_trips,
+            business_calls=business_calls,
+            protocol_round_trips=cross_agent_round_trips,
+        )
         if self.include_prompts:
             result["llm_prompts"] = self.prompt_log
             result["a2a_transcript"] = self.a2a_transcript

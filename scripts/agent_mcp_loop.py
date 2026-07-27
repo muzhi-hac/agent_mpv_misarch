@@ -25,6 +25,7 @@ from scripts.agent_gcp_baseline_test import (
 from scripts.run_metrics import (
     METER,
     TRANSCRIPT,
+    annotate_measurement,
     per_task_server_metrics_enabled,
     read_server_metrics,
     server_delta,
@@ -712,6 +713,23 @@ def main() -> int:
             result["metrics"]["server_metric_scope"] = "task"
         elif not collect_server_metrics:
             result["metrics"]["server_metric_scope"] = "benchmark_window"
+
+        trace = result.get("trace") if isinstance(result.get("trace"), list) else []
+        business_calls = sum(
+            1 for event in trace if event.get("event") == "tool_call"
+        )
+        protocol_round_trips = business_calls + sum(
+            1
+            for event in trace
+            if event.get("event") in {"mcp_connect", "tools_list"}
+        )
+        annotate_measurement(
+            result,
+            protocol="mcp",
+            cross_agent_round_trips=0,
+            business_calls=business_calls,
+            protocol_round_trips=protocol_round_trips,
+        )
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)

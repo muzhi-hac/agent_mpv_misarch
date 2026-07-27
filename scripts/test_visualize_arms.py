@@ -26,8 +26,20 @@ class VisualizeArmsTest(unittest.TestCase):
         result = aggregate(
             {
                 "B": [
-                    {"success": True, "duration_ms": 100.0, "metrics": {}},
-                    {"success": True, "duration_ms": 300.0, "metrics": {}},
+                    {
+                        "success": True,
+                        "duration_ms": 100.0,
+                        "business_calls": 1,
+                        "protocol_round_trips": 3,
+                        "metrics": {},
+                    },
+                    {
+                        "success": True,
+                        "duration_ms": 300.0,
+                        "business_calls": 2,
+                        "protocol_round_trips": 4,
+                        "metrics": {},
+                    },
                     {"success": False, "duration_ms": 9000.0, "metrics": {}},
                 ]
             }
@@ -39,6 +51,8 @@ class VisualizeArmsTest(unittest.TestCase):
         self.assertEqual(result["median_duration_ms"], 200.0)
         self.assertEqual(result["p95_duration_ms"], 300.0)
         self.assertEqual(result["max_duration_ms"], 300.0)
+        self.assertEqual(result["mean_business_calls"], 1.0)
+        self.assertEqual(result["mean_protocol_round_trips"], 2.33)
 
 
 if __name__ == "__main__":

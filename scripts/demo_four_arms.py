@@ -464,6 +464,8 @@ def run_arm(arm: str, question: str) -> dict[str, Any]:
             "candidates": candidates,
             "catalog_query": catalog_query,
             "hops": 0,
+            "business_calls": 1,
+            "protocol_round_trips": 1,
             "preference_used": False,
             "store_profile_fields_disclosed": 0,
             "protocol_metadata": (
@@ -517,7 +519,9 @@ def run_arm(arm: str, question: str) -> dict[str, Any]:
         arm_result = {
             "candidates": candidates,
             "catalog_query": catalog_query,
-            "hops": 1,
+            "hops": 0,
+            "business_calls": 1,
+            "protocol_round_trips": 3,
             "preference_used": arm == "D",
             "store_profile_fields_disclosed": 0,
             "protocol_metadata": f"Discovered MCP tools: {', '.join(tools)}",
@@ -529,6 +533,8 @@ def run_arm(arm: str, question: str) -> dict[str, Any]:
             "candidates": candidates,
             "catalog_query": catalog_query,
             "hops": 2,
+            "business_calls": 1,
+            "protocol_round_trips": 2,
             "preference_used": True,
             "store_profile_fields_disclosed": 0,
             "protocol_metadata": f"Agent Card skills: {', '.join(skills)}",
@@ -772,7 +778,9 @@ def render(result: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            f"Protocol hops: {result['hops']}",
+            f"Cross-agent round trips (hops): {result['hops']}",
+            f"Business calls: {result['business_calls']}",
+            f"Protocol round trips: {result['protocol_round_trips']}",
             f"Structured preference used: {str(result['preference_used']).lower()}",
             f"Preference fields given to OpenAI Agent: {result['agent_profile_fields']}",
             "Preference fields sent to Store Agent/MiSArch: "

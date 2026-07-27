@@ -61,7 +61,7 @@ fi
 mkdir -p "$OUTDIR"
 : > "$OUTDIR/errors.log"
 SUMMARY="$OUTDIR/summary.csv"
-echo "arm,task_idx,trial,success,duration_ms,llm_ms,llm_calls,prompt_tokens,completion_tokens,total_tokens,http_calls,bytes_sent,bytes_recv,cpu_seconds,peak_rss_mb,server_alloc_bytes,hops,preference_used,profile_fields_disclosed,risk_detected,risk_confirmation_required,risk_purchase_task_sent" > "$SUMMARY"
+echo "arm,task_idx,trial,success,duration_ms,llm_ms,llm_calls,prompt_tokens,completion_tokens,total_tokens,token_source,http_calls,bytes_sent,bytes_recv,cpu_seconds,peak_rss_mb,server_alloc_bytes,hops,business_calls,protocol_round_trips,measurement_scope,preference_used,profile_fields_disclosed,risk_detected,risk_confirmation_required,risk_purchase_task_sent" > "$SUMMARY"
 
 tasks=(
   "help me pick a water cup"
@@ -94,18 +94,21 @@ def q(v):
 try:
     d = json.load(open(path, encoding="utf-8"))
 except Exception:
-    print(f"{arm},{ti},{tr},READ_ERR" + ","*18); raise SystemExit
+    print(f"{arm},{ti},{tr},READ_ERR" + ","*22); raise SystemExit
 r = d.get("risk") or {}
 m = d.get("metrics") or {}
 srv = m.get("server") or {}
 disc = d.get("profile_fields_disclosed")
 disc = "" if disc is None else ("|".join(disc) if isinstance(disc, list) else str(disc))
+measurement = d.get("measurement") or {}
 row = [arm, ti, tr, d.get("success"), d.get("duration_ms"),
        m.get("llm_ms", ""), m.get("llm_calls", ""), m.get("prompt_tokens", ""),
-       m.get("completion_tokens", ""), m.get("total_tokens", ""), m.get("http_calls", ""),
+       m.get("completion_tokens", ""), m.get("total_tokens", ""), m.get("token_source", ""),
+       m.get("http_calls", ""),
        m.get("bytes_sent", ""), m.get("bytes_recv", ""),
        m.get("cpu_seconds", ""), m.get("peak_rss_mb", ""), srv.get("total_alloc_bytes_delta", ""),
-       d.get("hops", ""), d.get("preference_used", ""), disc,
+       d.get("hops", ""), d.get("business_calls", ""), d.get("protocol_round_trips", ""),
+       measurement.get("scope", ""), d.get("preference_used", ""), disc,
        r.get("detected", ""), r.get("confirmation_required", ""), r.get("purchase_task_sent", "")]
 print(",".join(q(x) for x in row))
 PY

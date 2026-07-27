@@ -46,6 +46,10 @@ SUMMARY_HEADER = (
     "success",
     "duration_ms",
     "hops",
+    "business_calls",
+    "protocol_round_trips",
+    "measurement_scope",
+    "token_source",
     "preference_used",
     "profile_fields_disclosed",
     "risk_detected",
@@ -292,6 +296,12 @@ def job_environment(config: BenchmarkConfig) -> dict[str, str]:
 def csv_row(result: JobResult, deadline: float) -> dict[str, Any]:
     payload = result.payload
     risk = payload.get("risk") if isinstance(payload.get("risk"), dict) else {}
+    measurement = (
+        payload.get("measurement")
+        if isinstance(payload.get("measurement"), dict)
+        else {}
+    )
+    metrics = payload.get("metrics") if isinstance(payload.get("metrics"), dict) else {}
     disclosed = payload.get("profile_fields_disclosed")
     if isinstance(disclosed, list):
         disclosed_value = "|".join(str(item) for item in disclosed)
@@ -307,6 +317,10 @@ def csv_row(result: JobResult, deadline: float) -> dict[str, Any]:
         "success": payload.get("success"),
         "duration_ms": payload.get("duration_ms"),
         "hops": payload.get("hops", ""),
+        "business_calls": payload.get("business_calls", ""),
+        "protocol_round_trips": payload.get("protocol_round_trips", ""),
+        "measurement_scope": measurement.get("scope", ""),
+        "token_source": metrics.get("token_source", ""),
         "preference_used": payload.get("preference_used", ""),
         "profile_fields_disclosed": disclosed_value,
         "risk_detected": risk.get("detected", ""),

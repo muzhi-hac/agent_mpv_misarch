@@ -125,6 +125,8 @@ class FourArmDemoTest(unittest.TestCase):
             "answer": "I recommend the glass cup",
             "public_rules": ARM_AGENT_POLICIES["C"]["public_rules"],
             "hops": 2,
+            "business_calls": 1,
+            "protocol_round_trips": 2,
             "preference_used": True,
             "agent_profile_fields": 2,
             "store_profile_fields_disclosed": 0,
@@ -155,6 +157,9 @@ class FourArmDemoTest(unittest.TestCase):
         self.assertIn("A2A interaction trace", output)
         self.assertIn("Butler ──send A2A task──▶ Store Agent", output)
         self.assertIn("profile_fields=0", output)
+        self.assertIn("Cross-agent round trips (hops): 2", output)
+        self.assertIn("Business calls: 1", output)
+        self.assertIn("Protocol round trips: 2", output)
 
 
 if __name__ == "__main__":

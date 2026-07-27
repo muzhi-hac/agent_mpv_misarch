@@ -36,6 +36,8 @@ SINGLE_AGENT = {"A", "B", "D"}  # no Agent Card, no structured risk; preference 
 
 def normalise(result: dict) -> dict:
     result.setdefault("hops", 0)
+    result.setdefault("business_calls", 0)
+    result.setdefault("protocol_round_trips", 0)
     result.setdefault("preference_used", False)
     result.setdefault("profile_fields_disclosed", [])
     result.setdefault("risk", None)
@@ -158,6 +160,12 @@ def aggregate(by_arm: dict[str, list[dict]]) -> dict[str, dict]:
             "mean_server_alloc_bytes": _mean_server(ok, "total_alloc_bytes_delta"),
             "preference_used_rate": mean([1.0 if r.get("preference_used") else 0.0 for r in rows]),
             "mean_hops": mean([float(r.get("hops", 0)) for r in rows]),
+            "mean_business_calls": mean(
+                [float(r.get("business_calls", 0)) for r in rows]
+            ),
+            "mean_protocol_round_trips": mean(
+                [float(r.get("protocol_round_trips", 0)) for r in rows]
+            ),
             "disclosure_fraction": round(disclosure, 2),
             "risk_intercepted": held,
             "mean_answer_relevance": mean(relevances) if relevances else None,
@@ -266,6 +274,7 @@ def write_csv(agg: dict[str, dict], out_csv: pathlib.Path) -> None:
             "mean_llm_ms", "mean_llm_calls", "mean_total_tokens", "mean_bytes_sent",
             "mean_bytes_recv", "mean_cpu_seconds", "mean_peak_rss_mb",
             "mean_server_alloc_bytes", "preference_used_rate", "mean_hops",
+            "mean_business_calls", "mean_protocol_round_trips",
             "disclosure_fraction", "risk_intercepted", "mean_answer_relevance"]
     with out_csv.open("w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)

@@ -62,6 +62,7 @@ class Meter:
             self.prompt_tokens = 0
             self.completion_tokens = 0
             self.total_tokens = 0
+            self.token_usage_reports = 0
             self.channels: dict[str, dict[str, int]] = {
                 "backend": _channel(),
                 "llm": _channel(),
@@ -127,6 +128,19 @@ class Meter:
             self.llm_calls += 1
             self.llm_ms += float(duration_ms)
             if isinstance(usage, dict):
+                token_keys = (
+                    "input_tokens",
+                    "prompt_tokens",
+                    "output_tokens",
+                    "completion_tokens",
+                    "total_tokens",
+                )
+                if any(
+                    isinstance(usage.get(key), (int, float))
+                    and not isinstance(usage.get(key), bool)
+                    for key in token_keys
+                ):
+                    self.token_usage_reports += 1
                 self.prompt_tokens += _first_int(usage, ("input_tokens", "prompt_tokens"))
                 self.completion_tokens += _first_int(
                     usage, ("output_tokens", "completion_tokens")
@@ -141,12 +155,22 @@ class Meter:
             total_tokens = self.total_tokens or (
                 self.prompt_tokens + self.completion_tokens
             )
+            if self.llm_calls == 0:
+                token_source = "not_applicable"
+            elif self.token_usage_reports == 0:
+                token_source = "unavailable"
+            elif self.token_usage_reports == self.llm_calls:
+                token_source = "responses_api_usage"
+            else:
+                token_source = "partial_responses_api_usage"
             snap = {
                 "llm_calls": self.llm_calls,
                 "llm_ms": round(self.llm_ms, 2),
                 "prompt_tokens": self.prompt_tokens,
                 "completion_tokens": self.completion_tokens,
                 "total_tokens": total_tokens,
+                "token_usage_reports": self.token_usage_reports,
+                "token_source": token_source,
                 "http_calls": backend["calls"] + llm["calls"],
                 "backend_http_calls": backend["calls"],
                 "llm_http_calls": llm["calls"],
@@ -168,12 +192,51 @@ class Meter:
 METER = Meter()
 
 PER_TASK_SERVER_METRICS_ENV = "MISARCH_PER_TASK_SERVER_METRICS"
+MEASUREMENT_SCOPE = "agent_end_to_end"
 
 
 def per_task_server_metrics_enabled() -> bool:
     """Return false when a concurrent runner requests window-level counters."""
     value = os.environ.get(PER_TASK_SERVER_METRICS_ENV, "1").strip().lower()
     return value not in {"0", "false", "no", "off"}
+
+
+def annotate_measurement(
+    result: dict[str, Any],
+    *,
+    protocol: str,
+    cross_agent_round_trips: int,
+    business_calls: int,
+    protocol_round_trips: int,
+) -> dict[str, Any]:
+    """Attach explicit, non-overlapping measurement definitions to one result."""
+    values = (cross_agent_round_trips, business_calls, protocol_round_trips)
+    if any(not isinstance(value, int) or value < 0 for value in values):
+        raise ValueError("measurement counts must be non-negative integers")
+
+    metrics = result.get("metrics")
+    token_source = (
+        metrics.get("token_source", "unavailable")
+        if isinstance(metrics, dict)
+        else "unavailable"
+    )
+    result["hops"] = cross_agent_round_trips
+    result["business_calls"] = business_calls
+    result["protocol_round_trips"] = protocol_round_trips
+    result["measurement"] = {
+        "scope": MEASUREMENT_SCOPE,
+        "protocol": protocol,
+        "duration_definition": (
+            "client monotonic wall-clock time from agent run start to terminal result"
+        ),
+        "token_source": token_source,
+        "hop_definition": "completed cross-agent request-response round trips",
+        "business_call_definition": "agent-facing business capability invocations",
+        "protocol_round_trip_definition": (
+            "completed application-protocol request-response exchanges"
+        ),
+    }
+    return result
 
 
 def _truncate(value: Any, limit: int = 4000) -> Any:
