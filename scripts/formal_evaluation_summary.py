@@ -18,6 +18,7 @@ ARM_NAME = {
     "D": "MCP + profile",
     "C": "A2A butler + store",
 }
+PROFILE_TASK_MARKER = "\nUser preference profile"
 
 
 def load_json(path: str | pathlib.Path) -> dict[str, Any]:
@@ -91,6 +92,12 @@ def _failure_class(error: Any) -> str:
     return "other"
 
 
+def task_label(result: dict[str, Any]) -> str:
+    """Return the user task without Arm D's appended profile context."""
+    task = str(result.get("task", "")).strip()
+    return task.split(PROFILE_TASK_MARKER, 1)[0].strip()
+
+
 def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
     by_arm = load_results(str(results_dir))
     if not by_arm:
@@ -118,9 +125,9 @@ def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
             **arm_aggregate[arm],
         }
 
-        tasks = sorted({str(row.get("task", "")) for row in rows})
+        tasks = sorted({task_label(row) for row in rows})
         for task in tasks:
-            task_results = [row for row in rows if str(row.get("task", "")) == task]
+            task_results = [row for row in rows if task_label(row) == task]
             task_ok = [row for row in task_results if row.get("success")]
             durations = [
                 float(row["duration_ms"])

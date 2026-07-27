@@ -5,10 +5,24 @@ import pathlib
 import tempfile
 import unittest
 
-from scripts.formal_evaluation_summary import build_summary, write_outputs
+from scripts.formal_evaluation_summary import build_summary, task_label, write_outputs
 
 
 class FormalEvaluationSummaryTest(unittest.TestCase):
+    def test_task_label_removes_profile_context(self) -> None:
+        self.assertEqual(
+            task_label(
+                {
+                    "task": (
+                        "help me pick a cup\n"
+                        "User preference profile (structured JSON):\n"
+                        '{"currency":"EUR"}'
+                    )
+                }
+            ),
+            "help me pick a cup",
+        )
+
     def test_builds_separate_protocol_and_agent_scopes(self) -> None:
         baseline = {
             "trials": [
