@@ -19,13 +19,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import pathlib
 import statistics
 import sys
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 ARM_LABEL = {
     "graphql": "A", "native_graphql": "A",
@@ -65,6 +62,32 @@ def mean(values: list[float]) -> float:
     return round(statistics.fmean(values), 2) if values else 0.0
 
 
+def distribution(values: list[float]) -> dict[str, float | int]:
+    """Return compact descriptive statistics using nearest-rank p95."""
+    if not values:
+        return {
+            "n": 0,
+            "mean": 0.0,
+            "median": 0.0,
+            "p95": 0.0,
+            "stdev": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+        }
+
+    ordered = sorted(float(value) for value in values)
+    p95_index = max(0, math.ceil(0.95 * len(ordered)) - 1)
+    return {
+        "n": len(ordered),
+        "mean": round(statistics.fmean(ordered), 2),
+        "median": round(statistics.median(ordered), 2),
+        "p95": round(ordered[p95_index], 2),
+        "stdev": round(statistics.stdev(ordered), 2) if len(ordered) > 1 else 0.0,
+        "min": round(ordered[0], 2),
+        "max": round(ordered[-1], 2),
+    }
+
+
 def _metric(row: dict, key: str) -> float | None:
     value = (row.get("metrics") or {}).get(key)
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
@@ -97,6 +120,9 @@ def aggregate(by_arm: dict[str, list[dict]]) -> dict[str, dict]:
     agg: dict[str, dict] = {}
     for arm, rows in by_arm.items():
         ok = [r for r in rows if r.get("success")]
+        duration = distribution(
+            [float(r["duration_ms"]) for r in ok if isinstance(r.get("duration_ms"), (int, float))]
+        )
         relevances = [r["answer_relevance"] for r in rows
                       if isinstance(r.get("answer_relevance"), (int, float))]
         backend_vals = [v for v in (_backend_ms(r) for r in ok) if v is not None]
@@ -114,7 +140,13 @@ def aggregate(by_arm: dict[str, list[dict]]) -> dict[str, dict]:
         agg[arm] = {
             "n": len(rows),
             "success_rate": round(len(ok) / len(rows), 2) if rows else 0.0,
-            "mean_duration_ms": mean([r["duration_ms"] for r in ok if "duration_ms" in r]),
+            "duration_n": duration["n"],
+            "mean_duration_ms": duration["mean"],
+            "median_duration_ms": duration["median"],
+            "p95_duration_ms": duration["p95"],
+            "stdev_duration_ms": duration["stdev"],
+            "min_duration_ms": duration["min"],
+            "max_duration_ms": duration["max"],
             "mean_llm_ms": _mean_metric(ok, "llm_ms"),
             "mean_backend_ms": round(statistics.fmean(backend_vals), 2) if backend_vals else 0.0,
             "mean_llm_calls": _mean_metric(ok, "llm_calls"),
@@ -169,6 +201,17 @@ def stacked_latency(ax, arms, backend, llm):
 
 
 def render(agg: dict[str, dict], out_png: pathlib.Path) -> None:
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "matplotlib is required to render charts; aggregation and CSV export "
+            "can run without it"
+        ) from exc
+
     arms = present_arms(agg)
     has_rel = any(agg[a]["mean_answer_relevance"] is not None for a in arms)
 
@@ -217,7 +260,9 @@ def render(agg: dict[str, dict], out_png: pathlib.Path) -> None:
 
 
 def write_csv(agg: dict[str, dict], out_csv: pathlib.Path) -> None:
-    cols = ["arm", "n", "success_rate", "mean_duration_ms", "mean_backend_ms",
+    cols = ["arm", "n", "success_rate", "duration_n", "mean_duration_ms",
+            "median_duration_ms", "p95_duration_ms", "stdev_duration_ms",
+            "min_duration_ms", "max_duration_ms", "mean_backend_ms",
             "mean_llm_ms", "mean_llm_calls", "mean_total_tokens", "mean_bytes_sent",
             "mean_bytes_recv", "mean_cpu_seconds", "mean_peak_rss_mb",
             "mean_server_alloc_bytes", "preference_used_rate", "mean_hops",
