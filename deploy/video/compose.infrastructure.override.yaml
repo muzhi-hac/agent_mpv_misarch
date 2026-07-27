@@ -1,0 +1,258 @@
+services:
+  dapr-redis:
+    ports: !reset []
+
+  gateway:
+    environment:
+      FORK: "1"
+  gateway-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - gateway
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  catalog-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - catalog
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  user-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - user
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  tax-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - tax
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  address-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - address
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  shipment-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - shipment
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  shoppingcart-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - shoppingcart
+      - --app-port
+      - "8080"
+      - --app-protocol
+      - http
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  order-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - order
+      - --app-port
+      - "8080"
+      - --app-protocol
+      - http
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  inventory-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - inventory
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  discount-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - discount
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  payment-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - payment
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  invoice-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - invoice
+      - --app-port
+      - "8080"
+      - --app-protocol
+      - http
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  notification-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - notification
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  simulation-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - simulation
+      - --app-port
+      - "8080"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components
+
+  keycloak:
+    command:
+      - start
+      - --optimized
+    environment:
+      SKIP_IMPORT: "true"
+  keycloak-dapr:
+    command:
+      - ./daprd
+      - --app-id
+      - keycloak
+      - --app-port
+      - "80"
+      - --dapr-http-port
+      - "3500"
+      - -placement-host-address
+      - placement:50006
+      - --config
+      - /config.yaml
+      - --resources-path
+      - /components

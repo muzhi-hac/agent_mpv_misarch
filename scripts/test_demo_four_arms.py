@@ -2,16 +2,18 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 
 from scripts.demo_four_arms import (
     ARM_AGENT_POLICIES,
+    apply_search_constraints,
     cup_candidates,
     choose_cheapest,
     choose_profiled,
-    extract_catalog_query,
     public_candidate_audit,
     query_candidates,
     render,
+    run_arm,
 )
 from scripts.seed_video_demo_catalog import DEMO_PRODUCTS
 
@@ -62,16 +64,68 @@ class FourArmDemoTest(unittest.TestCase):
         ]
         self.assertEqual(len(cup_candidates(products)), 3)
 
-    def test_extracts_requested_product_instead_of_hardcoding_cup(self) -> None:
-        self.assertEqual(extract_catalog_query("I want a doll"), "doll")
-        self.assertEqual(
-            extract_catalog_query("Help me choose inexpensive cups"),
-            "cup",
-        )
-
     def test_query_filter_does_not_substitute_unrelated_products(self) -> None:
         self.assertEqual(query_candidates(self.candidates, "doll"), [])
         self.assertEqual(len(query_candidates(self.candidates, "cup")), 3)
+
+    def test_agent_search_constraints_apply_query_and_price(self) -> None:
+        self.assertEqual(
+            len(apply_search_constraints(self.candidates, "cup", 25.0)),
+            3,
+        )
+        self.assertEqual(
+            [item["name"] for item in apply_search_constraints(
+                self.candidates,
+                "cup",
+                15.0,
+            )],
+            ["Budget Plastic Cup", "Borosilicate Glass Cup"],
+        )
+
+    @mock.patch("scripts.demo_four_arms.run_openai_agent")
+    @mock.patch("scripts.demo_four_arms.local_graphql_products")
+    def test_run_arm_sends_raw_question_to_agent_before_search(
+        self,
+        products_mock: mock.Mock,
+        agent_mock: mock.Mock,
+    ) -> None:
+        products_mock.return_value = self.candidates
+
+        def fake_agent(**kwargs: object) -> dict:
+            tool_result = kwargs["search_catalog"]("cup", 25.0)
+            return {
+                "selected_name": "",
+                "decision_summary": [
+                    "Display matching candidates",
+                    "Make no recommendation",
+                ],
+                "final_answer": "Here are the matching cups.",
+                "response_id": "resp-final",
+                "planning_response_id": "resp-plan",
+                "model": "gpt-test",
+                "usage": {
+                    "input_tokens": 10,
+                    "output_tokens": 5,
+                    "total_tokens": 15,
+                },
+                "search_request": {
+                    "query": "cup",
+                    "max_price_eur": 25.0,
+                },
+                "tool_result": tool_result,
+                "agent_duration_ms": 2.0,
+                "protocol_duration_ms": 1.0,
+            }
+
+        agent_mock.side_effect = fake_agent
+        question = "i want a cheap cup unter 25"
+        result = run_arm("A", question)
+
+        self.assertEqual(agent_mock.call_args.kwargs["question"], question)
+        self.assertEqual(result["catalog_query"], "cup")
+        self.assertEqual(result["max_price_eur"], 25.0)
+        self.assertEqual(len(result["candidates"]), 3)
+        products_mock.assert_called_once()
 
     def test_demo_catalog_has_distinct_policy_winners(self) -> None:
         self.assertEqual(
@@ -115,6 +169,7 @@ class FourArmDemoTest(unittest.TestCase):
             "arm": "C",
             "question": "Find an inexpensive cup",
             "catalog_query": "cup",
+            "max_price_eur": 25.0,
             "agent_role": "Privacy-aware A2A butler",
             "candidates": self.candidates,
             "selected": self.candidates[1],
@@ -141,6 +196,7 @@ class FourArmDemoTest(unittest.TestCase):
             ],
             "openai_model": "gpt-test",
             "openai_response_id": "resp-test",
+            "openai_planning_response_id": "resp-plan",
             "openai_usage": {
                 "input_tokens": 10,
                 "output_tokens": 20,
@@ -152,6 +208,10 @@ class FourArmDemoTest(unittest.TestCase):
         }
         output = render(result)
         self.assertIn("Public auditable decision trace", output)
+        self.assertIn(
+            "Agent tool call: search_catalog(query=cup, max_price_eur=25)",
+            output,
+        )
         self.assertIn("not private chain-of-thought", output)
         self.assertIn("[4/5] Evaluate each candidate", output)
         self.assertIn("A2A interaction trace", output)

@@ -11,6 +11,8 @@ For the full Chinese walkthrough of the Google Cloud MiSArch deployment, MCP gat
 - [docs/gcp-misarch-mcp-agent-testing.zh.md](docs/gcp-misarch-mcp-agent-testing.zh.md)
 - [docs/presentation-prep.zh.md](docs/presentation-prep.zh.md)
 - [REPRODUCTION.md](REPRODUCTION.md) for build, deployment, and evaluation steps
+- [docs/video-deployment-demo.zh.md](docs/video-deployment-demo.zh.md) for the
+  one-command, five-minute uncut build/deploy validation recording
 - [CONTRIBUTION.md](CONTRIBUTION.md) for the Group 11 work allocation
 
 ## Architecture
@@ -172,18 +174,35 @@ The planned comparison is:
 - Raw MiSArch GraphQL: fast and expressive, but not agent-discoverable without schema knowledge.
 - MCP Gateway: slower due to an adapter layer, but tools are discoverable, inputs are self-describing, and side effects are explicit.
 
-## Four-pane iTerm video demo
+## Four-pane iTerm demo
 
-With the local MiSArch stack and Agent Gateway running, load an OpenAI API key
-into the current shell without echoing it:
+This optional OpenAI-powered comparison is separate from the five-minute
+build/deploy validation, which does not need an API key. With the local MiSArch
+stack and Agent Gateway running, first check whether the current iTerm shell
+already has the key:
 
 ```bash
-read -s OPENAI_API_KEY
+[[ -n "$OPENAI_API_KEY" ]] \
+  && echo "API Key loaded" \
+  || echo "API Key missing"
+```
+
+If it is missing, import it before recording; input is not echoed:
+
+```bash
+read -rs OPENAI_API_KEY
 export OPENAI_API_KEY
+```
+
+Clear the terminal before starting a separate four-pane recording, then run:
+
+```bash
 export OPENAI_MODEL=gpt-5.5
 export OPENAI_BASE_URL=https://yybb.dog
 ./scripts/open_iterm_four_arm_demo.sh
 ```
+
+Do not show the `read -rs` command or key-paste step in the submitted recording.
 
 `OPENAI_MODEL` is optional and defaults to `gpt-5.5`.
 `OPENAI_BASE_URL` is optional and defaults to the configured compatible gateway
@@ -197,22 +216,28 @@ In iTerm, choose **Shell → Broadcast Input → Broadcast Input to All Panes in
 Current Tab**. Type the same English question and press Enter:
 
 ```text
-Help me choose an inexpensive cup
+I want a cheap cup under EUR 25
 ```
 
-The four panes make live, read-only protocol requests and then invoke four
-independent OpenAI decision agents. Every pane stays active after a response,
-so the presenter can broadcast additional questions. Enter `quit` or `exit` to
-stop the panes. Each pane displays a summarized real protocol exchange, an
-audit-friendly public decision trace, the final answer, the OpenAI response ID,
-model, token usage, and protocol/model latency. It does not display private
-chain-of-thought. The catalog query is extracted from each question and shown
-in the trace; a query with no inventory returns an explicit no-match result
-instead of substituting unrelated cup products.
+Each pane sends the complete, unmodified question directly to its independent
+OpenAI Agent. The Agent calls the strict `search_catalog(query,
+max_price_eur)` function itself; only then does the application execute that
+call through the pane's live GraphQL, MCP, or A2A path. The protocol result is
+returned to the same Agent for its final decision. There is no last-word or
+stop-word query extractor in this demo.
 
-- **A · Direct GraphQL** uses a schema-explorer agent that returns all four cup
-  candidates without making one recommendation. Its trace highlights that the
-  client must know the GraphQL schema in advance and performs no discovery.
+Every pane stays active after a response, so the presenter can broadcast
+additional questions. Enter `quit` or `exit` to stop the panes. Each pane
+displays the Agent-issued tool arguments, a summarized real protocol exchange,
+an audit-friendly public decision trace, the final answer, both OpenAI response
+IDs, aggregate token usage, and protocol/model latency. It does not display
+private chain-of-thought. A query with no inventory returns an explicit
+no-match result instead of substituting unrelated products.
+
+- **A · Direct GraphQL** uses a schema-explorer agent that returns every cup
+  matching the Agent's query and price ceiling without making one
+  recommendation. Its trace highlights that the client must know the GraphQL
+  schema in advance and performs no discovery.
 - **B · MCP** uses a budget agent that discovers the available tools and selects
   the cheapest product. Its trace shows `initialize`, the session ID,
   `tools/list`, `tools/call`, and the structured tool result,
@@ -231,7 +256,8 @@ instead of substituting unrelated cup products.
 
 The launcher idempotently ensures the four demo catalog products exist. The
 interactive comparison itself does not create an order or trigger payment. It
-makes four Responses API calls and therefore incurs the normal, small model
-usage for the selected OpenAI model. The key is copied into a mode-0600
+makes eight Responses API calls per broadcast question—one tool-planning call
+and one final-answer call for each pane—and therefore incurs normal model usage
+for the selected OpenAI model. The key is copied into a mode-0600
 per-pane temporary environment file, deleted immediately after the pane loads
 it, never printed, and never written to the repository.

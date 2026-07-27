@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live, deterministic four-arm terminal demo for video recording."""
+"""Live, Agent-driven four-arm terminal demo for video recording."""
 from __future__ import annotations
 
 import argparse
@@ -24,37 +24,6 @@ from scripts.openai_demo_agent import run_openai_agent
 DEFAULT_QUESTION = "Help me choose an inexpensive cup"
 PROFILE_MATERIAL = "stainless steel"
 CUP_WORDS = ("cup", "bottle", "mug", "水杯")
-QUERY_STOP_WORDS = frozenset(
-    {
-        "a",
-        "an",
-        "and",
-        "any",
-        "affordable",
-        "buy",
-        "cheap",
-        "choose",
-        "find",
-        "for",
-        "get",
-        "help",
-        "i",
-        "inexpensive",
-        "looking",
-        "me",
-        "my",
-        "need",
-        "please",
-        "purchase",
-        "recommend",
-        "show",
-        "some",
-        "the",
-        "to",
-        "want",
-        "would",
-    }
-)
 
 ARM_META = {
     "A": {
@@ -159,17 +128,6 @@ def normalize_catalog_query(token: str) -> str:
     return token
 
 
-def extract_catalog_query(question: str) -> str:
-    """Extract a compact product noun for the deterministic retrieval layer."""
-    tokens = re.findall(r"[a-z0-9]+", question.lower())
-    meaningful = [
-        token
-        for token in tokens
-        if token not in QUERY_STOP_WORDS and not token.isdigit()
-    ]
-    return normalize_catalog_query(meaningful[-1]) if meaningful else "product"
-
-
 def query_candidates(
     products: list[dict[str, Any]],
     query: str,
@@ -191,6 +149,22 @@ def query_candidates(
         ):
             matches.append(product)
     return matches
+
+
+def apply_search_constraints(
+    products: list[dict[str, Any]],
+    query: str,
+    max_price_eur: float | None,
+) -> list[dict[str, Any]]:
+    candidates = query_candidates(products, query)
+    if max_price_eur is None:
+        return candidates
+    ceiling_cents = round(max_price_eur * 100)
+    return [
+        candidate
+        for candidate in candidates
+        if int(candidate.get("retail_price_cents") or 0) <= ceiling_cents
+    ]
 
 
 def choose_cheapest(candidates: list[dict[str, Any]]) -> dict[str, Any]:
@@ -456,22 +430,44 @@ def a2a_products(query: str) -> tuple[
 
 def run_arm(arm: str, question: str) -> dict[str, Any]:
     started = time.perf_counter()
-    protocol_started = time.perf_counter()
-    catalog_query = extract_catalog_query(question)
-    if arm == "A":
-        candidates = query_candidates(local_graphql_products(), catalog_query)
-        arm_result = {
-            "candidates": candidates,
-            "catalog_query": catalog_query,
-            "hops": 0,
-            "business_calls": 1,
-            "protocol_round_trips": 1,
-            "preference_used": False,
-            "store_profile_fields_disclosed": 0,
-            "protocol_metadata": (
-                "Native GraphQL schema; no tool discovery; no Agent Card"
+    policy = ARM_AGENT_POLICIES[arm]
+
+    def search_catalog(
+        catalog_query: str,
+        max_price_eur: float | None,
+    ) -> dict[str, Any]:
+        price_detail = (
+            "none"
+            if max_price_eur is None
+            else f"EUR {max_price_eur:g}"
+        )
+        tool_event = {
+            "from": "OpenAI Agent",
+            "to": (
+                "GraphQL Client"
+                if arm == "A"
+                else "MCP Client"
+                if arm in {"B", "D"}
+                else "Butler"
             ),
-            "protocol_trace": [
+            "action": "call search_catalog",
+            "detail": (
+                f"Agent arguments: query={catalog_query}; "
+                f"max_price_eur={price_detail}"
+            ),
+        }
+        if arm == "A":
+            products = local_graphql_products()
+            candidates = apply_search_constraints(
+                products,
+                catalog_query,
+                max_price_eur,
+            )
+            protocol_metadata = (
+                "Native GraphQL schema; no tool discovery; no Agent Card"
+            )
+            protocol_trace = [
+                tool_event,
                 {
                     "from": "GraphQL Client",
                     "to": "MiSArch",
@@ -486,100 +482,100 @@ def run_arm(arm: str, question: str) -> dict[str, Any]:
                     "to": "GraphQL Client",
                     "action": "query result",
                     "detail": (
-                        f"GraphQL data.products.nodes returned; "
-                        f"local query filter={catalog_query}; "
+                        "GraphQL data.products.nodes returned; "
+                        f"Agent query filter={catalog_query}; "
+                        f"Agent price ceiling={price_detail}; "
                         f"{len(candidates)} matching candidate(s) retained"
                     ),
                 },
                 {
                     "from": "GraphQL Client",
                     "to": "OpenAI Agent",
-                    "action": "forward evidence",
+                    "action": "return tool output",
                     "detail": (
-                        "Pass normalized names and prices; no MCP tools/list "
+                        "Return normalized names and prices; no MCP tools/list "
                         "and no A2A Agent Card discovery"
                     ),
                 },
-            ],
-        }
-    elif arm in {"B", "D"}:
-        candidates, tools, protocol_trace = mcp_products(catalog_query)
-        if arm == "D":
-            protocol_trace.append(
-                {
-                    "from": "Local Profile",
-                    "to": "OpenAI Agent",
-                    "action": "apply structured preference",
-                    "detail": (
-                        "material=stainless steel; preference is applied locally "
-                        "and is not included in tools/call"
-                    ),
-                }
+            ]
+            hops = 0
+            protocol_round_trips = 1
+            preference_used = False
+        elif arm in {"B", "D"}:
+            products, tools, protocol_trace = mcp_products(catalog_query)
+            candidates = apply_search_constraints(
+                products,
+                catalog_query,
+                max_price_eur,
             )
-        arm_result = {
-            "candidates": candidates,
-            "catalog_query": catalog_query,
-            "hops": 0,
-            "business_calls": 1,
-            "protocol_round_trips": 3,
-            "preference_used": arm == "D",
-            "store_profile_fields_disclosed": 0,
-            "protocol_metadata": f"Discovered MCP tools: {', '.join(tools)}",
-            "protocol_trace": protocol_trace,
-        }
-    else:
-        candidates, skills, protocol_trace = a2a_products(catalog_query)
-        arm_result = {
-            "candidates": candidates,
-            "catalog_query": catalog_query,
-            "hops": 2,
-            "business_calls": 1,
-            "protocol_round_trips": 2,
-            "preference_used": True,
-            "store_profile_fields_disclosed": 0,
-            "protocol_metadata": f"Agent Card skills: {', '.join(skills)}",
-            "protocol_trace": protocol_trace,
-        }
+            protocol_trace.insert(0, tool_event)
+            if arm == "D":
+                protocol_trace.append(
+                    {
+                        "from": "Local Profile",
+                        "to": "OpenAI Agent",
+                        "action": "apply structured preference",
+                        "detail": (
+                            "material=stainless steel; preference is applied "
+                            "locally and is not included in tools/call"
+                        ),
+                    }
+                )
+            protocol_metadata = f"Discovered MCP tools: {', '.join(tools)}"
+            hops = 0
+            protocol_round_trips = 3
+            preference_used = arm == "D"
+        else:
+            products, skills, protocol_trace = a2a_products(catalog_query)
+            candidates = apply_search_constraints(
+                products,
+                catalog_query,
+                max_price_eur,
+            )
+            protocol_trace.insert(0, tool_event)
+            protocol_metadata = f"Agent Card skills: {', '.join(skills)}"
+            hops = 2
+            protocol_round_trips = 2
+            preference_used = True
 
-    protocol_duration_ms = round(
-        (time.perf_counter() - protocol_started) * 1000,
-        1,
-    )
-    policy = ARM_AGENT_POLICIES[arm]
-    public_rules = policy["public_rules"]
-    agent_policy = policy["policy"]
-    allow_no_selection = policy["allow_no_selection"]
-    if not arm_result["candidates"]:
-        public_rules = [
-            f"Search the catalog using query={catalog_query}",
-            "Do not substitute unrelated products when the query has no matches",
-            "Return an explicit no-match result with no selected product",
-        ]
-        agent_policy = (
-            f"{agent_policy} The catalog returned no candidates for query "
-            f"{catalog_query!r}. selected_name must be an empty string and the "
-            "final answer must clearly say that no matching product was found."
-        )
-        allow_no_selection = True
-    agent_started = time.perf_counter()
+        result = {
+            "candidates": candidates,
+            "catalog_query": catalog_query,
+            "max_price_eur": max_price_eur,
+            "hops": hops,
+            "business_calls": 1,
+            "protocol_round_trips": protocol_round_trips,
+            "preference_used": preference_used,
+            "store_profile_fields_disclosed": 0,
+            "protocol_metadata": protocol_metadata,
+            "protocol_trace": protocol_trace,
+        }
+        result["protocol_context"] = {
+            "path": ARM_META[arm]["path"],
+            "hops": hops,
+            "metadata": protocol_metadata,
+            "catalog_query": catalog_query,
+            "max_price_eur": max_price_eur,
+            "profile_fields_sent_to_store": 0,
+        }
+        return result
+
     decision = run_openai_agent(
         arm=arm,
         question=question,
         role=policy["role"],
-        policy=agent_policy,
-        candidates=arm_result["candidates"],
-        protocol_context={
-            "path": ARM_META[arm]["path"],
-            "hops": arm_result["hops"],
-            "metadata": arm_result["protocol_metadata"],
-            "catalog_query": catalog_query,
-            "profile_fields_sent_to_store": arm_result[
-                "store_profile_fields_disclosed"
-            ],
-        },
-        allow_no_selection=allow_no_selection,
+        policy=policy["policy"],
+        allow_no_selection=policy["allow_no_selection"],
+        search_catalog=search_catalog,
     )
-    agent_duration_ms = round((time.perf_counter() - agent_started) * 1000, 1)
+    arm_result = decision["tool_result"]
+    public_rules = policy["public_rules"]
+    if not arm_result["candidates"]:
+        public_rules = [
+            f"Search the catalog using query={arm_result['catalog_query']}",
+            "Do not substitute unrelated products when the query has no matches",
+            "Return an explicit no-match result with no selected product",
+        ]
     selected = next(
         (
             candidate
@@ -600,9 +596,10 @@ def run_arm(arm: str, question: str) -> dict[str, Any]:
         "public_rules": public_rules,
         "openai_model": decision.get("model"),
         "openai_response_id": decision.get("response_id"),
+        "openai_planning_response_id": decision.get("planning_response_id"),
         "openai_usage": decision.get("usage") or {},
-        "protocol_duration_ms": protocol_duration_ms,
-        "agent_duration_ms": agent_duration_ms,
+        "protocol_duration_ms": decision["protocol_duration_ms"],
+        "agent_duration_ms": decision["agent_duration_ms"],
         "duration_ms": round((time.perf_counter() - started) * 1000, 1),
     }
 
@@ -683,14 +680,22 @@ def render(result: dict[str, Any]) -> str:
     meta = ARM_META[result["arm"]]
     color = meta["color"] if sys.stdout.isatty() and not os.environ.get("NO_COLOR") else ""
     reset = "\033[0m" if color else ""
+    max_price = result.get("max_price_eur")
+    formatted_max_price = (
+        "null"
+        if max_price is None
+        else f"{float(max_price):g}"
+    )
     lines = [
         f"{color}╔══════════════════════════════════════════════════╗",
         f"  {meta['title']}",
         f"╚══════════════════════════════════════════════════╝{reset}",
         f"Same question: {result['question']}",
-        f"Catalog query: {result['catalog_query']}",
+        "Agent tool call: "
+        f"search_catalog(query={result['catalog_query']}, "
+        f"max_price_eur={formatted_max_price})",
         f"Path: {meta['path']}",
-        f"Real OpenAI Agent: true ({result['agent_role']})",
+        f"Agent-controlled search: true ({result['agent_role']})",
         "",
     ]
     if result.get("protocol_trace"):
@@ -787,7 +792,9 @@ def render(result: dict[str, Any]) -> str:
             f"{result['store_profile_fields_disclosed']}",
             f"Protocol metadata: {result['protocol_metadata']}",
             f"OpenAI model: {result['openai_model']}",
-            f"OpenAI response: {result['openai_response_id']}",
+            "OpenAI responses: "
+            f"plan={result.get('openai_planning_response_id')} / "
+            f"final={result['openai_response_id']}",
             "Tokens: "
             f"in={result['openai_usage'].get('input_tokens', '?')} / "
             f"out={result['openai_usage'].get('output_tokens', '?')} / "
