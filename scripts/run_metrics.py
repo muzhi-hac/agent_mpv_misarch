@@ -6,7 +6,8 @@ Agent Card fetch, ``get_json``) and its LLM calls through ``responses_api_call``
 Those choke points call into the module-global ``METER`` here, so each arm can
 report a comparable metrics block without per-script bookkeeping:
 
-  * ``llm_calls``      - number of model round-trips (the dominant latency driver)
+  * ``llm_calls``      - number of model attempts (successful or failed)
+  * ``llm_failures``   - model attempts that did not return a usable response
   * ``*_tokens``       - prompt / completion / total token usage
   * ``llm_ms``         - wall-clock spent inside model calls (vs. backend time)
   * ``http_calls``     - backend + model HTTP requests
@@ -58,6 +59,7 @@ class Meter:
     def reset(self) -> None:
         with self._lock:
             self.llm_calls = 0
+            self.llm_failures = 0
             self.llm_ms = 0.0
             self.prompt_tokens = 0
             self.completion_tokens = 0
@@ -147,6 +149,13 @@ class Meter:
                 )
                 self.total_tokens += _first_int(usage, ("total_tokens",))
 
+    def record_llm_failure(self, duration_ms: float) -> None:
+        """Record a model attempt that failed before reporting token usage."""
+        with self._lock:
+            self.llm_calls += 1
+            self.llm_failures += 1
+            self.llm_ms += float(duration_ms)
+
     def snapshot(self) -> dict[str, Any]:
         cpu_seconds, peak_rss_mb = self._stop_resource_sampling()
         with self._lock:
@@ -165,6 +174,7 @@ class Meter:
                 token_source = "partial_responses_api_usage"
             snap = {
                 "llm_calls": self.llm_calls,
+                "llm_failures": self.llm_failures,
                 "llm_ms": round(self.llm_ms, 2),
                 "prompt_tokens": self.prompt_tokens,
                 "completion_tokens": self.completion_tokens,

@@ -92,6 +92,9 @@ Run the backend-free Python tests:
 ```bash
 python -m unittest \
   scripts.test_guardrail \
+  scripts.test_agent_gcp_baseline_order \
+  scripts.test_mcp_validation_regression \
+  scripts.test_formal_evaluation_summary \
   scripts.test_duration_experiment \
   scripts.test_experiment_manifest \
   scripts.test_report_aligned_security_summary \
@@ -216,6 +219,8 @@ benchmark window so overlapping tasks are not double-counted. The result is in
 ## 9. Metric definitions
 
 - `duration_ms`: client monotonic wall-clock time for the complete agent run.
+- `llm_failures`: model attempts that failed before returning a usable response;
+  their elapsed time remains included in `llm_ms`.
 - `token_source=responses_api_usage`: token counts returned by the model API;
   missing or partial usage is labelled explicitly instead of estimated.
 - `hops`: completed cross-agent request-response round trips. B/D are zero; C
@@ -269,6 +274,31 @@ For the backdoor suite, `passed=true` means an attack behavior was reproduced;
 it does not mean the system blocked that attack. The summary reports attacks
 blocked and attacks reproduced separately.
 
+Run the live, non-mutating boundary checks:
+
+```bash
+python -m scripts.mcp_validation_regression \
+  --mcp-url http://127.0.0.1:8001/mcp \
+  --output eval/reproduction-fixed/mcp-validation.json
+
+python -m scripts.a2a_negative_e2e \
+  --a2a-url http://127.0.0.1:8001 \
+  --output eval/reproduction-fixed/a2a-negative.json
+```
+
+Create report-ready JSON, CSV, and Markdown tables while preserving the
+protocol-path versus agent-end-to-end distinction:
+
+```bash
+python -m scripts.formal_evaluation_summary \
+  --baseline eval/reproduction-baseline/graphql-vs-mcp.json \
+  --agent-dir eval/reproduction-fixed \
+  --security eval/reproduction-security/summary.json \
+  --mcp-validation eval/reproduction-fixed/mcp-validation.json \
+  --a2a-negative eval/reproduction-fixed/a2a-negative.json \
+  --out-dir eval/reproduction-results
+```
+
 ## 11. Docker deployment of the adapter
 
 If MiSArch runs on the host:
@@ -306,6 +336,12 @@ eval/reproduction-duration/
   summary.csv
   commands.log
   *.json
+
+eval/reproduction-results/
+  FORMAL_RESULTS.md
+  formal-summary.json
+  formal-arm-summary.csv
+  formal-task-summary.csv
 ```
 
 Archive the raw JSON/CSV files together with plotting code. Do not submit an

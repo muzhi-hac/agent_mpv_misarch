@@ -5,6 +5,12 @@ import os
 import unittest
 from unittest import mock
 
+from scripts.agent_gcp_baseline_test import (
+    DEFAULT_HTTP_USER_AGENT,
+    post_json,
+    responses_api_call,
+)
+from scripts.run_metrics import METER
 from scripts.openai_demo_agent import (
     extract_agent_decision,
     run_openai_agent,
@@ -57,6 +63,65 @@ def response_payload(selected_name: str = "Budget Plastic Cup") -> dict:
 
 
 class OpenAIDemoAgentTest(unittest.TestCase):
+    @mock.patch("scripts.agent_gcp_baseline_test.urllib.request.urlopen")
+    def test_shared_http_client_sets_explicit_user_agent(
+        self,
+        urlopen_mock: mock.Mock,
+    ) -> None:
+        response = mock.Mock()
+        response.read.return_value = b"{}"
+        response.headers = {"Content-Type": "application/json"}
+        urlopen_mock.return_value = response
+
+        post_json("https://api.example.test/v1/responses", {"input": "test"})
+
+        request = urlopen_mock.call_args.args[0]
+        self.assertEqual(
+            request.get_header("User-agent"),
+            DEFAULT_HTTP_USER_AGENT,
+        )
+
+    @mock.patch("scripts.agent_gcp_baseline_test.urllib.request.urlopen")
+    def test_response_read_timeout_is_counted_as_http_attempt(
+        self,
+        urlopen_mock: mock.Mock,
+    ) -> None:
+        response = mock.Mock()
+        response.read.side_effect = TimeoutError("read timed out")
+        urlopen_mock.return_value = response
+        METER.reset()
+
+        with self.assertRaisesRegex(RuntimeError, "while reading response"):
+            post_json(
+                "https://api.example.test/v1/responses",
+                {"input": "test"},
+                channel="llm",
+            )
+
+        metrics = METER.snapshot()
+        self.assertEqual(metrics["llm_http_calls"], 1)
+
+    @mock.patch("scripts.agent_gcp_baseline_test.post_json")
+    def test_model_timeout_is_recorded_as_failed_attempt(
+        self,
+        post_json_mock: mock.Mock,
+    ) -> None:
+        post_json_mock.side_effect = TimeoutError("read timed out")
+        METER.reset()
+
+        with self.assertRaisesRegex(RuntimeError, "read timed out"):
+            responses_api_call(
+                "https://api.example.test",
+                "test-key",
+                "test-model",
+                "test prompt",
+            )
+
+        metrics = METER.snapshot()
+        self.assertEqual(metrics["llm_calls"], 1)
+        self.assertEqual(metrics["llm_failures"], 1)
+        self.assertEqual(metrics["token_source"], "unavailable")
+
     def test_extracts_structured_decision_and_metadata(self) -> None:
         result = extract_agent_decision(response_payload())
         self.assertEqual(result["selected_name"], "Budget Plastic Cup")

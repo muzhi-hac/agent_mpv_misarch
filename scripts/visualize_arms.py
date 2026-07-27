@@ -56,7 +56,10 @@ def load_results(results_dir: str) -> dict[str, list[dict]]:
             r = normalise(json.loads(path.read_text(encoding="utf-8")))
         except Exception:
             continue
-        by_arm.setdefault(arm_of(r), []).append(r)
+        arm = arm_of(r)
+        if arm not in ARM_ORDER:
+            continue
+        by_arm.setdefault(arm, []).append(r)
     return by_arm
 
 
@@ -150,6 +153,9 @@ def aggregate(by_arm: dict[str, list[dict]]) -> dict[str, dict]:
             "min_duration_ms": duration["min"],
             "max_duration_ms": duration["max"],
             "mean_llm_ms": _mean_metric(ok, "llm_ms"),
+            "llm_failure_count": int(
+                sum(_metric(r, "llm_failures") or 0 for r in rows)
+            ),
             "mean_backend_ms": round(statistics.fmean(backend_vals), 2) if backend_vals else 0.0,
             "mean_llm_calls": _mean_metric(ok, "llm_calls"),
             "mean_total_tokens": _mean_metric(ok, "total_tokens"),
@@ -271,7 +277,8 @@ def write_csv(agg: dict[str, dict], out_csv: pathlib.Path) -> None:
     cols = ["arm", "n", "success_rate", "duration_n", "mean_duration_ms",
             "median_duration_ms", "p95_duration_ms", "stdev_duration_ms",
             "min_duration_ms", "max_duration_ms", "mean_backend_ms",
-            "mean_llm_ms", "mean_llm_calls", "mean_total_tokens", "mean_bytes_sent",
+            "mean_llm_ms", "llm_failure_count", "mean_llm_calls", "mean_total_tokens",
+            "mean_bytes_sent",
             "mean_bytes_recv", "mean_cpu_seconds", "mean_peak_rss_mb",
             "mean_server_alloc_bytes", "preference_used_rate", "mean_hops",
             "mean_business_calls", "mean_protocol_round_trips",

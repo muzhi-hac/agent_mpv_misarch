@@ -28,6 +28,31 @@ class RunMetricsTest(unittest.TestCase):
         self.assertEqual(snapshot["total_tokens"], 0)
         self.assertEqual(snapshot["token_source"], "unavailable")
 
+    def test_failed_model_attempt_keeps_time_and_failure_count(self) -> None:
+        meter = Meter()
+        meter.record_llm_failure(60123.5)
+
+        snapshot = meter.snapshot()
+
+        self.assertEqual(snapshot["llm_calls"], 1)
+        self.assertEqual(snapshot["llm_failures"], 1)
+        self.assertEqual(snapshot["llm_ms"], 60123.5)
+        self.assertEqual(snapshot["token_source"], "unavailable")
+
+    def test_mixed_model_outcomes_report_partial_token_coverage(self) -> None:
+        meter = Meter()
+        meter.record_llm(
+            {"input_tokens": 10, "output_tokens": 4, "total_tokens": 14},
+            12.5,
+        )
+        meter.record_llm_failure(1000.0)
+
+        snapshot = meter.snapshot()
+
+        self.assertEqual(snapshot["llm_calls"], 2)
+        self.assertEqual(snapshot["llm_failures"], 1)
+        self.assertEqual(snapshot["token_source"], "partial_responses_api_usage")
+
     def test_measurement_dimensions_are_not_conflated(self) -> None:
         result = {"metrics": {"token_source": "responses_api_usage"}}
 

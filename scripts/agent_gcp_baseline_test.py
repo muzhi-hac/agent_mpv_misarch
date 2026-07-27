@@ -22,6 +22,7 @@ DEFAULT_GRAPHQL_URL = "http://34.40.117.201:8080/graphql"
 DEFAULT_MCP_URL = "http://34.40.117.201:8001/mcp"
 DEFAULT_MODEL_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com")
 DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4")
+DEFAULT_HTTP_USER_AGENT = "agent-mpv-misarch-eval/1.0"
 DEFAULT_RESULTS_DIR = "eval"
 DEFAULT_KEYCLOAK_CLIENT_ID = "frontend"
 DEFAULT_KEYCLOAK_USERNAME = "gatling"
@@ -244,6 +245,7 @@ def post_json(
 ) -> tuple[dict[str, Any], Any]:
     request_headers = {
         "Content-Type": "application/json",
+        "User-Agent": DEFAULT_HTTP_USER_AGENT,
         **(headers or {}),
     }
     data = json.dumps(payload).encode("utf-8")
@@ -269,11 +271,17 @@ def post_json(
         raise RuntimeError(
             f"POST {url} failed with HTTP {exc.code}: {body[:800]}"
         ) from exc
-    except urllib.error.URLError as exc:
+    except (urllib.error.URLError, TimeoutError) as exc:
         METER.record_http(channel, len(data), 0)
-        raise RuntimeError(f"POST {url} failed: {exc.reason}") from exc
+        reason = getattr(exc, "reason", str(exc))
+        raise RuntimeError(f"POST {url} failed: {reason}") from exc
 
-    raw = response.read()
+    try:
+        raw = response.read()
+    except (urllib.error.URLError, TimeoutError) as exc:
+        METER.record_http(channel, len(data), 0)
+        reason = getattr(exc, "reason", str(exc))
+        raise RuntimeError(f"POST {url} failed while reading response: {reason}") from exc
     t_res = TRANSCRIPT.now_ms()
     METER.record_http(channel, len(data), len(raw))
     body = raw.decode("utf-8", errors="replace")
@@ -325,10 +333,11 @@ def responses_api_call(
             text = extract_response_text(response)
             TRANSCRIPT.record_llm(prompt, text, t_req, TRANSCRIPT.now_ms())
             return text
-        except RuntimeError as exc:
+        except Exception as exc:
+            METER.record_llm_failure(elapsed_ms(call_start))
             message = str(exc)
             errors.append(message)
-            if "HTTP 404" not in message:
+            if not isinstance(exc, RuntimeError) or "HTTP 404" not in message:
                 break
 
     raise RuntimeError("\n".join(errors))
@@ -2000,27 +2009,61 @@ def run_trial(
 ) -> dict[str, Any]:
     print(f"\n=== Trial {trial_number}/{args.trials} ===")
 
+    def execute_native() -> dict[str, Any]:
+        print("[native] direct GraphQL agent path")
+        try:
+            result = run_native_graphql_agent(args, api_key)
+            product = product_from_native(result) or {}
+            print(
+                "         ok "
+                + f"product={product.get('name')} "
+                + f"duration_ms={result.get('duration_ms')}"
+            )
+            return result
+        except Exception as exc:
+            print(f"         failed: {exc}")
+            return {
+                "path": "native_graphql",
+                "success": False,
+                "error": str(exc),
+                "started_at": utc_now(),
+            }
+
+    def execute_mcp() -> dict[str, Any]:
+        print("[mcp]    MCP gateway agent path")
+        try:
+            result = run_mcp_agent(args, api_key)
+            product = product_from_mcp(result) or {}
+            print(
+                "         ok "
+                + f"tools={','.join(result.get('tool_names', []))} "
+                + f"product={product.get('name')} "
+                + f"duration_ms={result.get('duration_ms')}"
+            )
+            return result
+        except Exception as exc:
+            print(f"         failed: {exc}")
+            return {
+                "path": "mcp_gateway",
+                "success": False,
+                "error": str(exc),
+                "started_at": utc_now(),
+            }
+
     native: dict[str, Any]
     agent_generated: dict[str, Any]
     mcp: dict[str, Any]
+    native_first = trial_number % 2 == 1
+    execution_order = (
+        ["native_graphql", "mcp_gateway"]
+        if native_first
+        else ["mcp_gateway", "native_graphql"]
+    )
 
-    print("[native] direct GraphQL agent path")
-    try:
-        native = run_native_graphql_agent(args, api_key)
-        product = product_from_native(native) or {}
-        print(
-            "         ok "
-            + f"product={product.get('name')} "
-            + f"duration_ms={native.get('duration_ms')}"
-        )
-    except Exception as exc:
-        native = {
-            "path": "native_graphql",
-            "success": False,
-            "error": str(exc),
-            "started_at": utc_now(),
-        }
-        print(f"         failed: {exc}")
+    if native_first:
+        native = execute_native()
+    else:
+        mcp = execute_mcp()
 
     if args.include_agent_generated_graphql:
         print("[agent]  agent-generated GraphQL baseline")
@@ -2059,24 +2102,10 @@ def run_trial(
             "reason": "disabled; pass --include-agent-generated-graphql to enable",
         }
 
-    print("[mcp]    MCP gateway agent path")
-    try:
-        mcp = run_mcp_agent(args, api_key)
-        product = product_from_mcp(mcp) or {}
-        print(
-            "         ok "
-            + f"tools={','.join(mcp.get('tool_names', []))} "
-            + f"product={product.get('name')} "
-            + f"duration_ms={mcp.get('duration_ms')}"
-        )
-    except Exception as exc:
-        mcp = {
-            "path": "mcp_gateway",
-            "success": False,
-            "error": str(exc),
-            "started_at": utc_now(),
-        }
-        print(f"         failed: {exc}")
+    if native_first:
+        mcp = execute_mcp()
+    else:
+        native = execute_native()
 
     comparison = compare_paths(native, mcp)
     if comparison.get("comparable"):
@@ -2119,6 +2148,7 @@ def run_trial(
     return {
         "trial": trial_number,
         "started_at": utc_now(),
+        "execution_order": execution_order,
         "native_graphql": native,
         "agent_generated_graphql": agent_generated,
         "mcp_gateway": mcp,
@@ -2319,6 +2349,7 @@ def write_results(
             handle,
             fieldnames=[
                 "trial",
+                "execution_order",
                 "native_success",
                 "native_llm_controller_used",
                 "agent_generated_enabled",
@@ -2388,6 +2419,9 @@ def write_results(
             writer.writerow(
                 {
                         "trial": trial.get("trial"),
+                        "execution_order": "|".join(
+                            trial.get("execution_order", [])
+                        ),
                         "native_success": native.get("success"),
                         "native_llm_controller_used": native.get(
                             "llm_controller_used"

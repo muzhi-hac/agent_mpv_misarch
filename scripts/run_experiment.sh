@@ -61,7 +61,7 @@ fi
 mkdir -p "$OUTDIR"
 : > "$OUTDIR/errors.log"
 SUMMARY="$OUTDIR/summary.csv"
-echo "arm,task_idx,trial,success,duration_ms,llm_ms,llm_calls,prompt_tokens,completion_tokens,total_tokens,token_source,http_calls,bytes_sent,bytes_recv,cpu_seconds,peak_rss_mb,server_alloc_bytes,hops,business_calls,protocol_round_trips,measurement_scope,preference_used,profile_fields_disclosed,risk_detected,risk_confirmation_required,risk_purchase_task_sent" > "$SUMMARY"
+echo "arm,task_idx,trial,run_position,success,duration_ms,llm_ms,llm_calls,llm_failures,prompt_tokens,completion_tokens,total_tokens,token_source,http_calls,bytes_sent,bytes_recv,cpu_seconds,peak_rss_mb,server_alloc_bytes,hops,business_calls,protocol_round_trips,measurement_scope,preference_used,profile_fields_disclosed,risk_detected,risk_confirmation_required,risk_purchase_task_sent" > "$SUMMARY"
 
 tasks=(
   "help me pick a water cup"
@@ -78,31 +78,33 @@ manifest_args=(
   --endpoint "mcp=$MCP_URL"
   --parameter "trials_per_task=$N"
   --parameter "concurrency=1"
+  --parameter "arm_schedule=balanced_rotation"
 )
 for task in "${tasks[@]}"; do
   manifest_args+=(--task "$task")
 done
 "$PYTHON_BIN" -m scripts.experiment_manifest "${manifest_args[@]}"
 
-emit_row() { # arm task_idx trial jsonfile -> one CSV line on stdout
+emit_row() { # arm task_idx trial run_position jsonfile -> one CSV line on stdout
   "$PYTHON_BIN" - "$@" <<'PY'
 import json, sys
-arm, ti, tr, path = sys.argv[1:5]
+arm, ti, tr, pos, path = sys.argv[1:6]
 def q(v):
     s = str(v).replace('"', '""')
     return f'"{s}"' if ("," in s or '"' in s) else s
 try:
     d = json.load(open(path, encoding="utf-8"))
 except Exception:
-    print(f"{arm},{ti},{tr},READ_ERR" + ","*22); raise SystemExit
+    print(f"{arm},{ti},{tr},{pos},READ_ERR" + ","*23); raise SystemExit
 r = d.get("risk") or {}
 m = d.get("metrics") or {}
 srv = m.get("server") or {}
 disc = d.get("profile_fields_disclosed")
 disc = "" if disc is None else ("|".join(disc) if isinstance(disc, list) else str(disc))
 measurement = d.get("measurement") or {}
-row = [arm, ti, tr, d.get("success"), d.get("duration_ms"),
-       m.get("llm_ms", ""), m.get("llm_calls", ""), m.get("prompt_tokens", ""),
+row = [arm, ti, tr, pos, d.get("success"), d.get("duration_ms"),
+       m.get("llm_ms", ""), m.get("llm_calls", ""), m.get("llm_failures", 0),
+       m.get("prompt_tokens", ""),
        m.get("completion_tokens", ""), m.get("total_tokens", ""), m.get("token_source", ""),
        m.get("http_calls", ""),
        m.get("bytes_sent", ""), m.get("bytes_recv", ""),
@@ -127,12 +129,35 @@ for ti in "${!tasks[@]}"; do
     bf="$OUTDIR/B_${ti}_${tr}.json"
     df="$OUTDIR/D_${ti}_${tr}.json"
     cf="$OUTDIR/C_${ti}_${tr}.json"
-    run "B" "$bf" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL"
-    run "D" "$df" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL" --profile "$PROFILE" --user-id "$USER_ID"
-    run "C" "$cf" "$PYTHON_BIN" -m scripts.agent_a2a_loop --task "$t" --a2a-url "$A2A_URL" --profile "$PROFILE" --user-id "$USER_ID"
-    emit_row B "$ti" "$tr" "$bf" >> "$SUMMARY"
-    emit_row D "$ti" "$tr" "$df" >> "$SUMMARY"
-    emit_row C "$ti" "$tr" "$cf" >> "$SUMMARY"
+
+    case $(((tr - 1) % 3)) in
+      0) arm_order=(B D C) ;;
+      1) arm_order=(D C B) ;;
+      2) arm_order=(C B D) ;;
+    esac
+
+    position=0
+    for arm in "${arm_order[@]}"; do
+      position=$((position + 1))
+      case "$arm" in
+        B)
+          b_pos="$position"
+          run "B" "$bf" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL"
+          ;;
+        D)
+          d_pos="$position"
+          run "D" "$df" "$PYTHON_BIN" -m scripts.agent_mcp_loop --task "$t" --mcp-url "$MCP_URL" --profile "$PROFILE" --user-id "$USER_ID"
+          ;;
+        C)
+          c_pos="$position"
+          run "C" "$cf" "$PYTHON_BIN" -m scripts.agent_a2a_loop --task "$t" --a2a-url "$A2A_URL" --profile "$PROFILE" --user-id "$USER_ID"
+          ;;
+      esac
+    done
+
+    emit_row B "$ti" "$tr" "$b_pos" "$bf" >> "$SUMMARY"
+    emit_row D "$ti" "$tr" "$d_pos" "$df" >> "$SUMMARY"
+    emit_row C "$ti" "$tr" "$c_pos" "$cf" >> "$SUMMARY"
     echo "  trial $tr/$N done"
   done
 done
