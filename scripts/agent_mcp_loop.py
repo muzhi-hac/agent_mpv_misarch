@@ -25,6 +25,7 @@ from scripts.agent_gcp_baseline_test import (
 from scripts.run_metrics import (
     METER,
     TRANSCRIPT,
+    per_task_server_metrics_enabled,
     read_server_metrics,
     server_delta,
     write_transcript_sidecar,
@@ -691,7 +692,8 @@ def main() -> int:
                 + json.dumps(profile, ensure_ascii=False)
             )
 
-        server_pre = read_server_metrics(args.mcp_url)
+        collect_server_metrics = per_task_server_metrics_enabled()
+        server_pre = read_server_metrics(args.mcp_url) if collect_server_metrics else None
         METER.reset()
         TRANSCRIPT.reset()
         result = AgentOrchestrator(
@@ -703,9 +705,13 @@ def main() -> int:
         result["preference_used"] = bool(profile)
         result["metrics"] = METER.snapshot()
         result["transcript"] = TRANSCRIPT.entries
-        delta = server_delta(server_pre, read_server_metrics(args.mcp_url))
+        server_post = read_server_metrics(args.mcp_url) if collect_server_metrics else None
+        delta = server_delta(server_pre, server_post)
         if delta:
             result["metrics"]["server"] = delta
+            result["metrics"]["server_metric_scope"] = "task"
+        elif not collect_server_metrics:
+            result["metrics"]["server_metric_scope"] = "benchmark_window"
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)

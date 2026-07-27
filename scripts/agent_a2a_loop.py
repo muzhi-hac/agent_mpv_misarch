@@ -35,6 +35,7 @@ from scripts.agent_gcp_baseline_test import (
 from scripts.run_metrics import (
     METER,
     TRANSCRIPT,
+    per_task_server_metrics_enabled,
     read_server_metrics,
     server_delta,
     write_transcript_sidecar,
@@ -742,11 +743,16 @@ def main() -> int:
             top_k=args.top_k,
             include_prompts=args.include_prompts,
         )
-        server_pre = read_server_metrics(args.a2a_url)
+        collect_server_metrics = per_task_server_metrics_enabled()
+        server_pre = read_server_metrics(args.a2a_url) if collect_server_metrics else None
         result = butler.run(args.task)
-        delta = server_delta(server_pre, read_server_metrics(args.a2a_url))
+        server_post = read_server_metrics(args.a2a_url) if collect_server_metrics else None
+        delta = server_delta(server_pre, server_post)
         if delta and isinstance(result.get("metrics"), dict):
             result["metrics"]["server"] = delta
+            result["metrics"]["server_metric_scope"] = "task"
+        elif not collect_server_metrics and isinstance(result.get("metrics"), dict):
+            result["metrics"]["server_metric_scope"] = "benchmark_window"
 
         rendered = json.dumps(result, ensure_ascii=False, indent=2)
         print(rendered)

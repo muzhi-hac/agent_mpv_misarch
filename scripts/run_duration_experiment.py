@@ -16,6 +16,11 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable
 
 from scripts.agent_gcp_baseline_test import load_api_key, utc_now
+from scripts.run_metrics import (
+    PER_TASK_SERVER_METRICS_ENV,
+    read_server_metrics,
+    server_delta,
+)
 
 
 DEFAULT_A2A_URL = os.environ.get("A2A_URL", "http://127.0.0.1:8001")
@@ -221,7 +226,7 @@ def run_job(config: BenchmarkConfig, job: Job) -> JobResult:
         check=False,
         capture_output=True,
         text=True,
-        env=os.environ.copy(),
+        env=job_environment(config),
     )
     finished_at = utc_now()
     finished_monotonic = time.monotonic()
@@ -273,6 +278,16 @@ def run_job(config: BenchmarkConfig, job: Job) -> JobResult:
     )
 
 
+def job_environment(config: BenchmarkConfig) -> dict[str, str]:
+    """Disable overlapping per-task server deltas for concurrent benchmarks."""
+    environment = os.environ.copy()
+    if config.concurrency > 1:
+        environment[PER_TASK_SERVER_METRICS_ENV] = "0"
+    else:
+        environment.pop(PER_TASK_SERVER_METRICS_ENV, None)
+    return environment
+
+
 def csv_row(result: JobResult, deadline: float) -> dict[str, Any]:
     payload = result.payload
     risk = payload.get("risk") if isinstance(payload.get("risk"), dict) else {}
@@ -321,6 +336,7 @@ def write_run_summary(
     results: list[JobResult],
     started_at: str,
     finished_at: str,
+    server_metrics: dict[str, Any] | None = None,
 ) -> pathlib.Path:
     in_window = [result for result in results if result.finished_monotonic <= deadline]
     successes = [result for result in in_window if result.payload.get("success")]
@@ -351,7 +367,10 @@ def write_run_summary(
         "finished_after_window": len(late),
         "by_arm": by_arm,
         "summary_csv": str(config.outdir / "summary.csv"),
+        "server_metric_scope": "benchmark_window" if server_metrics else "unavailable",
     }
+    if server_metrics:
+        summary["server_metrics"] = server_metrics
     path = config.outdir / "run_summary.json"
     path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
@@ -360,12 +379,14 @@ def write_run_summary(
 def run_duration(
     config: BenchmarkConfig,
     runner: Callable[[BenchmarkConfig, Job], JobResult] = run_job,
+    server_reader: Callable[[str], dict[str, Any] | None] = read_server_metrics,
 ) -> tuple[list[JobResult], pathlib.Path]:
     config.outdir.mkdir(parents=True, exist_ok=True)
     summary_path = config.outdir / "summary.csv"
     if summary_path.exists():
         summary_path.unlink()
 
+    server_pre = server_reader(config.a2a_url)
     started_at = utc_now()
     deadline = time.monotonic() + config.duration_seconds
     next_sequence = 0
@@ -404,7 +425,18 @@ def run_duration(
             while len(futures) < config.concurrency and submit_one(executor):
                 pass
 
-    summary_json = write_run_summary(config, deadline, results, started_at, utc_now())
+    server_window = server_delta(server_pre, server_reader(config.a2a_url))
+    if server_window:
+        server_window["scope"] = "benchmark_window"
+        server_window["concurrency"] = config.concurrency
+    summary_json = write_run_summary(
+        config,
+        deadline,
+        results,
+        started_at,
+        utc_now(),
+        server_metrics=server_window,
+    )
     return results, summary_json
 
 

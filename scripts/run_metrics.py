@@ -18,6 +18,7 @@ the counters stay consistent if a script ever fans out.
 """
 from __future__ import annotations
 
+import os
 import threading
 import time
 from typing import Any
@@ -165,6 +166,14 @@ class Meter:
 
 # Module-global meter shared by all arms through the common HTTP/LLM helpers.
 METER = Meter()
+
+PER_TASK_SERVER_METRICS_ENV = "MISARCH_PER_TASK_SERVER_METRICS"
+
+
+def per_task_server_metrics_enabled() -> bool:
+    """Return false when a concurrent runner requests window-level counters."""
+    value = os.environ.get(PER_TASK_SERVER_METRICS_ENV, "1").strip().lower()
+    return value not in {"0", "false", "no", "off"}
 
 
 def _truncate(value: Any, limit: int = 4000) -> Any:

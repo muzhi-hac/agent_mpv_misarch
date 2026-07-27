@@ -13,6 +13,7 @@ from scripts.run_duration_experiment import (
     JobResult,
     build_command,
     csv_row,
+    job_environment,
     make_job,
     parse_arms,
     parse_tasks,
@@ -95,6 +96,17 @@ class DurationExperimentTest(unittest.TestCase):
             self.assertIn("scripts.agent_a2a_loop", command_c)
             self.assertIn("--a2a-url", command_c)
 
+    def test_concurrent_jobs_disable_overlapping_server_deltas(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            concurrent = self.config(pathlib.Path(tmp), concurrency=2)
+            serial = self.config(pathlib.Path(tmp), concurrency=1)
+
+            self.assertEqual(
+                job_environment(concurrent)["MISARCH_PER_TASK_SERVER_METRICS"],
+                "0",
+            )
+            self.assertNotIn("MISARCH_PER_TASK_SERVER_METRICS", job_environment(serial))
+
     def test_csv_row_extracts_common_fields(self) -> None:
         job = Job(
             sequence=7,
@@ -168,7 +180,17 @@ class DurationExperimentTest(unittest.TestCase):
                     error="",
                 )
 
-            results, summary_path = run_duration(config, runner=fake_runner)
+            readings = iter(
+                [
+                    {"total_alloc_bytes": 100, "mallocs": 10, "num_gc": 1},
+                    {"total_alloc_bytes": 160, "mallocs": 16, "num_gc": 2},
+                ]
+            )
+            results, summary_path = run_duration(
+                config,
+                runner=fake_runner,
+                server_reader=lambda _: next(readings),
+            )
             summary = json.loads(summary_path.read_text(encoding="utf-8"))
 
             self.assertGreater(len(results), 0)
@@ -179,6 +201,9 @@ class DurationExperimentTest(unittest.TestCase):
             self.assertEqual(summary["concurrency"], 2)
             self.assertIn("started_at", summary)
             self.assertIn("finished_at", summary)
+            self.assertEqual(summary["server_metric_scope"], "benchmark_window")
+            self.assertEqual(summary["server_metrics"]["total_alloc_bytes_delta"], 60)
+            self.assertEqual(summary["server_metrics"]["concurrency"], 2)
 
 
 if __name__ == "__main__":
