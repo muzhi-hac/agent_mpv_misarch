@@ -10,6 +10,8 @@ For the full Chinese walkthrough of the Google Cloud MiSArch deployment, MCP gat
 
 - [docs/gcp-misarch-mcp-agent-testing.zh.md](docs/gcp-misarch-mcp-agent-testing.zh.md)
 - [docs/presentation-prep.zh.md](docs/presentation-prep.zh.md)
+- [REPRODUCTION.md](REPRODUCTION.md) for build, deployment, and evaluation steps
+- [CONTRIBUTION.md](CONTRIBUTION.md) for the Group 11 work allocation
 
 ## Architecture
 
@@ -21,6 +23,38 @@ External Agent
   -> MiSArch GraphQL Gateway :8080/graphql
   -> MiSArch Catalog / Shopping Cart / Order / Payment / Simulation services
 ```
+
+## Why MCP for MiSArch?
+
+MCP is not introduced as a faster replacement for GraphQL. Direct GraphQL is
+the better choice for simple internal calls and latency-critical
+service-to-service communication. The adapter exists because an external agent
+benefits from a smaller, typed, discoverable capability surface with explicit
+input validation and side-effect metadata.
+
+The primary scenario is a controlled shopping assistant: discover catalog
+products, inspect real product details, and, through a separately authorized
+client, create a pending order without exposing the entire MiSArch schema. The
+small tool set is an intentional least-privilege boundary, not an attempt to
+mirror every GraphQL operation.
+
+Use cases where MCP makes sense include external catalog assistants, product
+exploration followed by a pending-order draft, and future read-only order
+status, policy, recommendation, or observability capabilities. It is not a good
+fit for exposing the whole GraphQL schema, direct database or internal event
+access, administrative APIs, or automatic payment, refund, and shipment actions.
+
+## Capability boundary
+
+The MCP server does not expose payment processing, refund creation, shipment
+dispatch, inventory administration, Keycloak administration, direct database
+access, internal event publishing, or a generic `execute_graphql(query)` tool.
+The evaluated MCP LLM agent applies an additional read-only allowlist and does
+not offer `create_pending_order` to the model.
+
+The A2A purchase flow described below is a separate experimental path. It has
+an explicit two-message confirmation gate and is excluded from the normal
+read-only benchmark. It should only be used against disposable local test data.
 
 ## A2A store-agent
 
