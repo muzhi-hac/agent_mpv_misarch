@@ -13,7 +13,7 @@ REPORT_BASELINES = {
     "purchase_risk": {"defended": 8, "total": 10},
     "agent_card": {"defended": 4, "total": 4},
     "price": {"defended": 1, "total": 1},
-    "backdoor": {"defended": 2, "total": 4},
+    "backdoor": {"attacks_blocked": 2, "attacks_total": 3},
 }
 
 DEFAULT_FILES = {
@@ -34,6 +34,37 @@ def _score(summary: dict[str, Any]) -> tuple[int, int]:
     return defended, total
 
 
+def _backdoor_score(payload: dict[str, Any]) -> dict[str, int]:
+    """Summarize attacks without treating reproduction PASS as a defense PASS."""
+    results = payload.get("results")
+    if not isinstance(results, list):
+        raise ValueError("backdoor result is missing per-case results")
+
+    attacks = [
+        row
+        for row in results
+        if isinstance(row, dict) and row.get("expect") != "dormant"
+    ]
+    controls = [
+        row
+        for row in results
+        if isinstance(row, dict) and row.get("expect") == "dormant"
+    ]
+    if not attacks:
+        raise ValueError("backdoor result contains no attack cases")
+
+    reproduced = sum(
+        1 for row in attacks if row.get("vulnerability_reproduced") is True
+    )
+    return {
+        "attacks_blocked": len(attacks) - reproduced,
+        "attacks_reproduced": reproduced,
+        "attacks_total": len(attacks),
+        "controls_passed": sum(1 for row in controls if row.get("passed") is True),
+        "controls_total": len(controls),
+    }
+
+
 def aggregate(paths: dict[str, str]) -> dict[str, Any]:
     categories: dict[str, Any] = {}
     for name, baseline in REPORT_BASELINES.items():
@@ -48,7 +79,15 @@ def aggregate(paths: dict[str, str]) -> dict[str, Any]:
 
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
-            defended, total = _score(payload.get("summary") or payload)
+            if name == "backdoor":
+                score = _backdoor_score(payload)
+            else:
+                defended, total = _score(payload.get("summary") or payload)
+                score = {
+                    "defended": defended,
+                    "total": total,
+                    "rate_percent": round(defended * 100 / total, 1) if total else None,
+                }
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             categories[name] = {
                 "status": "invalid",
@@ -58,11 +97,10 @@ def aggregate(paths: dict[str, str]) -> dict[str, Any]:
             }
             continue
 
+        matched = all(score.get(key) == value for key, value in baseline.items())
         categories[name] = {
-            "status": "matched" if {"defended": defended, "total": total} == baseline else "different",
-            "defended": defended,
-            "total": total,
-            "rate_percent": round(defended * 100 / total, 1) if total else None,
+            "status": "matched" if matched else "different",
+            **score,
             "report_baseline": baseline,
         }
 
