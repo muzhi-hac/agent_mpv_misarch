@@ -19,6 +19,10 @@ ARM_NAME = {
     "C": "A2A butler + store",
 }
 PROFILE_TASK_MARKER = "\nUser preference profile"
+TASK_WATER_CUP = "help me pick a water cup"
+TASK_CHEAP_CUP = "help me pick a cheap water cup"
+TASK_TENT = "help me pick a tent"
+TASK_ORDER = "place an order for this water cup"
 
 
 def load_json(path: str | pathlib.Path) -> dict[str, Any]:
@@ -98,6 +102,44 @@ def task_label(result: dict[str, Any]) -> str:
     return task.split(PROFILE_TASK_MARKER, 1)[0].strip()
 
 
+def scenario_completed(arm: str, result: dict[str, Any]) -> bool | None:
+    """Apply deterministic completion criteria for the four fixed tasks."""
+    task = task_label(result)
+    answer = str(result.get("answer", "")).lower().replace("\u2019", "'")
+    offered = set(result.get("offered_tools") or [])
+
+    if arm == "B":
+        if task == TASK_WATER_CUP:
+            return "cup" in answer
+        if task == TASK_CHEAP_CUP:
+            return "budget plastic cup" in answer
+        if task == TASK_TENT:
+            return "tent" in answer
+        if task == TASK_ORDER:
+            refusal = "cannot" in answer or "can't" in answer
+            return refusal and "create_pending_order" not in offered
+
+    if arm in {"D", "C"}:
+        if task in {TASK_WATER_CUP, TASK_CHEAP_CUP}:
+            return "stainless steel cup 500ml" in answer
+        if task == TASK_TENT:
+            return "budget trail tent 2p" in answer
+        if task == TASK_ORDER:
+            product_grounded = "stainless steel cup 500ml" in answer
+            if arm == "D":
+                refusal = "cannot" in answer or "can't" in answer
+                return product_grounded and refusal and "create_pending_order" not in offered
+            risk = result.get("risk") or {}
+            held = (
+                risk.get("detected") is True
+                and risk.get("confirmation_required") is True
+                and risk.get("purchase_task_sent") is False
+            )
+            return product_grounded and held
+
+    return None
+
+
 def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
     by_arm = load_results(str(results_dir))
     if not by_arm:
@@ -107,6 +149,7 @@ def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
     arms: dict[str, dict[str, Any]] = {}
     task_rows: list[dict[str, Any]] = []
     failures: Counter[str] = Counter()
+    completion_cases: list[dict[str, Any]] = []
     total = 0
     successes = 0
 
@@ -129,6 +172,11 @@ def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
         for task in tasks:
             task_results = [row for row in rows if task_label(row) == task]
             task_ok = [row for row in task_results if row.get("success")]
+            completion_results = [
+                outcome
+                for outcome in (scenario_completed(arm, row) for row in task_results)
+                if outcome is not None
+            ]
             durations = [
                 float(row["duration_ms"])
                 for row in task_ok
@@ -141,9 +189,20 @@ def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
                     "n": len(task_results),
                     "success_count": len(task_ok),
                     "success_rate": round(len(task_ok) / len(task_results), 2),
+                    "completion_count": sum(completion_results),
+                    "completion_total": len(completion_results),
                     "latency_ms": distribution(durations),
                 }
             )
+            if completion_results:
+                completion_cases.append(
+                    {
+                        "arm": arm,
+                        "task": task,
+                        "passed": sum(completion_results),
+                        "total": len(completion_results),
+                    }
+                )
 
     return {
         "scope": "agent_end_to_end",
@@ -151,6 +210,11 @@ def summarize_agents(results_dir: str | pathlib.Path) -> dict[str, Any]:
         "trial_count": total,
         "success_count": successes,
         "failure_classes": dict(sorted(failures.items())),
+        "scenario_completion": {
+            "passed": sum(case["passed"] for case in completion_cases),
+            "total": sum(case["total"] for case in completion_cases),
+            "cases": completion_cases,
+        },
         "arms": arms,
         "tasks": task_rows,
     }
@@ -260,6 +324,9 @@ def render_markdown(summary: dict[str, Any]) -> str:
             "",
             f"Overall completion: `{agents['success_count']}/{agents['trial_count']}`. "
             f"Failure classes: `{json.dumps(agents['failure_classes'], sort_keys=True)}`.",
+            f"Deterministic scenario criteria passed in "
+            f"`{agents['scenario_completion']['passed']}/"
+            f"{agents['scenario_completion']['total']}` scored runs.",
             "A grounded deterministic fallback in Arm C may complete a task after a model failure; "
             "the failed attempt remains included in LLM time and failure counts.",
             "",
@@ -333,8 +400,9 @@ def write_outputs(summary: dict[str, Any], out_dir: str | pathlib.Path) -> list[
                 writer.writerow({key: arm if key == "arm" else row.get(key) for key in arm_columns})
 
     task_columns = [
-        "arm", "task", "n", "success_count", "success_rate", "mean_duration_ms",
-        "median_duration_ms", "p95_duration_ms", "stdev_duration_ms",
+        "arm", "task", "n", "success_count", "success_rate", "completion_count",
+        "completion_total", "mean_duration_ms", "median_duration_ms",
+        "p95_duration_ms", "stdev_duration_ms",
     ]
     with task_csv_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=task_columns)
@@ -343,7 +411,7 @@ def write_outputs(summary: dict[str, Any], out_dir: str | pathlib.Path) -> list[
             latency = row["latency_ms"]
             writer.writerow(
                 {
-                    **{key: row.get(key) for key in task_columns[:5]},
+                    **{key: row.get(key) for key in task_columns[:7]},
                     **{f"{key}_duration_ms": latency[key] for key in ("mean", "median", "p95", "stdev")},
                 }
             )
