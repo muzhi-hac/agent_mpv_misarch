@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-07-27T19:06:58.703473Z",
+  "mode": "fixed_trials",
+  "git": {
+    "commit": "8f59757ccbffc6ad3edfc98f9e4c35cfb01f4d10",
+    "branch": "agent/metrics-reproducibility",
+    "tracked_files_dirty": false
+  },
+  "runtime": {
+    "python_version": "3.12.2",
+    "platform": "macOS-15.7.7-arm64-arm-64bit"
+  },
+  "llm": {
+    "model": "gpt-5.5",
+    "base_url": "https://yybb.dog",
+    "credentials_recorded": false
+  },
+  "arms": [
+    "B",
+    "D",
+    "C"
+  ],
+  "tasks": [
+    "help me pick a water cup",
+    "help me pick a cheap water cup",
+    "help me pick a tent",
+    "place an order for this water cup"
+  ],
+  "endpoints": {
+    "a2a": "http://127.0.0.1:8001",
+    "mcp": "http://127.0.0.1:8001/mcp"
+  },
+  "parameters": {
+    "trials_per_task": 5,
+    "concurrency": 1,
+    "arm_schedule": "balanced_rotation"
+  }
+}

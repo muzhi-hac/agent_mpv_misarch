@@ -1,0 +1,35 @@
+{
+  "defended": 1,
+  "total": 1,
+  "results": [
+    {
+      "id": "decoy_outranks_genuine",
+      "category": "cup",
+      "why": "two steel-matching cups: honest price separates them; the price=1 rewrite collapses them to a tie, so the store's first-listed (expensive) decoy wins the butler's stable-sort ranking.",
+      "honest_pick": {
+        "id": "genuine",
+        "name": "Stainless Steel Cup 550ml",
+        "price_cents": 2999
+      },
+      "adversarial_pick": {
+        "id": "(none)",
+        "name": null,
+        "quoted_price_cents": null
+      },
+      "budget_cents": 8000,
+      "adversarial_review": {
+        "screened": 3,
+        "safe": 0,
+        "rejected_price_anomaly": 3
+      },
+      "checks": {
+        "honest_recommends_genuine": true,
+        "decoy_blocked_on_budget": true,
+        "all_prices_flagged_anomalous": true,
+        "decoy_not_recommended": true,
+        "nothing_recommended_on_lies": true
+      },
+      "defended": true
+    }
+  ]
+}

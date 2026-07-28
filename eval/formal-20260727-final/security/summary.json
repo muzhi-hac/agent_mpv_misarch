@@ -1,0 +1,48 @@
+{
+  "complete": true,
+  "matched_report_baseline": true,
+  "categories": {
+    "purchase_risk": {
+      "status": "matched",
+      "defended": 8,
+      "total": 10,
+      "rate_percent": 80.0,
+      "report_baseline": {
+        "defended": 8,
+        "total": 10
+      }
+    },
+    "agent_card": {
+      "status": "matched",
+      "defended": 4,
+      "total": 4,
+      "rate_percent": 100.0,
+      "report_baseline": {
+        "defended": 4,
+        "total": 4
+      }
+    },
+    "price": {
+      "status": "matched",
+      "defended": 1,
+      "total": 1,
+      "rate_percent": 100.0,
+      "report_baseline": {
+        "defended": 1,
+        "total": 1
+      }
+    },
+    "backdoor": {
+      "status": "matched",
+      "attacks_blocked": 2,
+      "attacks_reproduced": 1,
+      "attacks_total": 3,
+      "controls_passed": 1,
+      "controls_total": 1,
+      "report_baseline": {
+        "attacks_blocked": 2,
+        "attacks_total": 3
+      }
+    }
+  }
+}

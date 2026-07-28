@@ -1,0 +1,2762 @@
+{
+  "created_at": "2026-07-27T19:06:20+00:00",
+  "config": {
+    "graphql_url": "http://127.0.0.1:8080/graphql",
+    "mcp_url": "http://127.0.0.1:8001/mcp",
+    "model_base_url": "https://api.openai.com",
+    "model": "gpt-5.4",
+    "trials": 5,
+    "top_k": 2,
+    "skip_llm": true,
+    "skip_agent_reports": true,
+    "use_llm_controller": false,
+    "include_agent_generated_graphql": false,
+    "agent_generated_graphql_doc_level": "schema",
+    "include_order_test": false,
+    "order_quantity": 1,
+    "order_product_variant_id": "",
+    "order_user_id": "",
+    "order_shipment_method_id": "",
+    "order_shipment_address_id": "",
+    "order_invoice_address_id": "",
+    "order_payment_information_id": "",
+    "order_coupon_ids": "",
+    "graphql_bearer_token_configured": false,
+    "keycloak_token_url_configured": false
+  },
+  "summary": {
+    "trial_count": 5,
+    "llm_controller_enabled": false,
+    "native_success_count": 5,
+    "mcp_success_count": 5,
+    "agent_generated_graphql_enabled_count": 0,
+    "agent_generated_graphql_success_count": 0,
+    "agent_generated_graphql_comparable_count": 0,
+    "agent_generated_graphql_same_core_product_data_count": 0,
+    "agent_generated_graphql_failure_stage_counts": {},
+    "comparable_count": 5,
+    "same_core_product_data_count": 5,
+    "pending_order_enabled_count": 0,
+    "native_pending_order_success_count": 0,
+    "mcp_pending_order_success_count": 0,
+    "pending_order_comparable_count": 0,
+    "pending_order_both_pending_count": 0,
+    "native_avg_duration_ms": 154.02,
+    "mcp_avg_duration_ms": 66.41,
+    "agent_generated_graphql_avg_duration_ms": null,
+    "agent_generated_graphql_avg_generation_duration_ms": null,
+    "interpretation": "GraphQL and MCP should return the same core MiSArch product data. MCP adds agent-facing metadata and protocol-level tool discovery. Agent-generated GraphQL is optional and measures whether the model can produce valid native GraphQL from schema documentation. Pending-order comparisons are disabled unless explicitly enabled because they create shopping cart items and pending orders."
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "started_at": "2026-07-27T19:06:20+00:00",
+      "execution_order": [
+        "native_graphql",
+        "mcp_gateway"
+      ],
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8080/graphql",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 410.38,
+        "list_duration_ms": 363.23,
+        "detail_duration_ms": 46.5,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                  "defaultVariant": {
+                    "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                    "currentVersion": {
+                      "name": "Budget Plastic Cup",
+                      "description": "Lightweight reusable cup for the lowest-price policy.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                  "defaultVariant": {
+                    "id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50",
+                    "currentVersion": {
+                      "name": "Trail Shelter Tent 2P",
+                      "description": "Weather-resistant two-person tent for camping and hiking.",
+                      "retailPrice": 8999
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "defaultVariant": {
+                "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                "currentVersion": {
+                  "name": "Budget Plastic Cup",
+                  "description": "Lightweight reusable cup for the lowest-price policy.",
+                  "retailPrice": 799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Video Demo Cups"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8001/mcp",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 129.57,
+        "initialize_duration_ms": 14.84,
+        "tools_duration_ms": 7.43,
+        "list_duration_ms": 57.62,
+        "detail_duration_ms": 45.49,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Budget Plastic Cup",
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "retail_price_cents": 799,
+              "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+            },
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Trail Shelter Tent 2P",
+              "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+              "retail_price_cents": 8999,
+              "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Video Demo Cups"
+            ],
+            "currency": "EUR",
+            "description": "Lightweight reusable cup for the lowest-price policy.",
+            "name": "Budget Plastic Cup",
+            "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+            "retail_price_cents": 799,
+            "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Video Demo Cups"
+          ],
+          "currency": "EUR",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "name": "Budget Plastic Cup",
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "retail_price_cents": 799,
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+        },
+        "native_duration_ms": 410.38,
+        "mcp_duration_ms": 129.57,
+        "mcp_minus_native_duration_ms": -280.81,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 2,
+      "started_at": "2026-07-27T19:06:20+00:00",
+      "execution_order": [
+        "mcp_gateway",
+        "native_graphql"
+      ],
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8080/graphql",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 109.67,
+        "list_duration_ms": 88.02,
+        "detail_duration_ms": 21.6,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                  "defaultVariant": {
+                    "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                    "currentVersion": {
+                      "name": "Budget Plastic Cup",
+                      "description": "Lightweight reusable cup for the lowest-price policy.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                  "defaultVariant": {
+                    "id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50",
+                    "currentVersion": {
+                      "name": "Trail Shelter Tent 2P",
+                      "description": "Weather-resistant two-person tent for camping and hiking.",
+                      "retailPrice": 8999
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "defaultVariant": {
+                "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                "currentVersion": {
+                  "name": "Budget Plastic Cup",
+                  "description": "Lightweight reusable cup for the lowest-price policy.",
+                  "retailPrice": 799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Video Demo Cups"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8001/mcp",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 49.28,
+        "initialize_duration_ms": 2.03,
+        "tools_duration_ms": 3.06,
+        "list_duration_ms": 21.27,
+        "detail_duration_ms": 21.61,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Budget Plastic Cup",
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "retail_price_cents": 799,
+              "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+            },
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Trail Shelter Tent 2P",
+              "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+              "retail_price_cents": 8999,
+              "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Video Demo Cups"
+            ],
+            "currency": "EUR",
+            "description": "Lightweight reusable cup for the lowest-price policy.",
+            "name": "Budget Plastic Cup",
+            "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+            "retail_price_cents": 799,
+            "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Video Demo Cups"
+          ],
+          "currency": "EUR",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "name": "Budget Plastic Cup",
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "retail_price_cents": 799,
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+        },
+        "native_duration_ms": 109.67,
+        "mcp_duration_ms": 49.28,
+        "mcp_minus_native_duration_ms": -60.39,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 3,
+      "started_at": "2026-07-27T19:06:20+00:00",
+      "execution_order": [
+        "native_graphql",
+        "mcp_gateway"
+      ],
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8080/graphql",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 106.72,
+        "list_duration_ms": 64.44,
+        "detail_duration_ms": 42.22,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                  "defaultVariant": {
+                    "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                    "currentVersion": {
+                      "name": "Budget Plastic Cup",
+                      "description": "Lightweight reusable cup for the lowest-price policy.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                  "defaultVariant": {
+                    "id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50",
+                    "currentVersion": {
+                      "name": "Trail Shelter Tent 2P",
+                      "description": "Weather-resistant two-person tent for camping and hiking.",
+                      "retailPrice": 8999
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "defaultVariant": {
+                "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                "currentVersion": {
+                  "name": "Budget Plastic Cup",
+                  "description": "Lightweight reusable cup for the lowest-price policy.",
+                  "retailPrice": 799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Video Demo Cups"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8001/mcp",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 55.62,
+        "initialize_duration_ms": 9.63,
+        "tools_duration_ms": 1.94,
+        "list_duration_ms": 22.33,
+        "detail_duration_ms": 19.94,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Budget Plastic Cup",
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "retail_price_cents": 799,
+              "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+            },
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Trail Shelter Tent 2P",
+              "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+              "retail_price_cents": 8999,
+              "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Video Demo Cups"
+            ],
+            "currency": "EUR",
+            "description": "Lightweight reusable cup for the lowest-price policy.",
+            "name": "Budget Plastic Cup",
+            "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+            "retail_price_cents": 799,
+            "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Video Demo Cups"
+          ],
+          "currency": "EUR",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "name": "Budget Plastic Cup",
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "retail_price_cents": 799,
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+        },
+        "native_duration_ms": 106.72,
+        "mcp_duration_ms": 55.62,
+        "mcp_minus_native_duration_ms": -51.1,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 4,
+      "started_at": "2026-07-27T19:06:20+00:00",
+      "execution_order": [
+        "mcp_gateway",
+        "native_graphql"
+      ],
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8080/graphql",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 87.45,
+        "list_duration_ms": 65.74,
+        "detail_duration_ms": 21.68,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                  "defaultVariant": {
+                    "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                    "currentVersion": {
+                      "name": "Budget Plastic Cup",
+                      "description": "Lightweight reusable cup for the lowest-price policy.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                  "defaultVariant": {
+                    "id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50",
+                    "currentVersion": {
+                      "name": "Trail Shelter Tent 2P",
+                      "description": "Weather-resistant two-person tent for camping and hiking.",
+                      "retailPrice": 8999
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "defaultVariant": {
+                "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                "currentVersion": {
+                  "name": "Budget Plastic Cup",
+                  "description": "Lightweight reusable cup for the lowest-price policy.",
+                  "retailPrice": 799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Video Demo Cups"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8001/mcp",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 52.88,
+        "initialize_duration_ms": 2.01,
+        "tools_duration_ms": 4.79,
+        "list_duration_ms": 25.91,
+        "detail_duration_ms": 18.59,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Budget Plastic Cup",
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "retail_price_cents": 799,
+              "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+            },
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Trail Shelter Tent 2P",
+              "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+              "retail_price_cents": 8999,
+              "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Video Demo Cups"
+            ],
+            "currency": "EUR",
+            "description": "Lightweight reusable cup for the lowest-price policy.",
+            "name": "Budget Plastic Cup",
+            "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+            "retail_price_cents": 799,
+            "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Video Demo Cups"
+          ],
+          "currency": "EUR",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "name": "Budget Plastic Cup",
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "retail_price_cents": 799,
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+        },
+        "native_duration_ms": 87.45,
+        "mcp_duration_ms": 52.88,
+        "mcp_minus_native_duration_ms": -34.57,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    },
+    {
+      "trial": 5,
+      "started_at": "2026-07-27T19:06:20+00:00",
+      "execution_order": [
+        "native_graphql",
+        "mcp_gateway"
+      ],
+      "native_graphql": {
+        "path": "native_graphql",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8080/graphql",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 55.89,
+        "list_duration_ms": 37.47,
+        "detail_duration_ms": 18.37,
+        "raw_list_response": {
+          "data": {
+            "products": {
+              "nodes": [
+                {
+                  "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                  "defaultVariant": {
+                    "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                    "currentVersion": {
+                      "name": "Budget Plastic Cup",
+                      "description": "Lightweight reusable cup for the lowest-price policy.",
+                      "retailPrice": 799
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                  "defaultVariant": {
+                    "id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50",
+                    "currentVersion": {
+                      "name": "Trail Shelter Tent 2P",
+                      "description": "Weather-resistant two-person tent for camping and hiking.",
+                      "retailPrice": 8999
+                    }
+                  },
+                  "categories": {
+                    "nodes": [
+                      {
+                        "name": "Video Demo Cups"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "raw_detail_response": {
+          "data": {
+            "product": {
+              "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "defaultVariant": {
+                "id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+                "currentVersion": {
+                  "name": "Budget Plastic Cup",
+                  "description": "Lightweight reusable cup for the lowest-price policy.",
+                  "retailPrice": 799
+                }
+              },
+              "categories": {
+                "nodes": [
+                  {
+                    "name": "Video Demo Cups"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "normalized_first_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "normalized_detail": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "has_tool_discovery": false,
+        "has_input_schema": false,
+        "has_explicit_side_effects": false,
+        "has_explicit_runtime_source": false,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "agent_generated_graphql": {
+        "path": "agent_generated_graphql",
+        "enabled": false,
+        "success": false,
+        "skipped": true,
+        "reason": "disabled; pass --include-agent-generated-graphql to enable"
+      },
+      "mcp_gateway": {
+        "path": "mcp_gateway",
+        "success": true,
+        "endpoint": "http://127.0.0.1:8001/mcp",
+        "started_at": "2026-07-27T19:06:20+00:00",
+        "duration_ms": 44.68,
+        "initialize_duration_ms": 5.06,
+        "tools_duration_ms": 1.77,
+        "list_duration_ms": 19.55,
+        "detail_duration_ms": 17.01,
+        "server_info": {
+          "name": "misarch-agent-gateway",
+          "version": "0.1.0"
+        },
+        "tools": [
+          {
+            "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "MiSArch user UUID owning the shopping cart and order"
+                },
+                "product_variant_id": {
+                  "type": "string",
+                  "description": "MiSArch product variant UUID selected by the agent"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+                },
+                "shipment_method_id": {
+                  "type": "string",
+                  "description": "MiSArch shipment method UUID to use for this order item"
+                },
+                "shipment_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID where the order should be shipped"
+                },
+                "invoice_address_id": {
+                  "type": "string",
+                  "description": "MiSArch user address UUID used for invoicing"
+                },
+                "payment_information_id": {
+                  "type": "string",
+                  "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+                },
+                "coupon_ids": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "optional MiSArch coupon UUIDs to attach to the order item"
+                }
+              },
+              "required": [
+                "user_id",
+                "product_variant_id",
+                "quantity",
+                "shipment_method_id",
+                "shipment_address_id",
+                "invoice_address_id",
+                "payment_information_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "create_pending_order",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "type": "string"
+                },
+                "order_status": {
+                  "type": "string"
+                },
+                "shopping_cart_item_id": {
+                  "type": "string"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                },
+                "next_action": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "order_status",
+                "shopping_cart_item_id",
+                "source_service",
+                "runtime",
+                "side_effects",
+                "next_action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "description": "MiSArch product UUID returned by list_products"
+                }
+              },
+              "required": [
+                "product_id"
+              ],
+              "additionalProperties": false
+            },
+            "name": "get_product",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "found": {
+                  "type": "boolean"
+                },
+                "product": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "product_id": {
+                      "type": "string"
+                    },
+                    "variant_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "retail_price_cents": {
+                      "type": "integer"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "categories": {
+                      "type": [
+                        "null",
+                        "array"
+                      ],
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "product_id",
+                    "variant_id",
+                    "name",
+                    "description",
+                    "retail_price_cents",
+                    "currency",
+                    "categories"
+                  ],
+                  "additionalProperties": false
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "found",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "top_k": {
+                  "type": "integer",
+                  "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+                }
+              },
+              "additionalProperties": false
+            },
+            "name": "list_products",
+            "outputSchema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "product_id": {
+                        "type": "string"
+                      },
+                      "variant_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "retail_price_cents": {
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "type": "string"
+                      },
+                      "categories": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "product_id",
+                      "variant_id",
+                      "name",
+                      "retail_price_cents",
+                      "currency",
+                      "categories"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "returned_count": {
+                  "type": "integer"
+                },
+                "source_service": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string"
+                },
+                "side_effects": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "products",
+                "returned_count",
+                "source_service",
+                "runtime",
+                "side_effects"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "tool_names": [
+          "create_pending_order",
+          "get_product",
+          "list_products"
+        ],
+        "product_list": {
+          "products": [
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Budget Plastic Cup",
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+              "retail_price_cents": 799,
+              "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+            },
+            {
+              "categories": [
+                "Video Demo Cups"
+              ],
+              "currency": "EUR",
+              "name": "Trail Shelter Tent 2P",
+              "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+              "retail_price_cents": 8999,
+              "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+            }
+          ],
+          "returned_count": 2,
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "product_detail": {
+          "found": true,
+          "product": {
+            "categories": [
+              "Video Demo Cups"
+            ],
+            "currency": "EUR",
+            "description": "Lightweight reusable cup for the lowest-price policy.",
+            "name": "Budget Plastic Cup",
+            "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+            "retail_price_cents": 799,
+            "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+          },
+          "runtime": "misarch-graphql-gateway",
+          "side_effects": "none (read-only)",
+          "source_service": "catalog"
+        },
+        "has_tool_discovery": true,
+        "has_input_schema": true,
+        "has_explicit_side_effects": true,
+        "has_explicit_runtime_source": true,
+        "llm_controller_used": false,
+        "llm_controller": null,
+        "planned_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "$FIRST_PRODUCT_ID_FROM_LIST"
+            }
+          }
+        ],
+        "executed_tool_calls": [
+          {
+            "name": "list_products",
+            "arguments": {
+              "top_k": 2
+            }
+          },
+          {
+            "name": "get_product",
+            "arguments": {
+              "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c"
+            }
+          }
+        ],
+        "agent_report": {
+          "ok": true,
+          "skipped": true,
+          "duration_ms": 0.0,
+          "text": "LLM report skipped by --skip-llm or --skip-agent-reports."
+        }
+      },
+      "comparison": {
+        "comparable": true,
+        "same_product_id": true,
+        "same_name": true,
+        "same_price": true,
+        "same_categories": true,
+        "same_core_product_data": true,
+        "native_product": {
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549",
+          "name": "Budget Plastic Cup",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "retail_price_cents": 799,
+          "currency": "EUR",
+          "categories": [
+            "Video Demo Cups"
+          ]
+        },
+        "mcp_product": {
+          "categories": [
+            "Video Demo Cups"
+          ],
+          "currency": "EUR",
+          "description": "Lightweight reusable cup for the lowest-price policy.",
+          "name": "Budget Plastic Cup",
+          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+          "retail_price_cents": 799,
+          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+        },
+        "native_duration_ms": 55.89,
+        "mcp_duration_ms": 44.68,
+        "mcp_minus_native_duration_ms": -11.21,
+        "native_has_tool_discovery": false,
+        "mcp_has_tool_discovery": true,
+        "native_has_input_schema": false,
+        "mcp_has_input_schema": true,
+        "native_has_explicit_side_effects": false,
+        "mcp_has_explicit_side_effects": true,
+        "native_has_explicit_runtime_source": false,
+        "mcp_has_explicit_runtime_source": true
+      },
+      "agent_generated_comparison": {
+        "comparable": false,
+        "reason": "fixed or agent-generated GraphQL did not return a product"
+      },
+      "pending_order": {
+        "enabled": false,
+        "reason": "pass --include-order-test to create pending orders"
+      }
+    }
+  ]
+}

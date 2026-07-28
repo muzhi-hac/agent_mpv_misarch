@@ -1,0 +1,504 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-27T19:32:21.527007+00:00",
+  "baseline": {
+    "scope": "fixed_query_protocol_path",
+    "trial_count": 5,
+    "graphql": {
+      "success_count": 5,
+      "latency_ms": {
+        "n": 5,
+        "mean": 154.02,
+        "median": 106.72,
+        "p95": 410.38,
+        "stdev": 144.9,
+        "min": 55.89,
+        "max": 410.38
+      }
+    },
+    "mcp": {
+      "success_count": 5,
+      "latency_ms": {
+        "n": 5,
+        "mean": 66.41,
+        "median": 52.88,
+        "p95": 129.57,
+        "stdev": 35.55,
+        "min": 44.68,
+        "max": 129.57
+      }
+    },
+    "same_core_product_data_count": 5,
+    "execution_order_counts": {
+      "mcp_gateway -> native_graphql": 2,
+      "native_graphql -> mcp_gateway": 3
+    },
+    "mcp_contract": {
+      "tool_discovery": true,
+      "input_schema": true,
+      "explicit_side_effects": true,
+      "explicit_runtime_source": true
+    }
+  },
+  "agents": {
+    "scope": "agent_end_to_end",
+    "latency_population": "successful_runs_only",
+    "trial_count": 60,
+    "success_count": 60,
+    "failure_classes": {},
+    "scenario_completion": {
+      "passed": 60,
+      "total": 60,
+      "cases": [
+        {
+          "arm": "B",
+          "task": "help me pick a cheap water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "B",
+          "task": "help me pick a tent",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "B",
+          "task": "help me pick a water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "B",
+          "task": "place an order for this water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "D",
+          "task": "help me pick a cheap water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "D",
+          "task": "help me pick a tent",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "D",
+          "task": "help me pick a water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "D",
+          "task": "place an order for this water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "C",
+          "task": "help me pick a cheap water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "C",
+          "task": "help me pick a tent",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "C",
+          "task": "help me pick a water cup",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "arm": "C",
+          "task": "place an order for this water cup",
+          "passed": 5,
+          "total": 5
+        }
+      ]
+    },
+    "arms": {
+      "B": {
+        "name": "MCP ReAct",
+        "success_count": 20,
+        "n": 20,
+        "success_rate": 1.0,
+        "duration_n": 20,
+        "mean_duration_ms": 20762.06,
+        "median_duration_ms": 20681.64,
+        "p95_duration_ms": 28351.96,
+        "stdev_duration_ms": 8987.62,
+        "min_duration_ms": 10012.35,
+        "max_duration_ms": 53168.75,
+        "mean_llm_ms": 20555.15,
+        "llm_failure_count": 0,
+        "mean_backend_ms": 206.92,
+        "mean_llm_calls": 2.1,
+        "mean_total_tokens": 11937.4,
+        "mean_bytes_sent": 8515.35,
+        "mean_bytes_recv": 54051.0,
+        "mean_cpu_seconds": 0.1,
+        "mean_peak_rss_mb": 30.47,
+        "mean_server_alloc_bytes": 824995.2,
+        "preference_used_rate": 0.0,
+        "mean_hops": 0.0,
+        "mean_business_calls": 1.1,
+        "mean_protocol_round_trips": 3.1,
+        "disclosure_fraction": 1.0,
+        "risk_intercepted": 0,
+        "mean_answer_relevance": null
+      },
+      "D": {
+        "name": "MCP + profile",
+        "success_count": 20,
+        "n": 20,
+        "success_rate": 1.0,
+        "duration_n": 20,
+        "mean_duration_ms": 23245.0,
+        "median_duration_ms": 20249.54,
+        "p95_duration_ms": 42839.37,
+        "stdev_duration_ms": 10684.21,
+        "min_duration_ms": 14672.6,
+        "max_duration_ms": 56295.55,
+        "mean_llm_ms": 23015.26,
+        "llm_failure_count": 0,
+        "mean_backend_ms": 229.74,
+        "mean_llm_calls": 2.25,
+        "mean_total_tokens": 12622.0,
+        "mean_bytes_sent": 10259.6,
+        "mean_bytes_recv": 58287.2,
+        "mean_cpu_seconds": 0.11,
+        "mean_peak_rss_mb": 30.51,
+        "mean_server_alloc_bytes": 858675.2,
+        "preference_used_rate": 1.0,
+        "mean_hops": 0.0,
+        "mean_business_calls": 1.2,
+        "mean_protocol_round_trips": 3.2,
+        "disclosure_fraction": 1.0,
+        "risk_intercepted": 0,
+        "mean_answer_relevance": null
+      },
+      "C": {
+        "name": "A2A butler + store",
+        "success_count": 20,
+        "n": 20,
+        "success_rate": 1.0,
+        "duration_n": 20,
+        "mean_duration_ms": 7331.94,
+        "median_duration_ms": 7111.79,
+        "p95_duration_ms": 9412.5,
+        "stdev_duration_ms": 1392.57,
+        "min_duration_ms": 5751.01,
+        "max_duration_ms": 10846.39,
+        "mean_llm_ms": 7145.06,
+        "llm_failure_count": 0,
+        "mean_backend_ms": 186.88,
+        "mean_llm_calls": 2.0,
+        "mean_total_tokens": 9329.15,
+        "mean_bytes_sent": 1844.5,
+        "mean_bytes_recv": 49329.2,
+        "mean_cpu_seconds": 0.04,
+        "mean_peak_rss_mb": 30.62,
+        "mean_server_alloc_bytes": 538034.8,
+        "preference_used_rate": 1.0,
+        "mean_hops": 2.0,
+        "mean_business_calls": 1.0,
+        "mean_protocol_round_trips": 2.0,
+        "disclosure_fraction": 0.0,
+        "risk_intercepted": 5,
+        "mean_answer_relevance": null
+      }
+    },
+    "tasks": [
+      {
+        "arm": "B",
+        "task": "help me pick a cheap water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 19975.45,
+          "median": 20747.55,
+          "p95": 21643.48,
+          "stdev": 1637.77,
+          "min": 17560.92,
+          "max": 21643.48
+        }
+      },
+      {
+        "arm": "B",
+        "task": "help me pick a tent",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 26162.93,
+          "median": 23047.37,
+          "p95": 53168.75,
+          "stdev": 15980.89,
+          "min": 10528.83,
+          "max": 53168.75
+        }
+      },
+      {
+        "arm": "B",
+        "task": "help me pick a water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 15413.32,
+          "median": 12992.36,
+          "p95": 21996.56,
+          "stdev": 6045.27,
+          "min": 10012.35,
+          "max": 21996.56
+        }
+      },
+      {
+        "arm": "B",
+        "task": "place an order for this water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 21496.54,
+          "median": 20071.91,
+          "p95": 28351.96,
+          "stdev": 3924.89,
+          "min": 18845.55,
+          "max": 28351.96
+        }
+      },
+      {
+        "arm": "D",
+        "task": "help me pick a cheap water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 17689.07,
+          "median": 16457.99,
+          "p95": 21616.25,
+          "stdev": 2670.5,
+          "min": 15214.89,
+          "max": 21616.25
+        }
+      },
+      {
+        "arm": "D",
+        "task": "help me pick a tent",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 29813.25,
+          "median": 27129.47,
+          "p95": 56295.55,
+          "stdev": 17149.57,
+          "min": 14672.6,
+          "max": 56295.55
+        }
+      },
+      {
+        "arm": "D",
+        "task": "help me pick a water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 26106.06,
+          "median": 21450.3,
+          "p95": 42839.37,
+          "stdev": 9984.04,
+          "min": 17614.23,
+          "max": 42839.37
+        }
+      },
+      {
+        "arm": "D",
+        "task": "place an order for this water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 19371.63,
+          "median": 16539.79,
+          "p95": 24411.43,
+          "stdev": 4450.22,
+          "min": 15479.1,
+          "max": 24411.43
+        }
+      },
+      {
+        "arm": "C",
+        "task": "help me pick a cheap water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 6552.51,
+          "median": 6291.12,
+          "p95": 7234.91,
+          "stdev": 629.55,
+          "min": 5848.89,
+          "max": 7234.91
+        }
+      },
+      {
+        "arm": "C",
+        "task": "help me pick a tent",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 8435.8,
+          "median": 8263.38,
+          "p95": 10846.39,
+          "stdev": 1521.14,
+          "min": 6666.7,
+          "max": 10846.39
+        }
+      },
+      {
+        "arm": "C",
+        "task": "help me pick a water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 7127.71,
+          "median": 6230.9,
+          "p95": 9118.81,
+          "stdev": 1471.19,
+          "min": 5797.55,
+          "max": 9118.81
+        }
+      },
+      {
+        "arm": "C",
+        "task": "place an order for this water cup",
+        "n": 5,
+        "success_count": 5,
+        "success_rate": 1.0,
+        "completion_count": 5,
+        "completion_total": 5,
+        "latency_ms": {
+          "n": 5,
+          "mean": 7211.72,
+          "median": 7021.65,
+          "p95": 9412.5,
+          "stdev": 1408.6,
+          "min": 5751.01,
+          "max": 9412.5
+        }
+      }
+    ]
+  },
+  "security": {
+    "complete": true,
+    "matched_report_baseline": true,
+    "categories": {
+      "purchase_risk": {
+        "status": "matched",
+        "defended": 8,
+        "total": 10,
+        "rate_percent": 80.0,
+        "report_baseline": {
+          "defended": 8,
+          "total": 10
+        }
+      },
+      "agent_card": {
+        "status": "matched",
+        "defended": 4,
+        "total": 4,
+        "rate_percent": 100.0,
+        "report_baseline": {
+          "defended": 4,
+          "total": 4
+        }
+      },
+      "price": {
+        "status": "matched",
+        "defended": 1,
+        "total": 1,
+        "rate_percent": 100.0,
+        "report_baseline": {
+          "defended": 1,
+          "total": 1
+        }
+      },
+      "backdoor": {
+        "status": "matched",
+        "attacks_blocked": 2,
+        "attacks_reproduced": 1,
+        "attacks_total": 3,
+        "controls_passed": 1,
+        "controls_total": 1,
+        "report_baseline": {
+          "attacks_blocked": 2,
+          "attacks_total": 3
+        }
+      }
+    }
+  },
+  "mcp_validation": {
+    "success": true,
+    "tool_count": 3,
+    "tool_names": [
+      "create_pending_order",
+      "get_product",
+      "list_products"
+    ],
+    "dangerous_tools_exposed": [],
+    "negative_cases_total": 5,
+    "negative_cases_rejected": 5
+  },
+  "a2a_negative": {
+    "success": true,
+    "mutation_expected": false,
+    "passed": 3,
+    "total": 3
+  }
+}

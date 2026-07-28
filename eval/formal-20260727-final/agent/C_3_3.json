@@ -1,0 +1,443 @@
+{
+  "success": true,
+  "arm": "a2a",
+  "task": "place an order for this water cup",
+  "answer": "Recommend Stainless Steel Cup 500ml (€24.99). It matches the requested stainless steel material and meets the minimum 500 ml capacity, with a reasonable mid-range price.",
+  "category": "cup",
+  "steps": 4,
+  "hops": 2,
+  "duration_ms": 7558.08,
+  "preference_used": true,
+  "profile_fields_disclosed": [],
+  "risk": {
+    "detected": true,
+    "confirmation_required": true,
+    "user_confirmed": false,
+    "purchase_task_sent": false
+  },
+  "inventory": {
+    "sufficient": true,
+    "candidate_count": 5
+  },
+  "price_review": {
+    "budget_cents": 8000,
+    "min_plausible_price_cents": 100,
+    "screened": 5,
+    "safe": 4,
+    "rejected_price_anomaly": 0,
+    "rejected_over_budget": 1,
+    "candidates": [
+      {
+        "id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+        "name": "Budget Plastic Cup",
+        "price_cents": 799,
+        "price_anomaly": false,
+        "over_budget": false,
+        "safe": true
+      },
+      {
+        "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+        "name": "Trail Shelter Tent 2P",
+        "price_cents": 8999,
+        "price_anomaly": false,
+        "over_budget": true,
+        "safe": false
+      },
+      {
+        "id": "7ee1f2b3-49d5-4118-9157-c33afd6d7ec9",
+        "name": "Stainless Steel Cup 500ml",
+        "price_cents": 2499,
+        "price_anomaly": false,
+        "over_budget": false,
+        "safe": true
+      },
+      {
+        "id": "a1af1a3b-c01b-4b15-a5aa-f820c385fbe8",
+        "name": "Borosilicate Glass Cup",
+        "price_cents": 1299,
+        "price_anomaly": false,
+        "over_budget": false,
+        "safe": true
+      },
+      {
+        "id": "fe35ea6e-fa7e-42ef-a05d-8fb8bb3047b2",
+        "name": "Titanium Trail Cup",
+        "price_cents": 7999,
+        "price_anomaly": false,
+        "over_budget": false,
+        "safe": true
+      }
+    ]
+  },
+  "ranked_candidates": [
+    {
+      "categories": [
+        "Video Demo Cups"
+      ],
+      "currency": "EUR",
+      "name": "Stainless Steel Cup 500ml",
+      "product_id": "7ee1f2b3-49d5-4118-9157-c33afd6d7ec9",
+      "retail_price_cents": 2499,
+      "variant_id": "9541acd5-9763-48a6-a8b4-fda5d41730b1"
+    },
+    {
+      "categories": [
+        "Video Demo Cups"
+      ],
+      "currency": "EUR",
+      "name": "Budget Plastic Cup",
+      "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+      "retail_price_cents": 799,
+      "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+    },
+    {
+      "categories": [
+        "Video Demo Cups"
+      ],
+      "currency": "EUR",
+      "name": "Borosilicate Glass Cup",
+      "product_id": "a1af1a3b-c01b-4b15-a5aa-f820c385fbe8",
+      "retail_price_cents": 1299,
+      "variant_id": "07447fa9-023f-4b19-b49d-88a458b68a26"
+    },
+    {
+      "categories": [
+        "Video Demo Cups"
+      ],
+      "currency": "EUR",
+      "name": "Titanium Trail Cup",
+      "product_id": "fe35ea6e-fa7e-42ef-a05d-8fb8bb3047b2",
+      "retail_price_cents": 7999,
+      "variant_id": "ed37e469-03fd-47f9-88db-033acf61a27f"
+    }
+  ],
+  "metrics": {
+    "llm_calls": 2,
+    "llm_failures": 0,
+    "llm_ms": 7341.9,
+    "prompt_tokens": 9328,
+    "completion_tokens": 57,
+    "total_tokens": 9385,
+    "token_usage_reports": 2,
+    "token_source": "responses_api_usage",
+    "http_calls": 4,
+    "backend_http_calls": 2,
+    "llm_http_calls": 2,
+    "bytes_sent": 2047,
+    "bytes_recv": 48984,
+    "backend_bytes_sent": 300,
+    "backend_bytes_recv": 2783,
+    "llm_bytes_sent": 1747,
+    "llm_bytes_recv": 46201,
+    "cpu_seconds": 0.048,
+    "peak_rss_mb": 30.86,
+    "server": {
+      "total_alloc_bytes_delta": 570168,
+      "mallocs_delta": 9127,
+      "num_gc_delta": 1,
+      "heap_alloc_bytes_after": 2092648,
+      "num_goroutine_after": 102
+    },
+    "server_metric_scope": "task"
+  },
+  "transcript": [
+    {
+      "seq": 1,
+      "t_ms": 0.02,
+      "direction": "request",
+      "from": "agent",
+      "to": "llm",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "Classify a shopping request. Return ONLY JSON: {\"category\":\"<single english noun, e.g. cup or tent>\",\"is_purchase\":true|false}.\nis_purchase is true only if the user wants to place/buy an order now.\n\nRequest: place an order for this water cup"
+    },
+    {
+      "seq": 2,
+      "t_ms": 2580.52,
+      "direction": "response",
+      "from": "llm",
+      "to": "agent",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "{\"category\":\"cup\",\"is_purchase\":true}"
+    },
+    {
+      "seq": 3,
+      "t_ms": 2580.67,
+      "direction": "request",
+      "from": "agent",
+      "to": "store-agent",
+      "channel": "backend",
+      "label": "a2a:get-card",
+      "payload": null
+    },
+    {
+      "seq": 4,
+      "t_ms": 2584.72,
+      "direction": "response",
+      "from": "store-agent",
+      "to": "agent",
+      "channel": "backend",
+      "label": "a2a:get-card",
+      "payload": {
+        "supportedInterfaces": [
+          {
+            "url": "http://127.0.0.1:8001/a2a",
+            "protocolBinding": "JSONRPC",
+            "protocolVersion": "1.0"
+          }
+        ],
+        "capabilities": {
+          "extensions": [
+            {
+              "description": "MiSArch skill risk and confirmation metadata.",
+              "params": {
+                "skills": {
+                  "browse": {
+                    "requires_confirmation": false,
+                    "risk_level": "none",
+                    "side_effects": false
+                  },
+                  "purchase": {
+                    "requires_confirmation": true,
+                    "risk_level": "high",
+                    "side_effects": true
+                  }
+                }
+              },
+              "uri": "https://misarch.dev/a2a/extensions/risk/v1"
+            }
+          ]
+        },
+        "defaultInputModes": [
+          "application/json"
+        ],
+        "defaultOutputModes": [
+          "application/json"
+        ],
+        "description": "MiSArch merchant store-agent exposing browse and purchase skills over A2A.",
+        "name": "misarch-store-agent",
+        "skills": [
+          {
+            "description": "Return candidate catalog products. Read-only; ranking is the caller's responsibility.",
+            "examples": [
+              "Find cups",
+              "Browse tents"
+            ],
+            "id": "browse",
+            "name": "Browse catalog",
+            "tags": [
+              "catalog",
+              "browse",
+              "shopping"
+            ]
+          },
+          {
+            "description": "After explicit confirmation, create and place an order and complete payment through MiSArch's local simulator.",
+            "examples": [
+              "Buy the selected product"
+            ],
+            "id": "purchase",
+            "name": "Complete purchase",
+            "tags": [
+              "order",
+              "purchase",
+              "shopping"
+            ]
+          }
+        ],
+        "version": "1.0.0"
+      }
+    },
+    {
+      "seq": 5,
+      "t_ms": 2584.98,
+      "direction": "request",
+      "from": "agent",
+      "to": "mcp-gateway",
+      "channel": "backend",
+      "label": "mcp:SendMessage",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "a2a-browse-acfeaca7-3bcc-461b-b4ea-b034b8526a26",
+        "method": "SendMessage",
+        "params": {
+          "message": {
+            "messageId": "4fd97aa0-f502-4836-b36d-63451d38ef3d",
+            "role": "ROLE_USER",
+            "parts": [
+              {
+                "data": {
+                  "skill": "browse",
+                  "input": {
+                    "top_k": 10,
+                    "query": "cup",
+                    "constraints": {}
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "t_ms": 2794.08,
+      "direction": "response",
+      "from": "mcp-gateway",
+      "to": "agent",
+      "channel": "backend",
+      "label": "mcp:SendMessage",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "a2a-browse-acfeaca7-3bcc-461b-b4ea-b034b8526a26",
+        "result": {
+          "task": {
+            "id": "019fa506-c0a5-7f0f-ab08-8c74c8e611b5",
+            "artifacts": [
+              {
+                "artifactId": "019fa506-c16f-7afe-be9b-3c7bf1960ae5",
+                "parts": [
+                  {
+                    "data": {
+                      "products": [
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Budget Plastic Cup",
+                          "product_id": "48332224-60fa-49fa-826a-eccfa243dd9c",
+                          "retail_price_cents": 799,
+                          "variant_id": "3418a596-071b-474f-8f8c-e85e8f21e549"
+                        },
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Trail Shelter Tent 2P",
+                          "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                          "retail_price_cents": 8999,
+                          "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+                        },
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Stainless Steel Cup 500ml",
+                          "product_id": "7ee1f2b3-49d5-4118-9157-c33afd6d7ec9",
+                          "retail_price_cents": 2499,
+                          "variant_id": "9541acd5-9763-48a6-a8b4-fda5d41730b1"
+                        },
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Borosilicate Glass Cup",
+                          "product_id": "a1af1a3b-c01b-4b15-a5aa-f820c385fbe8",
+                          "retail_price_cents": 1299,
+                          "variant_id": "07447fa9-023f-4b19-b49d-88a458b68a26"
+                        },
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Titanium Trail Cup",
+                          "product_id": "fe35ea6e-fa7e-42ef-a05d-8fb8bb3047b2",
+                          "retail_price_cents": 7999,
+                          "variant_id": "ed37e469-03fd-47f9-88db-033acf61a27f"
+                        }
+                      ],
+                      "returned_count": 5
+                    }
+                  }
+                ]
+              }
+            ],
+            "contextId": "019fa506-c0a6-78f3-af41-e583a6404842",
+            "history": [
+              {
+                "messageId": "4fd97aa0-f502-4836-b36d-63451d38ef3d",
+                "parts": [
+                  {
+                    "data": {
+                      "input": {
+                        "constraints": {},
+                        "query": "cup",
+                        "top_k": 10
+                      },
+                      "skill": "browse"
+                    }
+                  }
+                ],
+                "role": "ROLE_USER"
+              }
+            ],
+            "status": {
+              "state": "TASK_STATE_COMPLETED",
+              "timestamp": "2026-07-27T19:21:51.215737505Z"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 7,
+      "t_ms": 2794.4,
+      "direction": "request",
+      "from": "agent",
+      "to": "llm",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "You are a user-side shopping butler. Recommend ONE product from the ranked candidates and justify it by citing the user's preference. Be concise.\n\nTask: place an order for this water cup\nUser preference (private, applied locally): {\"material\": \"stainless steel\", \"min_capacity_ml\": 500, \"price_sensitivity\": \"medium\"}\nRanked candidates: [{\"categories\": [\"Video Demo Cups\"], \"currency\": \"EUR\", \"name\": \"Stainless Steel Cup 500ml\", \"product_id\": \"7ee1f2b3-49d5-4118-9157-c33afd6d7ec9\", \"retail_price_cents\": 2499, \"variant_id\": \"9541acd5-9763-48a6-a8b4-fda5d41730b1\"}, {\"categories\": [\"Video Demo Cups\"], \"currency\": \"EUR\", \"name\": \"Budget Plastic Cup\", \"product_id\": \"48332224-60fa-49fa-826a-eccfa243dd9c\", \"retail_price_cents\": 799, \"variant_id\": \"3418a596-071b-474f-8f8c-e85e8f21e549\"}, {\"categories\": [\"Video Demo Cups\"], \"currency\": \"EUR\", \"name\": \"Borosilicate Glass Cup\", \"product_id\": \"a1af1a3b-c01b-4b15-a5aa-f820c385fbe8\", \"retail_price_cents\": 1299, \"variant_id\": \"07447fa9-023f-4b19-b49d-88a458b68a26\"}, {\"categories\": [\"Video Demo Cups\"], \"currency\": \"EUR\", \"name\": \"Titanium Trail Cup\", \"product_id\": \"fe35ea6e-fa7e-42ef-a05d-8fb8bb3047b2\", \"retail_price_cents\": 7999, \"variant_id\": \"ed37e469-03fd-47f9-88db-033acf61a27f\"}]\n\nReturn ONLY JSON: {\"answer\":\"...\"}"
+    },
+    {
+      "seq": 8,
+      "t_ms": 7556.26,
+      "direction": "response",
+      "from": "llm",
+      "to": "agent",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "{\"answer\":\"Recommend Stainless Steel Cup 500ml (€24.99). It matches the requested stainless steel material and meets the minimum 500 ml capacity, with a reasonable mid-range price.\"}"
+    }
+  ],
+  "trace": [
+    {
+      "event": "fetch_card",
+      "duration_ms": 4.21
+    },
+    {
+      "event": "browse_task",
+      "duration_ms": 209.49,
+      "state": "completed"
+    },
+    {
+      "event": "risk_intercept",
+      "duration_ms": 0.0,
+      "held": true,
+      "advertised_risk_level": "high",
+      "advertised_requires_confirmation": true
+    },
+    {
+      "event": "final_answer",
+      "duration_ms": 4763.74
+    }
+  ],
+  "business_calls": 1,
+  "protocol_round_trips": 2,
+  "measurement": {
+    "scope": "agent_end_to_end",
+    "protocol": "a2a",
+    "duration_definition": "client monotonic wall-clock time from agent run start to terminal result",
+    "token_source": "responses_api_usage",
+    "hop_definition": "completed cross-agent request-response round trips",
+    "business_call_definition": "agent-facing business capability invocations",
+    "protocol_round_trip_definition": "completed application-protocol request-response exchanges"
+  }
+}

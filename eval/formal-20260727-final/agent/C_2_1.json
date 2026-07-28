@@ -1,0 +1,352 @@
+{
+  "success": true,
+  "arm": "a2a",
+  "task": "help me pick a tent",
+  "answer": "I recommend the Budget Trail Tent 2P. It is the only ranked option, and with your preference for a light tent plus low price sensitivity, it is the best available match to consider.",
+  "category": "tent",
+  "steps": 3,
+  "hops": 2,
+  "duration_ms": 7905.38,
+  "preference_used": true,
+  "profile_fields_disclosed": [],
+  "risk": {
+    "detected": false,
+    "confirmation_required": false,
+    "user_confirmed": null,
+    "purchase_task_sent": false
+  },
+  "inventory": {
+    "sufficient": true,
+    "candidate_count": 2
+  },
+  "price_review": {
+    "budget_cents": 8000,
+    "min_plausible_price_cents": 100,
+    "screened": 2,
+    "safe": 1,
+    "rejected_price_anomaly": 0,
+    "rejected_over_budget": 1,
+    "candidates": [
+      {
+        "id": "61273351-0fc9-4648-afca-5745463ee1b3",
+        "name": "Trail Shelter Tent 2P",
+        "price_cents": 8999,
+        "price_anomaly": false,
+        "over_budget": true,
+        "safe": false
+      },
+      {
+        "id": "d0c37825-a84a-4f07-a845-1683b20f1849",
+        "name": "Budget Trail Tent 2P",
+        "price_cents": 2999,
+        "price_anomaly": false,
+        "over_budget": false,
+        "safe": true
+      }
+    ]
+  },
+  "ranked_candidates": [
+    {
+      "categories": [
+        "Formal Evaluation Outdoors"
+      ],
+      "currency": "EUR",
+      "name": "Budget Trail Tent 2P",
+      "product_id": "d0c37825-a84a-4f07-a845-1683b20f1849",
+      "retail_price_cents": 2999,
+      "variant_id": "09e74050-d888-4ce4-b899-c993e967c2d9"
+    }
+  ],
+  "metrics": {
+    "llm_calls": 2,
+    "llm_failures": 0,
+    "llm_ms": 7712.2,
+    "prompt_tokens": 9039,
+    "completion_tokens": 73,
+    "total_tokens": 9112,
+    "token_usage_reports": 2,
+    "token_source": "responses_api_usage",
+    "http_calls": 4,
+    "backend_http_calls": 2,
+    "llm_http_calls": 2,
+    "bytes_sent": 1261,
+    "bytes_recv": 49518,
+    "backend_bytes_sent": 301,
+    "backend_bytes_recv": 2157,
+    "llm_bytes_sent": 960,
+    "llm_bytes_recv": 47361,
+    "cpu_seconds": 0.046,
+    "peak_rss_mb": 30.56,
+    "server": {
+      "total_alloc_bytes_delta": 518552,
+      "mallocs_delta": 8023,
+      "num_gc_delta": 1,
+      "heap_alloc_bytes_after": 1637784,
+      "num_goroutine_after": 90
+    },
+    "server_metric_scope": "task"
+  },
+  "transcript": [
+    {
+      "seq": 1,
+      "t_ms": 0.01,
+      "direction": "request",
+      "from": "agent",
+      "to": "llm",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "Classify a shopping request. Return ONLY JSON: {\"category\":\"<single english noun, e.g. cup or tent>\",\"is_purchase\":true|false}.\nis_purchase is true only if the user wants to place/buy an order now.\n\nRequest: help me pick a tent"
+    },
+    {
+      "seq": 2,
+      "t_ms": 4483.1,
+      "direction": "response",
+      "from": "llm",
+      "to": "agent",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "{\"category\":\"tent\",\"is_purchase\":false}"
+    },
+    {
+      "seq": 3,
+      "t_ms": 4483.44,
+      "direction": "request",
+      "from": "agent",
+      "to": "store-agent",
+      "channel": "backend",
+      "label": "a2a:get-card",
+      "payload": null
+    },
+    {
+      "seq": 4,
+      "t_ms": 4493.82,
+      "direction": "response",
+      "from": "store-agent",
+      "to": "agent",
+      "channel": "backend",
+      "label": "a2a:get-card",
+      "payload": {
+        "supportedInterfaces": [
+          {
+            "url": "http://127.0.0.1:8001/a2a",
+            "protocolBinding": "JSONRPC",
+            "protocolVersion": "1.0"
+          }
+        ],
+        "capabilities": {
+          "extensions": [
+            {
+              "description": "MiSArch skill risk and confirmation metadata.",
+              "params": {
+                "skills": {
+                  "browse": {
+                    "requires_confirmation": false,
+                    "risk_level": "none",
+                    "side_effects": false
+                  },
+                  "purchase": {
+                    "requires_confirmation": true,
+                    "risk_level": "high",
+                    "side_effects": true
+                  }
+                }
+              },
+              "uri": "https://misarch.dev/a2a/extensions/risk/v1"
+            }
+          ]
+        },
+        "defaultInputModes": [
+          "application/json"
+        ],
+        "defaultOutputModes": [
+          "application/json"
+        ],
+        "description": "MiSArch merchant store-agent exposing browse and purchase skills over A2A.",
+        "name": "misarch-store-agent",
+        "skills": [
+          {
+            "description": "Return candidate catalog products. Read-only; ranking is the caller's responsibility.",
+            "examples": [
+              "Find cups",
+              "Browse tents"
+            ],
+            "id": "browse",
+            "name": "Browse catalog",
+            "tags": [
+              "catalog",
+              "browse",
+              "shopping"
+            ]
+          },
+          {
+            "description": "After explicit confirmation, create and place an order and complete payment through MiSArch's local simulator.",
+            "examples": [
+              "Buy the selected product"
+            ],
+            "id": "purchase",
+            "name": "Complete purchase",
+            "tags": [
+              "order",
+              "purchase",
+              "shopping"
+            ]
+          }
+        ],
+        "version": "1.0.0"
+      }
+    },
+    {
+      "seq": 5,
+      "t_ms": 4496.62,
+      "direction": "request",
+      "from": "agent",
+      "to": "mcp-gateway",
+      "channel": "backend",
+      "label": "mcp:SendMessage",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "a2a-browse-2147011b-2c97-4036-96b9-deec6238dc81",
+        "method": "SendMessage",
+        "params": {
+          "message": {
+            "messageId": "b9e69aac-130b-4106-881b-19548b38a00e",
+            "role": "ROLE_USER",
+            "parts": [
+              {
+                "data": {
+                  "skill": "browse",
+                  "input": {
+                    "top_k": 10,
+                    "query": "tent",
+                    "constraints": {}
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "t_ms": 4675.84,
+      "direction": "response",
+      "from": "mcp-gateway",
+      "to": "agent",
+      "channel": "backend",
+      "label": "mcp:SendMessage",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "a2a-browse-2147011b-2c97-4036-96b9-deec6238dc81",
+        "result": {
+          "task": {
+            "id": "019fa501-9d85-7eae-a334-b46258600b43",
+            "artifacts": [
+              {
+                "artifactId": "019fa501-9e2f-760e-ae9f-4b377f0374d9",
+                "parts": [
+                  {
+                    "data": {
+                      "products": [
+                        {
+                          "categories": [
+                            "Video Demo Cups"
+                          ],
+                          "currency": "EUR",
+                          "name": "Trail Shelter Tent 2P",
+                          "product_id": "61273351-0fc9-4648-afca-5745463ee1b3",
+                          "retail_price_cents": 8999,
+                          "variant_id": "7fb46351-5375-4f10-bf8c-2d7e3edcce50"
+                        },
+                        {
+                          "categories": [
+                            "Formal Evaluation Outdoors"
+                          ],
+                          "currency": "EUR",
+                          "name": "Budget Trail Tent 2P",
+                          "product_id": "d0c37825-a84a-4f07-a845-1683b20f1849",
+                          "retail_price_cents": 2999,
+                          "variant_id": "09e74050-d888-4ce4-b899-c993e967c2d9"
+                        }
+                      ],
+                      "returned_count": 2
+                    }
+                  }
+                ]
+              }
+            ],
+            "contextId": "019fa501-9d86-766c-8056-3b61d6c4d3ee",
+            "history": [
+              {
+                "messageId": "b9e69aac-130b-4106-881b-19548b38a00e",
+                "parts": [
+                  {
+                    "data": {
+                      "input": {
+                        "constraints": {},
+                        "query": "tent",
+                        "top_k": 10
+                      },
+                      "skill": "browse"
+                    }
+                  }
+                ],
+                "role": "ROLE_USER"
+              }
+            ],
+            "status": {
+              "state": "TASK_STATE_COMPLETED",
+              "timestamp": "2026-07-27T19:16:14.511415002Z"
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 7,
+      "t_ms": 4676.0,
+      "direction": "request",
+      "from": "agent",
+      "to": "llm",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "You are a user-side shopping butler. Recommend ONE product from the ranked candidates and justify it by citing the user's preference. Be concise.\n\nTask: help me pick a tent\nUser preference (private, applied locally): {\"weight_preference\": \"light\", \"price_sensitivity\": \"low\"}\nRanked candidates: [{\"categories\": [\"Formal Evaluation Outdoors\"], \"currency\": \"EUR\", \"name\": \"Budget Trail Tent 2P\", \"product_id\": \"d0c37825-a84a-4f07-a845-1683b20f1849\", \"retail_price_cents\": 2999, \"variant_id\": \"09e74050-d888-4ce4-b899-c993e967c2d9\"}]\n\nReturn ONLY JSON: {\"answer\":\"...\"}"
+    },
+    {
+      "seq": 8,
+      "t_ms": 7905.29,
+      "direction": "response",
+      "from": "llm",
+      "to": "agent",
+      "channel": "llm",
+      "label": "responses",
+      "payload": "{\"answer\":\"I recommend the Budget Trail Tent 2P. It is the only ranked option, and with your preference for a light tent plus low price sensitivity, it is the best available match to consider.\"}"
+    }
+  ],
+  "trace": [
+    {
+      "event": "fetch_card",
+      "duration_ms": 12.91
+    },
+    {
+      "event": "browse_task",
+      "duration_ms": 179.72,
+      "state": "completed"
+    },
+    {
+      "event": "final_answer",
+      "duration_ms": 3229.41
+    }
+  ],
+  "business_calls": 1,
+  "protocol_round_trips": 2,
+  "measurement": {
+    "scope": "agent_end_to_end",
+    "protocol": "a2a",
+    "duration_definition": "client monotonic wall-clock time from agent run start to terminal result",
+    "token_source": "responses_api_usage",
+    "hop_definition": "completed cross-agent request-response round trips",
+    "business_call_definition": "agent-facing business capability invocations",
+    "protocol_round_trip_definition": "completed application-protocol request-response exchanges"
+  }
+}

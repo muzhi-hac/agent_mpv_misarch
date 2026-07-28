@@ -1,0 +1,311 @@
+{
+  "success": true,
+  "mcp_url": "http://127.0.0.1:8001/mcp",
+  "server_info": {
+    "name": "misarch-agent-gateway",
+    "version": "0.1.0"
+  },
+  "tool_count": 3,
+  "tool_names": [
+    "create_pending_order",
+    "get_product",
+    "list_products"
+  ],
+  "tools": [
+    {
+      "description": "Create a pending MiSArch order for a selected product variant. Controlled side effect: creates a shopping cart item and pending order only; does not place the order or trigger payment.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "MiSArch user UUID owning the shopping cart and order"
+          },
+          "product_variant_id": {
+            "type": "string",
+            "description": "MiSArch product variant UUID selected by the agent"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "number of items to reserve in the pending order; allowed range 1 to 3"
+          },
+          "shipment_method_id": {
+            "type": "string",
+            "description": "MiSArch shipment method UUID to use for this order item"
+          },
+          "shipment_address_id": {
+            "type": "string",
+            "description": "MiSArch user address UUID where the order should be shipped"
+          },
+          "invoice_address_id": {
+            "type": "string",
+            "description": "MiSArch user address UUID used for invoicing"
+          },
+          "payment_information_id": {
+            "type": "string",
+            "description": "MiSArch payment information UUID; payment is not triggered by this tool"
+          },
+          "coupon_ids": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "optional MiSArch coupon UUIDs to attach to the order item"
+          }
+        },
+        "required": [
+          "user_id",
+          "product_variant_id",
+          "quantity",
+          "shipment_method_id",
+          "shipment_address_id",
+          "invoice_address_id",
+          "payment_information_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "create_pending_order",
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string"
+          },
+          "order_status": {
+            "type": "string"
+          },
+          "shopping_cart_item_id": {
+            "type": "string"
+          },
+          "source_service": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "side_effects": {
+            "type": "string"
+          },
+          "next_action": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "order_status",
+          "shopping_cart_item_id",
+          "source_service",
+          "runtime",
+          "side_effects",
+          "next_action"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Get one public MiSArch catalog product by UUID. Read-only. No side effects.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "MiSArch product UUID returned by list_products"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_product",
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "product": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "product_id": {
+                "type": "string"
+              },
+              "variant_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "retail_price_cents": {
+                "type": "integer"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "categories": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "product_id",
+              "variant_id",
+              "name",
+              "description",
+              "retail_price_cents",
+              "currency",
+              "categories"
+            ],
+            "additionalProperties": false
+          },
+          "source_service": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "side_effects": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "found",
+          "source_service",
+          "runtime",
+          "side_effects"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "List up to 10 public MiSArch catalog products. Read-only. No side effects.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "top_k": {
+            "type": "integer",
+            "description": "maximum number of products to return; optional; default 5; allowed range 1 to 10"
+          }
+        },
+        "additionalProperties": false
+      },
+      "name": "list_products",
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string"
+                },
+                "variant_id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "retail_price_cents": {
+                  "type": "integer"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "categories": {
+                  "type": [
+                    "null",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "product_id",
+                "variant_id",
+                "name",
+                "retail_price_cents",
+                "currency",
+                "categories"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "returned_count": {
+            "type": "integer"
+          },
+          "source_service": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "side_effects": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "products",
+          "returned_count",
+          "source_service",
+          "runtime",
+          "side_effects"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "dangerous_tools_exposed": [],
+  "negative_cases": [
+    {
+      "name": "invalid_product_uuid",
+      "tool": "get_product",
+      "rejected": true,
+      "error": "tool get_product returned no structuredContent: {'content': [{'type': 'text', 'text': 'product_id must be a valid UUID: \"not-a-uuid\": invalid UUID length: 10'}], 'isError': True}"
+    },
+    {
+      "name": "missing_order_fields",
+      "tool": "create_pending_order",
+      "rejected": true,
+      "error": "tool create_pending_order returned no structuredContent: {'content': [{'type': 'text', 'text': 'validating \"arguments\": validating root: required: missing properties: [\"user_id\" \"product_variant_id\" \"quantity\" \"shipment_method_id\" \"shipment_address_id\" \"invoice_address_id\" \"payment_information_id\"]'}], 'isError': True}"
+    },
+    {
+      "name": "zero_quantity",
+      "tool": "create_pending_order",
+      "rejected": true,
+      "error": "tool create_pending_order returned no structuredContent: {'content': [{'type': 'text', 'text': 'quantity must be between 1 and 3, got 0'}], 'isError': True}"
+    },
+    {
+      "name": "excessive_quantity",
+      "tool": "create_pending_order",
+      "rejected": true,
+      "error": "tool create_pending_order returned no structuredContent: {'content': [{'type': 'text', 'text': 'quantity must be between 1 and 3, got 4'}], 'isError': True}"
+    },
+    {
+      "name": "generic_graphql_not_exposed",
+      "tool": "execute_graphql",
+      "rejected": true,
+      "error": "{\"code\": -32602, \"message\": \"unknown tool \\\"execute_graphql\\\"\"}"
+    }
+  ]
+}

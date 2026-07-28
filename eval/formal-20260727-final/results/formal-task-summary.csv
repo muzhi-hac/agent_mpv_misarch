@@ -1,0 +1,13 @@
+arm,task,n,success_count,success_rate,completion_count,completion_total,mean_duration_ms,median_duration_ms,p95_duration_ms,stdev_duration_ms
+B,help me pick a cheap water cup,5,5,1.0,5,5,19975.45,20747.55,21643.48,1637.77
+B,help me pick a tent,5,5,1.0,5,5,26162.93,23047.37,53168.75,15980.89
+B,help me pick a water cup,5,5,1.0,5,5,15413.32,12992.36,21996.56,6045.27
+B,place an order for this water cup,5,5,1.0,5,5,21496.54,20071.91,28351.96,3924.89
+D,help me pick a cheap water cup,5,5,1.0,5,5,17689.07,16457.99,21616.25,2670.5
+D,help me pick a tent,5,5,1.0,5,5,29813.25,27129.47,56295.55,17149.57
+D,help me pick a water cup,5,5,1.0,5,5,26106.06,21450.3,42839.37,9984.04
+D,place an order for this water cup,5,5,1.0,5,5,19371.63,16539.79,24411.43,4450.22
+C,help me pick a cheap water cup,5,5,1.0,5,5,6552.51,6291.12,7234.91,629.55
+C,help me pick a tent,5,5,1.0,5,5,8435.8,8263.38,10846.39,1521.14
+C,help me pick a water cup,5,5,1.0,5,5,7127.71,6230.9,9118.81,1471.19
+C,place an order for this water cup,5,5,1.0,5,5,7211.72,7021.65,9412.5,1408.6

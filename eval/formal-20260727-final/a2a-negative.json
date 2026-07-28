@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "mutation_expected": false,
+  "results": [
+    {
+      "id": "BUY-F01",
+      "passed": true,
+      "state": "input-required"
+    },
+    {
+      "id": "BUY-F05",
+      "passed": true,
+      "state": "input-required"
+    },
+    {
+      "id": "BUY-F07",
+      "passed": true,
+      "preview_state": "input-required",
+      "confirmation_state": "failed"
+    }
+  ]
+}
