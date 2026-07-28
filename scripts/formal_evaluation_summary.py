@@ -268,6 +268,7 @@ def render_markdown(summary: dict[str, Any]) -> str:
     baseline = summary["baseline"]
     agents = summary["agents"]
     validation = summary["mcp_validation"]
+    audit = summary.get("data_audit")
     lines = [
         "# Formal Evaluation Results",
         "",
@@ -279,12 +280,26 @@ def render_markdown(summary: dict[str, Any]) -> str:
         "- Arms B, D, and C measure complete agent tasks, including model time.",
         "- Agent latency statistics use successful runs; success rates use all runs.",
         "- Token values come from Responses API usage fields; no estimates are used.",
-        "",
-        "## Fixed-query Protocol Baseline",
-        "",
-        "| Path | Success | Mean ms | Median ms | P95 ms | Stdev ms |",
-        "|---|---:|---:|---:|---:|---:|",
     ]
+    if audit:
+        lines.extend(
+            [
+                f"- Dataset audit: `{audit['included_run_count']}` of "
+                f"`{audit['raw_run_count']}` final agent runs are valid and "
+                f"`{audit['excluded_run_count']}` are excluded.",
+                "- Run decisions and source SHA-256 digests are recorded in "
+                "`data-audit-manifest.json`.",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## Fixed-query Protocol Baseline",
+            "",
+            "| Path | Success | Mean ms | Median ms | P95 ms | Stdev ms |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+    )
     for key, label in (("graphql", "Direct GraphQL"), ("mcp", "MCP Gateway")):
         row = baseline[key]
         latency = row["latency_ms"]
@@ -436,6 +451,16 @@ def main() -> int:
         load_json(args.mcp_validation),
         load_json(args.a2a_negative),
     )
+    audit_path = pathlib.Path(args.agent_dir).parent / "data-audit-manifest.json"
+    if audit_path.exists():
+        audit = load_json(audit_path)
+        summary["data_audit"] = {
+            "raw_run_count": int(audit.get("raw_run_count", 0)),
+            "included_run_count": int(audit.get("included_run_count", 0)),
+            "excluded_run_count": int(audit.get("excluded_run_count", 0)),
+            "warning_count": int(audit.get("warning_count", 0)),
+            "global_error_log_empty": bool(audit.get("global_error_log_empty")),
+        }
     for path in write_outputs(summary, args.out_dir):
         print(f"wrote {path}")
     return 0

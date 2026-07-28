@@ -1,6 +1,6 @@
 # Formal Evaluation Results
 
-Generated at: `2026-07-27T19:32:21.527007+00:00`
+Generated at: `2026-07-28T21:51:20.265418+00:00`
 
 ## Measurement Scope
 
@@ -8,6 +8,8 @@ Generated at: `2026-07-27T19:32:21.527007+00:00`
 - Arms B, D, and C measure complete agent tasks, including model time.
 - Agent latency statistics use successful runs; success rates use all runs.
 - Token values come from Responses API usage fields; no estimates are used.
+- Dataset audit: `60` of `60` final agent runs are valid and `0` are excluded.
+- Run decisions and source SHA-256 digests are recorded in `data-audit-manifest.json`.
 
 ## Fixed-query Protocol Baseline
 

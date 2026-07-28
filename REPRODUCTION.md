@@ -347,6 +347,38 @@ eval/reproduction-results/
 Archive the raw JSON/CSV files together with plotting code. Do not submit an
 API key, local `.env` file, temporary auth file, or a real payment credential.
 
+## 13. Audit the submitted formal dataset
+
+The submitted `eval/formal-20260727-final` directory contains the 60 final
+agent trials. Audit every final record, required metric, scenario-completion
+condition, and expected tent fixture with:
+
+```bash
+python -m scripts.audit_formal_dataset eval/formal-20260727-final
+```
+
+The command writes `data-audit-manifest.json` and `DATA_AUDIT.md`. Every run is
+listed with its SHA-256 digest and inclusion or exclusion decision. Invalid
+final runs are excluded from valid-case analysis. Recovered intermediate model
+attempts remain part of a successful end-to-end run, and valid negative
+security findings remain in the security evaluation.
+
+Regenerate the aggregate and report tables with:
+
+```bash
+python -m scripts.visualize_arms \
+  eval/formal-20260727-final/agent \
+  --out eval/formal-20260727-final/agent
+
+python -m scripts.formal_evaluation_summary \
+  --baseline eval/formal-20260727-final/baseline/graphql-vs-mcp.json \
+  --agent-dir eval/formal-20260727-final/agent \
+  --security eval/formal-20260727-final/security/summary.json \
+  --mcp-validation eval/formal-20260727-final/mcp-validation.json \
+  --a2a-negative eval/formal-20260727-final/a2a-negative.json \
+  --out-dir eval/formal-20260727-final/results
+```
+
 ## Troubleshooting
 
 - `/healthz` is 200 but `/readyz` is 503: fix `MISARCH_GRAPHQL_URL` or wait for

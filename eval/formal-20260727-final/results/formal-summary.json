@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-27T19:32:21.527007+00:00",
+  "generated_at": "2026-07-28T21:51:20.265418+00:00",
   "baseline": {
     "scope": "fixed_query_protocol_path",
     "trial_count": 5,
@@ -500,5 +500,12 @@
     "mutation_expected": false,
     "passed": 3,
     "total": 3
+  },
+  "data_audit": {
+    "raw_run_count": 60,
+    "included_run_count": 60,
+    "excluded_run_count": 0,
+    "warning_count": 1,
+    "global_error_log_empty": true
   }
 }
