@@ -7,7 +7,7 @@ NETWORK="${NETWORK:-infrastructure-docker_default}"
 
 CATEGORY_ID="${CATEGORY_ID:-d5b1ff06-d194-4f8e-ad4a-7da4362dcaf6}"
 CHARACTERISTIC_ID="${CHARACTERISTIC_ID:-64c14b0d-bc23-4e53-82af-93865d35e91a}"
-TAX_RATE_ID="${TAX_RATE_ID:-fd656318-91ab-4e91-8546-2fbb34a2899f}"
+TAX_RATE_ID="${TAX_RATE_ID:-}"
 
 STAMP="$(date -u +%Y%m%d%H%M%S)"
 PRODUCT_NAME="${PRODUCT_NAME:-MCP Demo Album ${STAMP}}"
@@ -53,6 +53,15 @@ if [[ "$ACCESS_TOKEN" == "null" || -z "$ACCESS_TOKEN" ]]; then
   echo "$TOKEN_RESPONSE" | jq .
   echo "Failed to retrieve token" >&2
   exit 1
+fi
+
+TAX_RATE_RESPONSE="$(curl -s -X POST "$GRAPHQL_ENDPOINT" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{"query":"query AvailableTaxRates { taxRates(first: 10) { nodes { id } } }"}')"
+if ! echo "$TAX_RATE_RESPONSE" | jq -e --arg id "$TAX_RATE_ID" \
+  '.data.taxRates.nodes | any(.id == $id)' >/dev/null; then
+  TAX_RATE_ID="$(echo "$TAX_RATE_RESPONSE" | jq -er '.data.taxRates.nodes[0].id')"
 fi
 
 MUTATION='mutation CreateProduct($input: CreateProductInput!) {

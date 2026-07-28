@@ -20,7 +20,7 @@ GRANT_TYPE = os.environ.get("GRANT_TYPE", "password")
 GATLING_USERNAME = os.environ.get("GATLING_USERNAME", "gatling")
 GATLING_PASSWORD = os.environ.get("GATLING_PASSWORD", "123")
 GRAPHQL_ENDPOINT = os.environ.get("GRAPHQL_ENDPOINT", "http://gateway:8080/graphql")
-TAX_RATE_ID = os.environ.get("TAX_RATE_ID", "fd656318-91ab-4e91-8546-2fbb34a2899f")
+TAX_RATE_ID = os.environ.get("TAX_RATE_ID")
 SEED_ID = os.environ.get("SEED_ID") or datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 
 
@@ -96,6 +96,7 @@ CATALOG: list[dict[str, Any]] = [
             ("FlexCore Yoga Mat", "Non-slip yoga mat with carrying strap.", "Fitness", 2999, 1.25, 120),
             ("IronGrip Adjustable Dumbbell Pair", "Space-saving dumbbells for home strength training.", "Fitness", 7999, 10.0, 45),
             ("TrailPeak Hiking Backpack 30L", "Lightweight hiking backpack with rain cover.", "Hiking", 6499, 1.1, 70),
+            ("Budget Trail Tent 2P", "Lightweight two-person trail tent with rainfly and compact carry bag.", "Camping", 6999, 2.2, 60),
             ("HydroRun Stainless Steel Bottle", "Insulated water bottle that keeps drinks cold for 24 hours.", "Hydration", 2499, 0.38, 140),
             ("CampLite LED Lantern", "Rechargeable camping lantern with hanging hook.", "Camping", 3199, 0.5, 95),
             ("PacePro Jump Rope", "Adjustable speed rope for cardio workouts.", "Fitness", 1199, 0.18, 180),
@@ -235,6 +236,27 @@ def graphql(query: str, variables: dict[str, Any] | None, token: str) -> dict[st
     if payload.get("errors"):
         raise RuntimeError(json.dumps(payload["errors"], ensure_ascii=False))
     return payload["data"]
+
+
+def resolve_tax_rate_id(token: str, preferred_id: str | None = None) -> str:
+    data = graphql(
+        """
+        query RealisticCatalogTaxRate {
+          taxRates(first: 10) {
+            nodes { id }
+          }
+        }
+        """,
+        {},
+        token,
+    )
+    nodes = data["taxRates"]["nodes"]
+    if not nodes:
+        raise RuntimeError("no tax rate is available for realistic catalog products")
+    available = {str(node["id"]) for node in nodes}
+    if preferred_id in available:
+        return str(preferred_id)
+    return str(nodes[0]["id"])
 
 
 def slugify(value: str) -> str:
@@ -397,8 +419,10 @@ def create_inventory(token: str, variant_id: str, stock: int) -> int:
 
 
 def run() -> dict[str, Any]:
+    global TAX_RATE_ID
     start = time.perf_counter()
     token = get_access_token()
+    TAX_RATE_ID = resolve_tax_rate_id(token, TAX_RATE_ID)
     categories: list[dict[str, Any]] = []
     products: list[dict[str, Any]] = []
     product_index = 0
